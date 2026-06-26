@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VECTOR — Projektpriorisierung</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --c-bg: #f8fafc;
+    --c-surface: #ffffff;
+    --c-border: #e2e8f0;
+    --c-text: #1e293b;
+    --c-text-muted: #64748b;
+    --c-primary: #2563eb;
+    --c-primary-hover: #1d4ed8;
+    --c-danger: #dc2626;
+    --c-danger-hover: #b91c1c;
+    --c-success: #16a34a;
+    --c-warning: #d97706;
+    --c-shadow: 0 1px 3px rgba(0,0,0,.1);
+    --radius: 8px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); font-size: 14px; line-height: 1.5; }
+
+  /* Layout */
+  #app { display: flex; flex-direction: column; min-height: 100vh; }
+  header { background: var(--c-primary); color: white; padding: 0 24px; display: flex; align-items: center; gap: 32px; height: 52px; box-shadow: 0 2px 4px rgba(0,0,0,.2); flex-shrink: 0; }
+  header h1 { font-size: 18px; font-weight: 700; letter-spacing: 2px; }
+  nav { display: flex; gap: 4px; }
+  nav button { background: transparent; border: none; color: rgba(255,255,255,.75); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all .15s; }
+  nav button:hover { color: white; background: rgba(255,255,255,.15); }
+  nav button.active { color: white; background: rgba(255,255,255,.25); }
+  main { flex: 1; padding: 24px; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+  /* Cards & Surface */
+  .card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius); box-shadow: var(--c-shadow); }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid var(--c-border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .card-body { padding: 20px; }
+  .card-title { font-size: 15px; font-weight: 600; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; font-size: 13px; font-weight: 500; transition: all .15s; white-space: nowrap; }
+  .btn-primary { background: var(--c-primary); color: white; }
+  .btn-primary:hover { background: var(--c-primary-hover); }
+  .btn-secondary { background: white; border-color: var(--c-border); color: var(--c-text); }
+  .btn-secondary:hover { border-color: #94a3b8; }
+  .btn-danger { background: white; border-color: var(--c-danger); color: var(--c-danger); }
+  .btn-danger:hover { background: var(--c-danger); color: white; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  .btn-icon { padding: 6px; border-radius: 6px; background: none; border: 1px solid transparent; cursor: pointer; color: var(--c-text-muted); transition: all .15s; }
+  .btn-icon:hover { background: var(--c-bg); border-color: var(--c-border); color: var(--c-text); }
+  .btn-icon.danger:hover { background: #fee2e2; border-color: #fca5a5; color: var(--c-danger); }
+
+  /* Forms */
+  .form-group { margin-bottom: 16px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  input[type="text"], input[type="number"], input[type="date"], textarea, select {
+    width: 100%; padding: 8px 12px; border: 1px solid var(--c-border); border-radius: 6px;
+    font-size: 14px; font-family: var(--font); color: var(--c-text); background: white; transition: border-color .15s;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+  textarea { resize: vertical; min-height: 72px; }
+  input[type="range"] { width: 100%; accent-color: var(--c-primary); }
+  .color-input { width: 48px; height: 36px; padding: 2px; border-radius: 6px; cursor: pointer; }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--c-text-muted); border-bottom: 2px solid var(--c-border); white-space: nowrap; }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--c-primary); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--c-border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+  .rank { font-weight: 700; color: var(--c-text-muted); width: 32px; text-align: center; }
+
+  /* Scores */
+  .score-value { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .score-value.high { color: var(--c-success); }
+  .score-value.mid { color: var(--c-warning); }
+  .score-value.low { color: var(--c-danger); }
+  .wsjf-score { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--c-primary); }
+  .trend-up { color: var(--c-success); font-weight: 700; }
+  .trend-down { color: var(--c-danger); font-weight: 700; }
+  .trend-stable { color: var(--c-text-muted); }
+
+  /* Status badges */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+  .badge-aktiv { background: #dcfce7; color: #166534; }
+  .badge-zurückgestellt { background: #fef3c7; color: #92400e; }
+  .badge-abgeschlossen { background: #f1f5f9; color: #64748b; }
+
+  /* Bucket colors */
+  .bucket-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
+  .bucket-chip { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; gap: 4px; }
+
+  /* Capacity bar */
+  .capacity-bar-wrap { margin: 6px 0; }
+  .capacity-bar-bg { height: 8px; background: var(--c-bg); border-radius: 4px; border: 1px solid var(--c-border); overflow: hidden; }
+  .capacity-bar-fill { height: 100%; border-radius: 4px; transition: width .3s; }
+  .capacity-bar-fill.ok { background: var(--c-success); }
+  .capacity-bar-fill.over { background: var(--c-danger); }
+  .capacity-bar-fill.under { background: #d1d5db; }
+  .capacity-bar-fill.empty { background: #e5e7eb; }
+
+  /* Bucket section */
+  .bucket-section { margin-bottom: 24px; }
+  .bucket-header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius) var(--radius) 0 0; border-bottom: none; }
+  .bucket-header-info { flex: 1; }
+  .bucket-header-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .bucket-header-meta { font-size: 12px; color: var(--c-text-muted); margin-top: 2px; }
+  .bucket-header-stats { text-align: right; font-size: 12px; }
+  .bucket-table-wrap { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+
+  /* Toggle */
+  .toggle-group { display: flex; background: var(--c-bg); border: 1px solid var(--c-border); border-radius: 8px; padding: 3px; gap: 2px; }
+  .toggle-group button { border: none; background: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--c-text-muted); transition: all .15s; }
+  .toggle-group button.active { background: white; color: var(--c-text); box-shadow: var(--c-shadow); }
+
+  /* Filter bar */
+  .filter-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-bar select { width: auto; padding: 6px 10px; font-size: 13px; }
+  .filter-bar label { margin: 0; font-size: 12px; white-space: nowrap; }
+  .filter-bar-spacer { flex: 1; }
+
+  /* Scoring form */
+  .criterion-score-row { display: flex; align-items: start; gap: 16px; padding: 16px; background: var(--c-bg); border-radius: 8px; margin-bottom: 10px; }
+  .criterion-score-label { flex: 1; min-width: 0; }
+  .criterion-score-label strong { display: block; font-size: 14px; margin-bottom: 2px; }
+  .criterion-score-label span { font-size: 12px; color: var(--c-text-muted); }
+  .criterion-score-input { width: 180px; flex-shrink: 0; }
+  .score-display { text-align: center; font-size: 22px; font-weight: 700; color: var(--c-primary); margin-bottom: 4px; }
+  .score-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--c-text-muted); }
+
+  /* Live score preview */
+  .live-score-box { display: flex; gap: 20px; padding: 16px; background: linear-gradient(135deg, #eff6ff, #f0f9ff); border: 1px solid #bfdbfe; border-radius: var(--radius); margin: 16px 0; }
+  .live-score-item { text-align: center; flex: 1; }
+  .live-score-item .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--c-text-muted); margin-bottom: 4px; }
+  .live-score-item .value { font-size: 28px; font-weight: 700; color: var(--c-primary); }
+  .live-score-item .sub { font-size: 11px; color: var(--c-text-muted); }
+
+  /* Chart container */
+  .chart-wrap { position: relative; height: 220px; margin: 16px 0; }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--c-text-muted); }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { max-width: 300px; margin: 0 auto 16px; }
+
+  /* Score colors by value */
+  .score-high { background: #dcfce7; color: #166534; }
+  .score-mid { background: #fef3c7; color: #92400e; }
+  .score-low { background: #fee2e2; color: #991b1b; }
+
+  /* Tabs */
+  .tab-bar { display: flex; gap: 0; border-bottom: 2px solid var(--c-border); margin-bottom: 20px; }
+  .tab-bar button { background: none; border: none; padding: 10px 16px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--c-text-muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s; }
+  .tab-bar button.active { color: var(--c-primary); border-bottom-color: var(--c-primary); }
+  .tab-bar button:hover { color: var(--c-text); }
+
+  /* Criterion weight bar */
+  .weight-bar { height: 4px; background: var(--c-bg); border-radius: 2px; border: 1px solid var(--c-border); margin-top: 4px; overflow: hidden; }
+  .weight-bar-fill { height: 100%; background: var(--c-primary); border-radius: 2px; }
+
+  /* Print styles */
+  @media print {
+    body { background: white; font-size: 12px; }
+    header nav, .filter-bar, .btn, .btn-icon, #print-actions { display: none !important; }
+    .no-print { display: none !important; }
+    .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+    @page { size: A4 landscape; margin: 15mm; }
+    .bucket-section { break-inside: avoid; }
+    main { padding: 0; max-width: none; }
+    #print-header { display: block !important; }
+  }
+  #print-header { display: none; padding: 12px 0 16px; border-bottom: 2px solid #333; margin-bottom: 20px; }
+  #print-header h2 { font-size: 20px; }
+  #print-header p { color: #666; font-size: 12px; }
+
+  /* Helpers */
+  .flex { display: flex; }
+  .flex-col { flex-direction: column; }
+  .items-center { align-items: center; }
+  .gap-2 { gap: 8px; }
+  .gap-3 { gap: 12px; }
+  .text-muted { color: var(--c-text-muted); }
+  .text-sm { font-size: 12px; }
+  .font-bold { font-weight: 700; }
+  .mt-2 { margin-top: 8px; }
+  .mt-4 { margin-top: 16px; }
+  .mb-4 { margin-bottom: 16px; }
+  .text-right { text-align: right; }
+  .w-full { width: 100%; }
+
+  /* Confirm dialog */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+  .dialog { background: white; border-radius: 12px; padding: 24px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+  .dialog h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .dialog p { color: var(--c-text-muted); margin-bottom: 20px; }
+  .dialog-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* Effort labels */
+  .effort-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--c-text-muted); margin-top: 2px; }
+  .effort-labels span { text-align: center; width: 20%; }
+
+  /* Info box */
+  .info-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #1e40af; }
+  .warn-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #92400e; }
+
+  /* Notification toast */
+  #toast { position: fixed; bottom: 24px; right: 24px; background: #1e293b; color: white; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,.3); opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 2000; }
+  #toast.show { opacity: 1; }
+
+  .legend-row { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--c-text-muted); margin-bottom: 4px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>VECTOR</h1>
+    <nav id="main-nav">
+      <button class="active" onclick="navigate('dashboard')">📊 Dashboard</button>
+      <button onclick="navigate('projects')">📁 Projekte</button>
+      <button onclick="navigate('config')">⚙️ Konfiguration</button>
+    </nav>
+  </header>
+  <main id="main-content"></main>
+</div>
+
+<div id="print-header">
+  <h2>VECTOR — Projektpriorisierung</h2>
+  <p id="print-meta"></p>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// DEFAULT DATA
+// ============================================================
+const DEFAULT_CRITERIA = [
+  { id: 'crit-strategic', name: 'Strategische Passung', description: 'Alignment mit Produktstrategie und VMT-Portfolio', weight: 30, active: true, order: 0 },
+  { id: 'crit-market',    name: 'Marktpotenzial',       description: 'Adressierbare Opportunität, Anzahl potenzieller Kunden', weight: 30, active: true, order: 1 },
+  { id: 'crit-customer',  name: 'Kundennutzen / Effizienz', description: 'Messbarer Mehrwert für den Endkunden', weight: 25, active: true, order: 2 },
+  { id: 'crit-urgency',   name: 'Dringlichkeit / Cost of Delay', description: 'Wirtschaftliche Kosten / Risiken des Verschiebens', weight: 15, active: true, order: 3 }
+];
+const DEFAULT_BUCKETS = [
+  { id: 'bucket-strategic', name: 'Strategisch / RTI', color: '#2563eb', targetPercent: 60, locked: false, order: 0 },
+  { id: 'bucket-opport',    name: 'Opportunistisch / Turn-Key', color: '#7c3aed', targetPercent: 40, locked: false, order: 1 }
+];
+const EFFORT_LABELS = ['', '< 1 Woche', '1–4 Wochen', '1–2 Monate', '2–4 Monate', '> 4 Monate'];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = { projects: [], criteria: [], buckets: [], config: { bucketAllocationLocked: false }, ui: {
+  activeTab: 'dashboard', dashboardView: 'bucket',
+  filterStatus: 'aktiv', filterBucket: 'all',
+  rankSortBy: 'wsjf', rankSortDir: 'desc',
+  projectSubTab: 'list',  // 'list' | 'form' | 'detail'
+  editingProjectId: null, detailProjectId: null,
+  scoringMode: false,
+  configTab: 'criteria',  // 'criteria' | 'buckets'
+  editingCriterionId: null, editingBucketId: null,
+  showConfirm: null,  // { message, onConfirm }
+  activeChart: null
+}};
+let chartInstance = null;
+
+// ============================================================
+// STORAGE
+// ============================================================
+function loadState() {
+  try {
+    const p = localStorage.getItem('vector_projects');
+    const c = localStorage.getItem('vector_criteria');
+    const b = localStorage.getItem('vector_buckets');
+    const cfg = localStorage.getItem('vector_config');
+    state.projects = p ? JSON.parse(p) : [];
+    state.criteria = c ? JSON.parse(c) : JSON.parse(JSON.stringify(DEFAULT_CRITERIA));
+    state.buckets  = b ? JSON.parse(b) : JSON.parse(JSON.stringify(DEFAULT_BUCKETS));
+    state.config   = cfg ? JSON.parse(cfg) : { bucketAllocationLocked: false };
+  } catch(e) { console.error('loadState error', e); }
+}
+function saveData() {
+  localStorage.setItem('vector_projects', JSON.stringify(state.projects));
+  localStorage.setItem('vector_criteria', JSON.stringify(state.criteria));
+  localStorage.setItem('vector_buckets',  JSON.stringify(state.buckets));
+  localStorage.setItem('vector_config',   JSON.stringify(state.config));
+}
+
+// ============================================================
+// ID
+// ============================================================
+function newId() {
+  return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,7);
+}
+
+// ============================================================
+// SCORING ENGINE
+// ============================================================
+function calculateValueScore(scores, criteria) {
+  const activeCrit = criteria.filter(c => c.active);
+  let numerator = 0, denominator = 0;
+  for (const c of activeCrit) {
+    const s = scores[c.id];
+    if (s != null) { numerator += s * c.weight; denominator += c.weight; }
+  }
+  if (denominator === 0) return 0;
+  return Math.round((numerator / denominator) * 20 * 10) / 10;
+}
+function calculateWSJF(valueScore, effort) {
+  if (!effort || effort <= 0) return 0;
+  return Math.round((valueScore / effort) * 10) / 10;
+}
+function getLatestRound(project) {
+  if (!project.rounds || project.rounds.length === 0) return null;
+  return project.rounds[project.rounds.length - 1];
+}
+function getPrevRound(project) {
+  if (!project.rounds || project.rounds.length < 2) return null;
+  return project.rounds[project.rounds.length - 2];
+}
+function getTrend(project) {
+  const latest = getLatestRound(project);
+  const prev = getPrevRound(project);
+  if (!latest) return '—';
+  if (!prev) return '—';
+  const diff = latest.wsjfScore - prev.wsjfScore;
+  if (diff > 1) return '↑';
+  if (diff < -1) return '↓';
+  return '→';
+}
+function scoreClass(s) {
+  if (s >= 70) return 'high'; if (s >= 40) return 'mid'; return 'low';
+}
+
+// ============================================================
+// BUCKET STATS
+// ============================================================
+function getBucketStats(bucketId) {
+  const active = state.projects.filter(p => p.bucketId === bucketId && p.status === 'aktiv');
+  const allActive = state.projects.filter(p => p.status === 'aktiv');
+  const bucket = state.buckets.find(b => b.id === bucketId);
+  if (!bucket) return { count: 0, total: 0, target: 0, pct: 0 };
+  const total = allActive.length;
+  const pct = total > 0 ? Math.round((active.length / total) * 100) : 0;
+  return { count: active.length, total, target: bucket.targetPercent, pct };
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportCSV() {
+  const activeCriteria = state.criteria.filter(c => c.active);
+  const bom = '﻿';
+  const headers = ['Name', 'Bucket', 'Typ', 'Datum', 'Aufwand', ...activeCriteria.map(c => c.name), 'Wert-Score', 'WSJF-Score', 'Status'];
+  const rows = [headers];
+  const projects = state.projects.filter(p => p.status === 'aktiv').sort((a, b) => {
+    const ar = getLatestRound(a); const br = getLatestRound(b);
+    return (br ? br.wsjfScore : 0) - (ar ? ar.wsjfScore : 0);
+  });
+  for (const p of projects) {
+    const r = getLatestRound(p);
+    const bucket = state.buckets.find(b => b.id === p.bucketId);
+    const row = [
+      p.name, bucket ? bucket.name : '', p.type,
+      r ? r.date.slice(0,10) : '', r ? r.effort : '',
+      ...activeCriteria.map(c => r ? (r.scores[c.id] ?? '') : ''),
+      r ? r.valueScore : '', r ? r.wsjfScore : '', p.status
+    ];
+    rows.push(row);
+  }
+  const csv = bom + rows.map(r => r.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(';')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'VECTOR_Export_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('CSV exportiert ✓');
+}
+function openPrintView() {
+  const meta = document.getElementById('print-meta');
+  if (meta) {
+    const bucketSummary = state.buckets.map(b => b.name + ' ' + b.targetPercent + '%').join(' | ');
+    meta.textContent = 'Exportiert am ' + new Date().toLocaleDateString('de-DE') + ' | Buckets: ' + bucketSummary;
+  }
+  window.print();
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function navigate(tab) {
+  state.ui.activeTab = tab;
+  document.querySelectorAll('nav button').forEach((b, i) => {
+    b.classList.toggle('active', ['dashboard','projects','config'][i] === tab);
+  });
+  if (tab !== 'projects') { state.ui.projectSubTab = 'list'; state.ui.editingProjectId = null; state.ui.detailProjectId = null; }
+  render();
+}
+
+// ============================================================
+// RENDER — MAIN
+// ============================================================
+function render() {
+  const el = document.getElementById('main-content');
+  if (!el) return;
+  if (state.ui.showConfirm) { el.innerHTML += renderConfirmDialog(); return; }
+  if (state.ui.activeTab === 'dashboard') el.innerHTML = renderDashboard();
+  else if (state.ui.activeTab === 'projects') el.innerHTML = renderProjectsTab();
+  else if (state.ui.activeTab === 'config') el.innerHTML = renderConfigTab();
+  if (state.ui.activeTab === 'projects' && state.ui.detailProjectId) {
+    const p = state.projects.find(pr => pr.id === state.ui.detailProjectId);
+    if (p) { setTimeout(() => renderChart(p), 50); }
+  }
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const { dashboardView, filterStatus, filterBucket } = state.ui;
+  return `
+  <div id="print-header">
+    <h2>VECTOR — Projektpriorisierung</h2>
+    <p id="print-meta"></p>
+  </div>
+  <div class="filter-bar no-print">
+    <div class="toggle-group">
+      <button class="${dashboardView==='bucket'?'active':''}" onclick="setDashView('bucket')">📦 Bucket-Ansicht</button>
+      <button class="${dashboardView==='ranking'?'active':''}" onclick="setDashView('ranking')">🏆 Gesamtranking</button>
+    </div>
+    <div class="flex items-center gap-2">
+      <label style="margin:0">Status:</label>
+      <select onchange="state.ui.filterStatus=this.value;render()" style="width:auto;padding:6px 10px;font-size:13px">
+        <option value="aktiv" ${filterStatus==='aktiv'?'selected':''}>Aktiv</option>
+        <option value="zurückgestellt" ${filterStatus==='zurückgestellt'?'selected':''}>Zurückgestellt</option>
+        <option value="abgeschlossen" ${filterStatus==='abgeschlossen'?'selected':''}>Abgeschlossen</option>
+        <option value="all" ${filterStatus==='all'?'selected':''}>Alle</option>
+      </select>
+    </div>
+    <div class="flex items-center gap-2">
+      <label style="margin:0">Bucket:</label>
+      <select onchange="state.ui.filterBucket=this.value;render()" style="width:auto;padding:6px 10px;font-size:13px">
+        <option value="all" ${filterBucket==='all'?'selected':''}>Alle Buckets</option>
+        ${state.buckets.map(b => `<option value="${b.id}" ${filterBucket===b.id?'selected':''}>${b.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="filter-bar-spacer"></div>
+    <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📄 CSV Export</button>
+    <button class="btn btn-secondary btn-sm" onclick="openPrintView()">🖨 Drucken</button>
+  </div>
+  ${dashboardView === 'bucket' ? renderBucketView() : renderRankingView()}`;
+}
+
+function getFilteredProjects() {
+  return state.projects.filter(p => {
+    if (state.ui.filterStatus !== 'all' && p.status !== state.ui.filterStatus) return false;
+    if (state.ui.filterBucket !== 'all' && p.bucketId !== state.ui.filterBucket) return false;
+    return true;
+  });
+}
+
+function renderBucketView() {
+  const projects = getFilteredProjects();
+  if (state.buckets.length === 0) return `<div class="empty-state"><div class="icon">📦</div><p>Keine Buckets konfiguriert.</p><button class="btn btn-primary" onclick="navigate('config')">Buckets anlegen</button></div>`;
+  return state.buckets.sort((a,b) => a.order - b.order).map(bucket => {
+    const bp = projects.filter(p => p.bucketId === bucket.id).sort((a,b) => {
+      const ar = getLatestRound(a), br = getLatestRound(b);
+      return (br ? br.wsjfScore : 0) - (ar ? ar.wsjfScore : 0);
+    });
+    const stats = getBucketStats(bucket.id);
+    const pct = stats.pct;
+    const diff = pct - bucket.targetPercent;
+    const barClass = Math.abs(diff) <= 5 ? 'ok' : diff > 5 ? 'over' : 'under';
+    const bucketColor = bucket.color;
+    return `
+    <div class="bucket-section">
+      <div class="bucket-header">
+        <span class="bucket-dot" style="background:${bucketColor};width:14px;height:14px;border-radius:50%"></span>
+        <div class="bucket-header-info">
+          <div class="bucket-header-title" style="color:${bucketColor}">${bucket.name}</div>
+          <div class="bucket-header-meta">Ziel: <strong>${bucket.targetPercent}%</strong> &nbsp;·&nbsp; Aktiv: <strong>${stats.count}</strong> Projekte &nbsp;·&nbsp; Ist: <strong>${pct}%</strong> der aktiven Kapazität</div>
+          <div class="capacity-bar-wrap">
+            <div class="capacity-bar-bg">
+              <div class="capacity-bar-fill ${barClass}" style="width:${Math.min(pct,100)}%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="bucket-header-stats">
+          <span style="color:${barClass==='ok'?'var(--c-success)':barClass==='over'?'var(--c-danger)':'var(--c-text-muted)'}; font-weight:700; font-size:13px">
+            ${barClass==='ok'?'✓ Im Zielbereich':barClass==='over'?'⚠ Überallokiert':'○ Unterallokiert'}
+          </span>
+        </div>
+      </div>
+      <div class="bucket-table-wrap">
+        ${bp.length === 0 ? `<div style="padding:24px;text-align:center;color:var(--c-text-muted)">Keine Projekte in diesem Bucket</div>` :
+        `<div class="table-wrap"><table>
+          <thead><tr>
+            <th style="width:40px">Rg</th>
+            <th>Name</th>
+            <th>Typ</th>
+            <th>Wert-Score</th>
+            <th>Aufwand</th>
+            <th>WSJF</th>
+            <th>Trend</th>
+            <th>Status</th>
+            <th class="no-print"></th>
+          </tr></thead>
+          <tbody>
+            ${bp.map((p,i) => {
+              const r = getLatestRound(p);
+              const trend = getTrend(p);
+              return `<tr>
+                <td class="rank">${i+1}</td>
+                <td><strong>${esc(p.name)}</strong>${p.description ? `<br><span class="text-sm text-muted">${esc(p.description)}</span>` : ''}</td>
+                <td><span class="badge badge-aktiv" style="background:#f1f5f9;color:#475569">${esc(p.type)}</span></td>
+                <td>${r ? `<span class="score-value ${scoreClass(r.valueScore)}">${r.valueScore}</span>` : '<span class="text-muted">—</span>'}</td>
+                <td>${r ? `<span title="${EFFORT_LABELS[r.effort]}">${r.effort}</span>` : '<span class="text-muted">—</span>'}</td>
+                <td>${r ? `<span class="wsjf-score">${r.wsjfScore}</span>` : '<span class="text-muted">—</span>'}</td>
+                <td><span class="${trend==='↑'?'trend-up':trend==='↓'?'trend-down':'trend-stable'}" title="${trend==='↑'?'WSJF gestiegen':trend==='↓'?'WSJF gesunken':'Stabil'}">${trend}</span></td>
+                <td><span class="badge badge-${p.status}">${p.status}</span></td>
+                <td class="no-print"><button class="btn btn-secondary btn-sm" onclick="openDetail('${p.id}')">Detail</button></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table></div>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderRankingView() {
+  const { rankSortBy, rankSortDir } = state.ui;
+  let projects = getFilteredProjects();
+  projects = projects.sort((a, b) => {
+    const ar = getLatestRound(a), br = getLatestRound(b);
+    let va, vb;
+    if (rankSortBy === 'wsjf') { va = ar ? ar.wsjfScore : 0; vb = br ? br.wsjfScore : 0; }
+    else if (rankSortBy === 'value') { va = ar ? ar.valueScore : 0; vb = br ? br.valueScore : 0; }
+    else if (rankSortBy === 'name') { va = a.name.toLowerCase(); vb = b.name.toLowerCase(); return rankSortDir==='asc' ? va.localeCompare(vb) : vb.localeCompare(va); }
+    else if (rankSortBy === 'date') { va = ar ? ar.date : ''; vb = br ? br.date : ''; }
+    else { va = 0; vb = 0; }
+    return rankSortDir === 'asc' ? va - vb : vb - va;
+  });
+  const sortArrow = (col) => rankSortBy === col ? (rankSortDir === 'asc' ? ' ↑' : ' ↓') : '';
+  const sortClick = (col) => `setSortRanking('${col}')`;
+  if (projects.length === 0) return `<div class="card"><div class="empty-state"><div class="icon">🏆</div><p>Keine Projekte mit aktuellem Filter.</p></div></div>`;
+  return `<div class="card">
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th style="width:40px">Rg</th>
+        <th>Name</th>
+        <th>Bucket</th>
+        <th>Typ</th>
+        <th class="sortable" onclick="${sortClick('value')}">Wert-Score${sortArrow('value')}</th>
+        <th>Aufwand</th>
+        <th class="sortable" onclick="${sortClick('wsjf')}">WSJF${sortArrow('wsjf')}</th>
+        <th>Trend</th>
+        <th class="sortable" onclick="${sortClick('date')}">Letzte Bew.${sortArrow('date')}</th>
+        <th>Status</th>
+        <th class="no-print"></th>
+      </tr></thead>
+      <tbody>
+        ${projects.map((p,i) => {
+          const r = getLatestRound(p);
+          const bucket = state.buckets.find(b => b.id === p.bucketId);
+          const trend = getTrend(p);
+          return `<tr>
+            <td class="rank">${i+1}</td>
+            <td><strong>${esc(p.name)}</strong></td>
+            <td>${bucket ? `<span class="bucket-chip" style="background:${bucket.color}22;color:${bucket.color}"><span class="bucket-dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>` : '<span class="text-muted">—</span>'}</td>
+            <td><span class="badge" style="background:#f1f5f9;color:#475569">${esc(p.type)}</span></td>
+            <td>${r ? `<span class="score-value ${scoreClass(r.valueScore)}">${r.valueScore}</span>` : '<span class="text-muted">—</span>'}</td>
+            <td>${r ? `<span title="${EFFORT_LABELS[r.effort]}">${r.effort}</span>` : '<span class="text-muted">—</span>'}</td>
+            <td>${r ? `<span class="wsjf-score">${r.wsjfScore}</span>` : '<span class="text-muted">—</span>'}</td>
+            <td><span class="${trend==='↑'?'trend-up':trend==='↓'?'trend-down':'trend-stable'}">${trend}</span></td>
+            <td>${r ? `<span class="text-sm text-muted">${new Date(r.date).toLocaleDateString('de-DE')}</span>` : '<span class="text-muted">—</span>'}</td>
+            <td><span class="badge badge-${p.status}">${p.status}</span></td>
+            <td class="no-print"><button class="btn btn-secondary btn-sm" onclick="openDetail('${p.id}')">Detail</button></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div>
+  </div>`;
+}
+
+// ============================================================
+// PROJECTS TAB
+// ============================================================
+function renderProjectsTab() {
+  const { projectSubTab } = state.ui;
+  if (projectSubTab === 'form') return renderProjectForm();
+  if (projectSubTab === 'detail') return renderProjectDetail();
+  return renderProjectList();
+}
+
+function renderProjectList() {
+  const projects = state.projects.sort((a,b) => {
+    const ar = getLatestRound(a), br = getLatestRound(b);
+    return (br ? br.wsjfScore : 0) - (ar ? ar.wsjfScore : 0);
+  });
+  return `
+  <div class="flex items-center gap-2 mb-4">
+    <h2 style="font-size:18px;font-weight:700">Projekte</h2>
+    <div class="filter-bar-spacer"></div>
+    <button class="btn btn-primary" onclick="openProjectForm(null)">+ Neues Projekt</button>
+  </div>
+  ${projects.length === 0 ? `
+    <div class="card"><div class="empty-state"><div class="icon">📁</div><p>Noch keine Projekte angelegt.</p><button class="btn btn-primary" onclick="openProjectForm(null)">Erstes Projekt anlegen</button></div></div>
+  ` : `
+  <div class="card">
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th>Name</th>
+        <th>Bucket</th>
+        <th>Typ</th>
+        <th>Wert-Score</th>
+        <th>WSJF</th>
+        <th>Runden</th>
+        <th>Status</th>
+        <th></th>
+      </tr></thead>
+      <tbody>
+        ${projects.map(p => {
+          const r = getLatestRound(p);
+          const bucket = state.buckets.find(b => b.id === p.bucketId);
+          return `<tr>
+            <td><strong>${esc(p.name)}</strong>${p.description ? `<br><span class="text-sm text-muted">${esc(p.description)}</span>` : ''}</td>
+            <td>${bucket ? `<span class="bucket-chip" style="background:${bucket.color}22;color:${bucket.color}"><span class="bucket-dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>` : '—'}</td>
+            <td>${esc(p.type)}</td>
+            <td>${r ? `<span class="score-value ${scoreClass(r.valueScore)}">${r.valueScore}</span>` : '<span class="text-muted">—</span>'}</td>
+            <td>${r ? `<span class="wsjf-score">${r.wsjfScore}</span>` : '<span class="text-muted">—</span>'}</td>
+            <td><span class="text-muted">${p.rounds.length}</span></td>
+            <td><span class="badge badge-${p.status}">${p.status}</span></td>
+            <td style="white-space:nowrap">
+              <button class="btn btn-secondary btn-sm" onclick="openDetail('${p.id}')">Detail</button>
+              <button class="btn-icon" onclick="openProjectForm('${p.id}')" title="Bearbeiten">✎</button>
+              <button class="btn-icon danger" onclick="confirmDelete('${p.id}')" title="Löschen">🗑</button>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div>
+  </div>`}`;
+}
+
+function renderProjectForm() {
+  const isNew = !state.ui.editingProjectId;
+  const p = isNew ? null : state.projects.find(pr => pr.id === state.ui.editingProjectId);
+  const today = new Date().toISOString().slice(0,10);
+  return `
+  <div class="flex items-center gap-2 mb-4">
+    <button class="btn btn-secondary btn-sm" onclick="state.ui.projectSubTab='list';state.ui.editingProjectId=null;render()">← Zurück</button>
+    <h2 style="font-size:18px;font-weight:700">${isNew ? 'Neues Projekt' : 'Projekt bearbeiten'}</h2>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <form onsubmit="saveProject(event)">
+        <div class="form-group">
+          <label>Projektname *</label>
+          <input type="text" id="f-name" value="${p ? esc(p.name) : ''}" required placeholder="z.B. Kunden-Portal v3">
+        </div>
+        <div class="form-group">
+          <label>Kurzbeschreibung</label>
+          <textarea id="f-desc" placeholder="Kurze Beschreibung des Projekts">${p ? esc(p.description) : ''}</textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Typ *</label>
+            <select id="f-type" required>
+              ${['RTI-Produkt','Turn-Key','Feature'].map(t => `<option value="${t}" ${p && p.type===t?'selected':''}>${t}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Bucket *</label>
+            <select id="f-bucket" required>
+              <option value="">— Bucket wählen —</option>
+              ${state.buckets.map(b => `<option value="${b.id}" ${p && p.bucketId===b.id?'selected':''}>${b.name}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Status</label>
+            <select id="f-status">
+              ${['aktiv','zurückgestellt','abgeschlossen'].map(s => `<option value="${s}" ${p && p.status===s?'selected':!p&&s==='aktiv'?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button type="submit" class="btn btn-primary">💾 Speichern</button>
+          <button type="button" class="btn btn-secondary" onclick="state.ui.projectSubTab='list';state.ui.editingProjectId=null;render()">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+  </div>`;
+}
+
+function renderProjectDetail() {
+  const p = state.projects.find(pr => pr.id === state.ui.detailProjectId);
+  if (!p) return `<div class="card"><div class="card-body">Projekt nicht gefunden.</div></div>`;
+  const bucket = state.buckets.find(b => b.id === p.bucketId);
+  const latest = getLatestRound(p);
+  const activeCrit = state.criteria.filter(c => c.active);
+  if (state.ui.scoringMode) return renderScoringForm(p);
+  return `
+  <div class="flex items-center gap-2 mb-4">
+    <button class="btn btn-secondary btn-sm" onclick="state.ui.projectSubTab='list';state.ui.detailProjectId=null;render()">← Zurück</button>
+    <h2 style="font-size:18px;font-weight:700">${esc(p.name)}</h2>
+    ${bucket ? `<span class="bucket-chip" style="background:${bucket.color}22;color:${bucket.color};margin-left:4px"><span class="bucket-dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>` : ''}
+    <span class="badge badge-${p.status}" style="margin-left:4px">${p.status}</span>
+    <div class="filter-bar-spacer"></div>
+    <button class="btn btn-secondary btn-sm" onclick="openProjectForm('${p.id}')">✎ Bearbeiten</button>
+    <button class="btn btn-primary" onclick="state.ui.scoringMode=true;render()">+ Neue Bewertung</button>
+  </div>
+  ${p.description ? `<p class="text-muted mb-4">${esc(p.description)}</p>` : ''}
+  ${latest ? `
+  <div class="live-score-box mb-4">
+    <div class="live-score-item">
+      <div class="label">Wert-Score</div>
+      <div class="value ${scoreClass(latest.valueScore)}" style="color:${latest.valueScore>=70?'var(--c-success)':latest.valueScore>=40?'var(--c-warning)':'var(--c-danger)'}">${latest.valueScore}</div>
+      <div class="sub">von 100</div>
+    </div>
+    <div class="live-score-item">
+      <div class="label">Aufwand</div>
+      <div class="value" style="color:var(--c-text);font-size:22px">${latest.effort}</div>
+      <div class="sub">${EFFORT_LABELS[latest.effort]}</div>
+    </div>
+    <div class="live-score-item">
+      <div class="label">WSJF-Score</div>
+      <div class="value">${latest.wsjfScore}</div>
+      <div class="sub">Sequenzierungs-Index</div>
+    </div>
+    <div class="live-score-item">
+      <div class="label">Trend</div>
+      <div class="value" style="font-size:28px;line-height:1">${getTrend(p)}</div>
+      <div class="sub">vs. Vorperiode</div>
+    </div>
+  </div>
+  ` : `<div class="info-box mb-4">Noch keine Bewertungsrunde. Klicke "+ Neue Bewertung" um zu beginnen.</div>`}
+  <div class="card mb-4">
+    <div class="card-header"><span class="card-title">Score-Verlauf</span></div>
+    <div class="card-body">
+      ${p.rounds.length < 2 ? `<div class="text-muted text-sm">Score-Verlauf wird ab 2 Bewertungsrunden angezeigt.</div>` : `<div class="chart-wrap"><canvas id="score-chart"></canvas></div>`}
+    </div>
+  </div>
+  ${p.rounds.length > 0 ? `
+  <div class="card">
+    <div class="card-header"><span class="card-title">Bewertungsrunden (${p.rounds.length})</span></div>
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th>Datum</th>
+        ${activeCrit.map(c => `<th>${esc(c.name)}</th>`).join('')}
+        <th>Aufwand</th>
+        <th>Wert-Score</th>
+        <th>WSJF</th>
+        ${p.rounds.some(r => r.note) ? '<th>Notiz</th>' : ''}
+      </tr></thead>
+      <tbody>
+        ${[...p.rounds].reverse().map((r, i) => `<tr${i===0?' style="background:#f0f9ff"':''}>
+          <td>${new Date(r.date).toLocaleDateString('de-DE')}</td>
+          ${activeCrit.map(c => `<td>${r.scores[c.id] != null ? r.scores[c.id] : '<span class="text-muted">—</span>'}</td>`).join('')}
+          <td><span title="${EFFORT_LABELS[r.effort]}">${r.effort}</span></td>
+          <td><span class="score-value ${scoreClass(r.valueScore)}">${r.valueScore}</span></td>
+          <td><span class="wsjf-score">${r.wsjfScore}</span></td>
+          ${p.rounds.some(r => r.note) ? `<td class="text-sm text-muted">${r.note ? esc(r.note) : ''}</td>` : ''}
+        </tr>`).join('')}
+      </tbody>
+    </table></div>
+  </div>` : ''}`;
+}
+
+function renderScoringForm(p) {
+  const activeCrit = state.criteria.filter(c => c.active);
+  const today = new Date().toISOString().slice(0,10);
+  return `
+  <div class="flex items-center gap-2 mb-4">
+    <button class="btn btn-secondary btn-sm" onclick="state.ui.scoringMode=false;render()">← Zurück</button>
+    <h2 style="font-size:18px;font-weight:700">Neue Bewertung: ${esc(p.name)}</h2>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="info-box mb-4">
+        <strong>Zweistufiges Scoring:</strong> Stufe 1 bewertet den strategischen Wert (4 Kriterien, Skala 1–5).
+        Stufe 2: Aufwand als Divisor → WSJF = Wert-Score / Aufwand.
+      </div>
+      <div id="score-preview" class="live-score-box" style="margin-bottom:20px">
+        <div class="live-score-item"><div class="label">Wert-Score</div><div class="value" id="prev-value">—</div><div class="sub">von 100</div></div>
+        <div class="live-score-item"><div class="label">Aufwand</div><div class="value" id="prev-effort">—</div><div class="sub">Divisor</div></div>
+        <div class="live-score-item"><div class="label">WSJF-Score</div><div class="value" id="prev-wsjf">—</div><div class="sub">Prioritätsindex</div></div>
+      </div>
+      <form onsubmit="saveScoringRound(event, '${p.id}')">
+        <div class="form-group">
+          <label>Bewertungsdatum</label>
+          <input type="date" id="s-date" value="${today}" style="width:200px">
+        </div>
+        <h3 style="font-size:14px;font-weight:600;margin:20px 0 12px;text-transform:uppercase;letter-spacing:.5px;color:var(--c-text-muted)">Stufe 1 — Wert-Kriterien</h3>
+        ${activeCrit.map(c => `
+        <div class="criterion-score-row">
+          <div class="criterion-score-label">
+            <strong>${esc(c.name)}</strong>
+            <span>${esc(c.description)}</span>
+            <div style="font-size:11px;color:var(--c-text-muted);margin-top:2px">Gewicht: ${c.weight} (${Math.round(c.weight / activeCrit.reduce((s,x)=>s+x.weight,0) * 100)}% normiert)</div>
+          </div>
+          <div class="criterion-score-input">
+            <div class="score-display" id="disp-${c.id}">—</div>
+            <input type="range" min="1" max="5" step="1" id="range-${c.id}"
+              oninput="updateScoreDisplay('${c.id}');updateLiveScore()"
+              style="width:100%">
+            <div class="score-labels"><span>1<br>Minimal</span><span>2</span><span>3<br>Mittel</span><span>4</span><span>5<br>Hoch</span></div>
+          </div>
+        </div>`).join('')}
+        <h3 style="font-size:14px;font-weight:600;margin:24px 0 12px;text-transform:uppercase;letter-spacing:.5px;color:var(--c-text-muted)">Stufe 2 — Aufwand (Divisor)</h3>
+        <div class="criterion-score-row">
+          <div class="criterion-score-label">
+            <strong>Aufwand</strong>
+            <span>Geschätzter Implementierungsaufwand. Wirkt als Divisor auf den Wert-Score.</span>
+          </div>
+          <div class="criterion-score-input">
+            <div class="score-display" id="disp-effort">—</div>
+            <input type="range" min="1" max="5" step="1" id="range-effort"
+              oninput="updateEffortDisplay();updateLiveScore()">
+            <div class="effort-labels">
+              <span>&lt;1W</span><span>1–4W</span><span>1–2M</span><span>2–4M</span><span>&gt;4M</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group mt-4">
+          <label>Notiz (optional)</label>
+          <textarea id="s-note" placeholder="z.B. Neues Kundenfeedback, aktualisierte Einschätzung..."></textarea>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button type="submit" class="btn btn-primary">💾 Bewertung speichern</button>
+          <button type="button" class="btn btn-secondary" onclick="state.ui.scoringMode=false;render()">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// CONFIG TAB
+// ============================================================
+function renderConfigTab() {
+  const { configTab } = state.ui;
+  return `
+  <h2 style="font-size:18px;font-weight:700;margin-bottom:20px">Konfiguration</h2>
+  <div class="tab-bar">
+    <button class="${configTab==='criteria'?'active':''}" onclick="state.ui.configTab='criteria';render()">📋 Bewertungsmodell</button>
+    <button class="${configTab==='buckets'?'active':''}" onclick="state.ui.configTab='buckets';render()">📦 Strategic Buckets</button>
+    <button class="${configTab==='export'?'active':''}" onclick="state.ui.configTab='export';render()">📤 Export & Backup</button>
+  </div>
+  ${configTab === 'criteria' ? renderCriteriaConfig() : configTab === 'buckets' ? renderBucketsConfig() : renderExportConfig()}`;
+}
+
+function renderCriteriaConfig() {
+  const criteria = [...state.criteria].sort((a,b) => a.order - b.order);
+  const totalWeight = criteria.filter(c => c.active).reduce((s,c) => s+c.weight, 0);
+  const editId = state.ui.editingCriterionId;
+  return `
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Bewertungskriterien</span>
+      <button class="btn btn-primary btn-sm" onclick="state.ui.editingCriterionId='new';render()">+ Kriterium</button>
+    </div>
+    <div class="card-body">
+      <div class="info-box mb-4">
+        Gewichte werden automatisch auf 100% normiert. Aufwand ist kein Kriterium — er wirkt immer als Divisor (WSJF = Wert-Score / Aufwand).
+        <br><strong>Summe aktiver Gewichte: ${totalWeight}</strong> (normiert auf 100%)
+      </div>
+      ${editId === 'new' ? renderCriterionForm(null) : ''}
+      ${criteria.map(c => {
+        if (editId === c.id) return renderCriterionForm(c);
+        const pct = totalWeight > 0 ? Math.round(c.weight / totalWeight * 100) : 0;
+        return `<div class="flex items-center gap-2 mb-3 p-3" style="background:var(--c-bg);border-radius:8px;opacity:${c.active?1:.5}">
+          <div style="flex:1">
+            <div class="flex items-center gap-2">
+              <strong>${esc(c.name)}</strong>
+              ${!c.active ? '<span class="badge" style="background:#fee2e2;color:#991b1b">Legacy</span>' : ''}
+            </div>
+            <div class="text-sm text-muted">${esc(c.description)}</div>
+            <div class="flex items-center gap-2 mt-2">
+              <span class="text-sm" style="font-weight:600">${c.weight} (${pct}%)</span>
+              <div class="weight-bar" style="flex:1"><div class="weight-bar-fill" style="width:${pct}%"></div></div>
+            </div>
+          </div>
+          ${c.active ? `<button class="btn-icon" onclick="state.ui.editingCriterionId='${c.id}';render()" title="Bearbeiten">✎</button>
+          <button class="btn-icon danger" onclick="confirmDeleteCriterion('${c.id}')" title="Löschen">🗑</button>` : ''}
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function renderCriterionForm(c) {
+  const isNew = !c;
+  return `<div class="card mb-4" style="border-color:var(--c-primary)">
+    <div class="card-body">
+      <h3 style="font-size:14px;font-weight:600;margin-bottom:16px">${isNew ? 'Neues Kriterium' : 'Kriterium bearbeiten'}</h3>
+      <form onsubmit="saveCriterion(event,'${isNew ? '' : c.id}')">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Name *</label>
+            <input type="text" id="cf-name" value="${c ? esc(c.name) : ''}" required>
+          </div>
+          <div class="form-group">
+            <label>Gewicht (Zahl)</label>
+            <input type="number" id="cf-weight" value="${c ? c.weight : 25}" min="1" max="100" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Beschreibung</label>
+          <input type="text" id="cf-desc" value="${c ? esc(c.description) : ''}">
+        </div>
+        <div class="flex gap-2">
+          <button type="submit" class="btn btn-primary btn-sm">Speichern</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="state.ui.editingCriterionId=null;render()">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+  </div>`;
+}
+
+function renderBucketsConfig() {
+  const { bucketAllocationLocked } = state.config;
+  const buckets = [...state.buckets].sort((a,b) => a.order - b.order);
+  const totalTarget = buckets.reduce((s,b) => s+b.targetPercent, 0);
+  const editId = state.ui.editingBucketId;
+  return `
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Strategic Buckets</span>
+      <div class="flex items-center gap-2">
+        <label style="margin:0;text-transform:none;letter-spacing:0;font-size:13px;font-weight:400;display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" ${bucketAllocationLocked?'checked':''} onchange="state.config.bucketAllocationLocked=this.checked;saveData();render()">
+          🔒 Aufteilung gesperrt
+        </label>
+        ${!bucketAllocationLocked ? `<button class="btn btn-primary btn-sm" onclick="state.ui.editingBucketId='new';render()">+ Bucket</button>` : ''}
+      </div>
+    </div>
+    <div class="card-body">
+      ${Math.abs(totalTarget - 100) > 0.5 ? `<div class="warn-box mb-4">⚠ Summe der Zielanteile: <strong>${totalTarget}%</strong> — muss genau 100% ergeben</div>` : `<div class="info-box mb-4">✓ Bucket-Summe: <strong>100%</strong></div>`}
+      ${editId === 'new' ? renderBucketForm(null) : ''}
+      ${buckets.map(b => {
+        if (editId === b.id) return renderBucketForm(b);
+        return `<div class="flex items-center gap-3 mb-3 p-3" style="background:var(--c-bg);border-radius:8px;border-left:4px solid ${b.color}">
+          <div style="flex:1">
+            <div class="flex items-center gap-2">
+              <span class="bucket-dot" style="background:${b.color};width:14px;height:14px;border-radius:50%"></span>
+              <strong>${esc(b.name)}</strong>
+              <span class="badge" style="background:${b.color}22;color:${b.color}">${b.targetPercent}%</span>
+            </div>
+            <div class="capacity-bar-bg mt-2" style="height:8px">
+              <div class="capacity-bar-fill ok" style="width:${b.targetPercent}%;background:${b.color}"></div>
+            </div>
+          </div>
+          ${!bucketAllocationLocked ? `<button class="btn-icon" onclick="state.ui.editingBucketId='${b.id}';render()" title="Bearbeiten">✎</button>
+          <button class="btn-icon danger" onclick="confirmDeleteBucket('${b.id}')" title="Löschen">🗑</button>` : ''}
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function renderBucketForm(b) {
+  const isNew = !b;
+  return `<div class="card mb-4" style="border-color:var(--c-primary)">
+    <div class="card-body">
+      <h3 style="font-size:14px;font-weight:600;margin-bottom:16px">${isNew ? 'Neuer Bucket' : 'Bucket bearbeiten'}</h3>
+      <form onsubmit="saveBucket(event,'${isNew ? '' : b.id}')">
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Name *</label>
+            <input type="text" id="bf-name" value="${b ? esc(b.name) : ''}" required>
+          </div>
+          <div class="form-group">
+            <label>Zielanteil % *</label>
+            <input type="number" id="bf-target" value="${b ? b.targetPercent : 0}" min="0" max="100" required>
+          </div>
+          <div class="form-group">
+            <label>Farbe</label>
+            <input type="color" id="bf-color" value="${b ? b.color : '#2563eb'}" class="color-input">
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button type="submit" class="btn btn-primary btn-sm">Speichern</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="state.ui.editingBucketId=null;render()">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+  </div>`;
+}
+
+function renderExportConfig() {
+  return `
+  <div class="card">
+    <div class="card-header"><span class="card-title">Export & Backup</span></div>
+    <div class="card-body">
+      <h3 style="font-size:14px;font-weight:600;margin-bottom:12px">Export</h3>
+      <div class="flex gap-2 mb-4">
+        <button class="btn btn-secondary" onclick="exportCSV()">📄 CSV exportieren</button>
+        <button class="btn btn-secondary" onclick="openPrintView()">🖨 Druckansicht</button>
+      </div>
+      <h3 style="font-size:14px;font-weight:600;margin:20px 0 12px">Backup / Restore</h3>
+      <p class="text-muted text-sm mb-3">Exportiere alle Daten als JSON-Datei oder stelle sie aus einem Backup wieder her.</p>
+      <div class="flex gap-2">
+        <button class="btn btn-secondary" onclick="backupJSON()">💾 JSON-Backup erstellen</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('restore-input').click()">📂 Backup wiederherstellen</button>
+        <input type="file" id="restore-input" accept=".json" style="display:none" onchange="restoreJSON(this)">
+      </div>
+      <div class="warn-box mt-4">⚠ Wiederherstellen überschreibt alle aktuellen Daten. Erstelle zuerst ein Backup.</div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// CONFIRM DIALOG
+// ============================================================
+function renderConfirmDialog() {
+  const { message } = state.ui.showConfirm;
+  return `<div class="overlay"><div class="dialog">
+    <h3>Bestätigung erforderlich</h3>
+    <p>${esc(message)}</p>
+    <div class="dialog-actions">
+      <button class="btn btn-secondary" onclick="cancelConfirm()">Abbrechen</button>
+      <button class="btn btn-danger" onclick="doConfirm()">Löschen</button>
+    </div>
+  </div></div>`;
+}
+function showConfirm(message, onConfirm) {
+  state.ui.showConfirm = { message, onConfirm };
+  const overlay = document.createElement('div');
+  overlay.innerHTML = renderConfirmDialog();
+  document.body.appendChild(overlay.firstChild);
+}
+function cancelConfirm() {
+  state.ui.showConfirm = null;
+  const o = document.querySelector('.overlay');
+  if (o) o.remove();
+}
+function doConfirm() {
+  const fn = state.ui.showConfirm ? state.ui.showConfirm.onConfirm : null;
+  state.ui.showConfirm = null;
+  const o = document.querySelector('.overlay');
+  if (o) o.remove();
+  if (fn) fn();
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function openProjectForm(id) {
+  state.ui.editingProjectId = id;
+  state.ui.projectSubTab = 'form';
+  state.ui.activeTab = 'projects';
+  document.querySelectorAll('nav button').forEach((b,i) => b.classList.toggle('active', i===1));
+  render();
+}
+function openDetail(id) {
+  state.ui.detailProjectId = id;
+  state.ui.projectSubTab = 'detail';
+  state.ui.scoringMode = false;
+  state.ui.activeTab = 'projects';
+  document.querySelectorAll('nav button').forEach((b,i) => b.classList.toggle('active', i===1));
+  render();
+}
+function saveProject(e) {
+  e.preventDefault();
+  const name = document.getElementById('f-name').value.trim();
+  const desc = document.getElementById('f-desc').value.trim();
+  const type = document.getElementById('f-type').value;
+  const bucket = document.getElementById('f-bucket').value;
+  const status = document.getElementById('f-status').value;
+  if (!bucket) { alert('Bitte einen Bucket wählen.'); return; }
+  if (state.ui.editingProjectId) {
+    const p = state.projects.find(pr => pr.id === state.ui.editingProjectId);
+    if (p) { p.name = name; p.description = desc; p.type = type; p.bucketId = bucket; p.status = status; }
+  } else {
+    state.projects.push({ id: newId(), name, description: desc, type, bucketId: bucket, status, rounds: [], createdAt: new Date().toISOString() });
+  }
+  saveData();
+  state.ui.projectSubTab = 'list';
+  state.ui.editingProjectId = null;
+  render();
+  showToast('Projekt gespeichert ✓');
+}
+function confirmDelete(id) {
+  const p = state.projects.find(pr => pr.id === id);
+  showConfirm(`Projekt "${p ? p.name : ''}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`, () => {
+    state.projects = state.projects.filter(pr => pr.id !== id);
+    saveData(); render(); showToast('Projekt gelöscht');
+  });
+}
+function saveScoringRound(e, projectId) {
+  e.preventDefault();
+  const p = state.projects.find(pr => pr.id === projectId);
+  if (!p) return;
+  const activeCrit = state.criteria.filter(c => c.active);
+  const scores = {};
+  for (const c of activeCrit) {
+    const el = document.getElementById('range-' + c.id);
+    if (el) scores[c.id] = parseInt(el.value);
+  }
+  const effortEl = document.getElementById('range-effort');
+  const effort = effortEl ? parseInt(effortEl.value) : 0;
+  if (!effort) { alert('Bitte Aufwand bewerten.'); return; }
+  const allScored = activeCrit.every(c => scores[c.id]);
+  if (!allScored) { alert('Bitte alle Kriterien bewerten.'); return; }
+  const date = document.getElementById('s-date').value || new Date().toISOString().slice(0,10);
+  const note = document.getElementById('s-note').value.trim();
+  const valueScore = calculateValueScore(scores, state.criteria);
+  const wsjfScore = calculateWSJF(valueScore, effort);
+  const round = { id: newId(), date: date + 'T00:00:00.000Z', scores, effort, valueScore, wsjfScore };
+  if (note) round.note = note;
+  p.rounds.push(round);
+  saveData();
+  state.ui.scoringMode = false;
+  render();
+  showToast('Bewertung gespeichert ✓');
+}
+function saveCriterion(e, id) {
+  e.preventDefault();
+  const name = document.getElementById('cf-name').value.trim();
+  const weight = parseInt(document.getElementById('cf-weight').value);
+  const description = document.getElementById('cf-desc').value.trim();
+  if (!id) {
+    state.criteria.push({ id: newId(), name, description, weight, active: true, order: state.criteria.length });
+  } else {
+    const c = state.criteria.find(x => x.id === id);
+    if (c) { c.name = name; c.weight = weight; c.description = description; }
+  }
+  saveData();
+  state.ui.editingCriterionId = null;
+  render();
+  showToast('Kriterium gespeichert ✓');
+}
+function confirmDeleteCriterion(id) {
+  const c = state.criteria.find(x => x.id === id);
+  const hasHistory = state.projects.some(p => p.rounds.some(r => r.scores[id] != null));
+  if (hasHistory) {
+    showConfirm(`Kriterium "${c ? c.name : ''}" hat historische Bewertungen. Es wird als "Legacy" markiert (nicht gelöscht). Fortfahren?`, () => {
+      const crit = state.criteria.find(x => x.id === id);
+      if (crit) crit.active = false;
+      saveData(); render(); showToast('Kriterium als Legacy markiert');
+    });
+  } else {
+    showConfirm(`Kriterium "${c ? c.name : ''}" löschen? Es gibt keine historischen Bewertungen.`, () => {
+      state.criteria = state.criteria.filter(x => x.id !== id);
+      saveData(); render(); showToast('Kriterium gelöscht');
+    });
+  }
+}
+function saveBucket(e, id) {
+  e.preventDefault();
+  const name = document.getElementById('bf-name').value.trim();
+  const target = parseInt(document.getElementById('bf-target').value);
+  const color = document.getElementById('bf-color').value;
+  if (!id) {
+    state.buckets.push({ id: newId(), name, color, targetPercent: target, locked: false, order: state.buckets.length });
+  } else {
+    const b = state.buckets.find(x => x.id === id);
+    if (b) { b.name = name; b.targetPercent = target; b.color = color; }
+  }
+  saveData();
+  state.ui.editingBucketId = null;
+  render();
+  showToast('Bucket gespeichert ✓');
+}
+function confirmDeleteBucket(id) {
+  const b = state.buckets.find(x => x.id === id);
+  const hasProjects = state.projects.some(p => p.bucketId === id);
+  if (hasProjects) {
+    alert('Dieser Bucket enthält noch Projekte. Bitte weise diese zuerst einem anderen Bucket zu, bevor du ihn löschst.');
+    return;
+  }
+  showConfirm(`Bucket "${b ? b.name : ''}" löschen?`, () => {
+    state.buckets = state.buckets.filter(x => x.id !== id);
+    saveData(); render(); showToast('Bucket gelöscht');
+  });
+}
+
+// ============================================================
+// SCORE DISPLAY (live update in scoring form)
+// ============================================================
+function updateScoreDisplay(criterionId) {
+  const el = document.getElementById('range-' + criterionId);
+  const disp = document.getElementById('disp-' + criterionId);
+  if (el && disp) disp.textContent = el.value;
+}
+function updateEffortDisplay() {
+  const el = document.getElementById('range-effort');
+  const disp = document.getElementById('disp-effort');
+  if (el && disp) disp.textContent = el.value;
+}
+function updateLiveScore() {
+  const activeCrit = state.criteria.filter(c => c.active);
+  const scores = {};
+  let allFilled = true;
+  for (const c of activeCrit) {
+    const el = document.getElementById('range-' + c.id);
+    if (el && el.value) scores[c.id] = parseInt(el.value);
+    else allFilled = false;
+  }
+  const effortEl = document.getElementById('range-effort');
+  const effort = effortEl && effortEl.value ? parseInt(effortEl.value) : 0;
+  if (allFilled && effort) {
+    const vs = calculateValueScore(scores, state.criteria);
+    const wsjf = calculateWSJF(vs, effort);
+    const pv = document.getElementById('prev-value');
+    const pe = document.getElementById('prev-effort');
+    const pw = document.getElementById('prev-wsjf');
+    if (pv) pv.textContent = vs;
+    if (pe) pe.textContent = effort;
+    if (pw) pw.textContent = wsjf;
+  }
+}
+
+// ============================================================
+// CHART
+// ============================================================
+function renderChart(project) {
+  if (!project || project.rounds.length < 2) return;
+  const canvas = document.getElementById('score-chart');
+  if (!canvas) return;
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  const labels = project.rounds.map(r => new Date(r.date).toLocaleDateString('de-DE'));
+  chartInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Wert-Score', data: project.rounds.map(r => r.valueScore), borderColor: '#16a34a', backgroundColor: '#dcfce7', fill: false, tension: 0.3, pointRadius: 5 },
+        { label: 'WSJF-Score', data: project.rounds.map(r => r.wsjfScore), borderColor: '#2563eb', backgroundColor: '#dbeafe', fill: false, tension: 0.3, pointRadius: 5 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: true, max: 100 } }
+    }
+  });
+}
+
+// ============================================================
+// DASHBOARD ACTIONS
+// ============================================================
+function setDashView(v) { state.ui.dashboardView = v; render(); }
+function setSortRanking(col) {
+  if (state.ui.rankSortBy === col) state.ui.rankSortDir = state.ui.rankSortDir === 'asc' ? 'desc' : 'asc';
+  else { state.ui.rankSortBy = col; state.ui.rankSortDir = 'desc'; }
+  render();
+}
+
+// ============================================================
+// BACKUP / RESTORE
+// ============================================================
+function backupJSON() {
+  const data = { projects: state.projects, criteria: state.criteria, buckets: state.buckets, config: state.config, exportedAt: new Date().toISOString(), version: '1.0' };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'VECTOR_Backup_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('Backup erstellt ✓');
+}
+function restoreJSON(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.projects || !data.criteria || !data.buckets) { alert('Ungültiges Backup-Format.'); return; }
+      if (!confirm('Alle aktuellen Daten werden überschrieben. Fortfahren?')) return;
+      state.projects = data.projects; state.criteria = data.criteria; state.buckets = data.buckets;
+      if (data.config) state.config = data.config;
+      saveData(); render(); showToast('Backup wiederhergestellt ✓');
+    } catch(err) { alert('Fehler beim Lesen der Datei: ' + err.message); }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+// ============================================================
+// HELPER
+// ============================================================
+function esc(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadState();
+render();
+</script>
+</body>
+</html>
