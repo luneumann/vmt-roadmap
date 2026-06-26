@@ -51,4 +51,4 @@ Projekte verglichen werden. Innerhalb jedes Buckets entscheidet der WSJF-Score
 | 6 | Design Handoff | ✅ Abgeschlossen |
 | 7 | Tests + Teststrategie | ✅ Abgeschlossen |
 | 8 | README + Deploy-Checkliste | ✅ Abgeschlossen |
-| 9 | SETUP.md | ⬜ Offen |
+| 9 | SETUP.md | ✅ Abgeschlossen |
