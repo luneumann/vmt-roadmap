@@ -7,9 +7,8 @@ VECTOR hat kein klassisches Deployment. Die Checkliste beschreibt, was vor dem *
 ## Erstmaliger Einsatz
 
 - [ ] `VECTOR.html` auf dem eigenen Rechner ablegen (z.B. `~/Documents/VECTOR/`)
-- [ ] Datei im Browser öffnen (Chrome / Edge)
-- [ ] Beim ersten Öffnen: Chart.js wird von CDN geladen (Internetverbindung nötig)
-- [ ] Anschließend: Default-Buckets und Kriterien erscheinen im Dashboard
+- [ ] Datei im Browser öffnen (Chrome / Edge) — funktioniert vollständig offline, keine Internetverbindung nötig
+- [ ] Default-Buckets und Kriterien erscheinen im Dashboard
 - [ ] Erstes Projekt anlegen und eine Bewertungsrunde durchführen — prüfen ob Scores korrekt berechnet werden
 
 ---
@@ -45,16 +44,9 @@ VECTOR speichert alle Daten im `localStorage` des Browsers. Der Browser kann Dat
 
 ---
 
-## Chart.js offline verfügbar machen (optional)
+## Offline-Betrieb
 
-Falls Chart.js auch ohne Internetverbindung verfügbar sein soll:
-
-1. Chart.js herunterladen: https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js
-2. Als `chart.umd.min.js` neben `VECTOR.html` ablegen
-3. In `VECTOR.html` Zeile 5 ändern:
-   ```html
-   <!-- Von: -->
-   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-   <!-- Zu: -->
-   <script src="./chart.umd.min.js"></script>
-   ```
+Keine Maßnahme nötig: VECTOR hat **null externe Abhängigkeiten**. Charts werden als
+eigenes Inline-SVG gerendert, Schriften kommen aus dem System-Font-Stack. Die App kann
+auf einem Rechner ohne jede Internetverbindung (Airgap) betrieben werden — die einzige
+Datei `VECTOR.html` enthält alles.

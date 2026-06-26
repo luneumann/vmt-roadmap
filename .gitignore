@@ -1,0 +1,5 @@
+.DS_Store
+**/.DS_Store
+
+# Session-/Agent-Verzeichnis auf Repo-Root-Ebene (nicht Teil des Projekts)
+/.claude/

@@ -199,7 +199,7 @@ Tabelle: Name | Bucket | Typ | Wert-Score | WSJF | Runden | Status | [✎] [🗑
 Tabs innerhalb der Ansicht:
 - **Grunddaten:** Name, Beschreibung, Typ, Bucket, Status
 - **Neue Bewertung:** Scores je Kriterium (Schieberegler 1-5 + Beschreibung), Aufwand, Datum
-- **Score-Verlauf:** Liniendiagramm (Chart.js) + Verlaufstabelle
+- **Score-Verlauf:** Liniendiagramm (custom Inline-SVG, `buildLineChart()`) + Verlaufstabelle
 
 ### Ansicht 5: Konfiguration → Kriterien
 

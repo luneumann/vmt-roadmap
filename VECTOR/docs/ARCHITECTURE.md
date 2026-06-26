@@ -45,17 +45,18 @@
 
 ---
 
-## ADR-004: Chart.js für Score-Verlauf
+## ADR-004: Custom Inline-SVG-Charts (keine Chart-Library)
 
-**Entscheidung:** Chart.js wird inline in die HTML-Datei eingebettet (minifiziertes Bundle, ~60 KB gzip).
+**Entscheidung:** Der Score-Verlauf wird als handgeschriebenes Inline-SVG gerendert (`buildLineChart()`). **Keine externe Chart-Library, kein CDN, keine Build-Abhängigkeit.**
 
-**Begründung:** PRD nennt Chart.js explizit. Inline-Embedding ermöglicht Offline-Betrieb ohne CDN-Fallback-Risiko. 60 KB sind bei moderner Hardware vernachlässigbar.
+**Begründung:** Die App verarbeitet vertrauliche Daten und muss vollständig offline / airgap-tauglich laufen. Jeder externe Request (auch ein CDN-Load von Chart.js) widerspricht dieser Anforderung. Der benötigte Chart-Typ — ein Zwei-Linien-Verlauf auf fester 0–100-Skala (sowohl Wert-Score als auch WSJF liegen bei min. Aufwand=1 garantiert in 0–100) — ist mit ~30 Zeilen SVG trivial selbst zu bauen. Vorteile: null Netzwerk, winzige Dateigröße, exakte Kontrolle über das Design (passt zur reduzierten UI), keine Versions-/Lizenz-Pflege.
 
 **Alternativen:**
-- D3.js: zu komplex für einfache Liniendiagramme
-- Custom SVG-Charts: wartungsintensiv
+- Chart.js via CDN: **verworfen** — externer Request, unvereinbar mit „geheime Daten / offline"
+- Chart.js inline gebündelt (~200 KB): verworfen — große Datei, generischer Look, der nicht zum Design-System passt
+- D3.js: zu komplex für ein einfaches Liniendiagramm
 
-**Konsequenzen:** HTML-Dateigröße erhöht sich um ~60 KB (minified). Update auf neuere Chart.js-Version erfordert manuelles Ersetzen des Inline-Bundles.
+**Konsequenzen:** Komplexere Chart-Typen (gestapelte Balken, Tooltips) müssten von Hand ergänzt werden. Für den aktuellen Bedarf (Liniendiagramm) ist das vernachlässigbar. Die gesamte App hat damit **null externe Laufzeit-Abhängigkeiten**.
 
 ---
 
@@ -90,3 +91,13 @@
 | OQ-1 | CSV exportiert letzte Runde pro Projekt | Einfacheres Schema, Excel-kompatibel; Vollexport als JSON-Backup (P1) |
 | OQ-4 | Gelöschte Kriterien bleiben in historischen Scores als "legacy" erhalten | Nachvollziehbarkeit; Score wird als "⚠ legacy" markiert |
 | OQ-6 | Bucket-Zielanteil 0% erlaubt | Nützlich für "Parking"-Buckets ohne aktuelle Kapazitätszuweisung |
+
+---
+
+## ADR-008: Reduziertes Design-System (System-Fonts, keine Web-Fonts)
+
+**Entscheidung:** Eigenes, reduziertes Design-System mit gedämpfter Palette (Salbeigrün `#6f7f5b` / Terracotta `#a5614a`), großzügigem Weißraum, runden Cards und großen Zahlen als Fokuspunkten. Typografie ausschließlich über den **System-Font-Stack** (`system-ui` / SF Pro / Segoe UI) — keine Google Fonts, keine Web-Font-Requests. Icons als handgeschriebene Inline-SVGs.
+
+**Begründung:** Konsistent mit ADR-001/004 darf nichts extern geladen werden (geheime Daten, offline). Web-Fonts wären ein externer Request und damit unzulässig. System-Fonts sehen auf den Zielplattformen (macOS/Windows, Chrome/Edge) hochwertig aus. Das reduzierte, „Produkt-Design"-orientierte Erscheinungsbild wurde explizit gegenüber dem ursprünglichen Enterprise-SaaS-Look gewählt.
+
+**Konsequenzen:** Das exakte Schriftbild variiert leicht zwischen Betriebssystemen — für ein internes Desktop-Tool unkritisch. Farben sind als CSS-Custom-Properties (`:root`) zentralisiert und damit leicht anpassbar.

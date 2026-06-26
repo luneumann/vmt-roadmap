@@ -14,7 +14,7 @@ VECTOR ist eine Single-File HTML-Anwendung ohne Build-Schritt. Die Teststrategie
 
 **Nicht automatisiert getestet** (bewusste Entscheidung):
 - localStorage-Persistenz: zu tightly coupled an Browser-API
-- Chart.js-Rendering: visueller Output, kein testbarer Rückgabewert
+- SVG-Chart-Rendering (`buildLineChart`): visueller Output, manuell im Browser geprüft
 - CSV-Download-Dialog: Browser-spezifisches Verhalten
 - Druckdialog: Browser-UI
 

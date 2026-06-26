@@ -3,7 +3,8 @@
 VECTOR ist ein lokales PM-Tool zur strukturierten Priorisierung von Entwicklungsprojekten.
 Es kombiniert Strategic-Bucket-Kapazitätsplanung mit WSJF-Scoring (Wert / Aufwand) und
 läuft vollständig als einzelne HTML-Datei im Browser — kein Server, keine Installation,
-keine externen Abhängigkeiten außer Chart.js (inline gebündelt).
+**null externe Laufzeit-Abhängigkeiten** (Charts als eigenes Inline-SVG, keine Library,
+kein CDN, keine Web-Fonts) — voll offline / airgap-tauglich.
 
 **Kernprinzip:** Kapazität wird strukturell nach Buckets aufgeteilt, *bevor* einzelne
 Projekte verglichen werden. Innerhalb jedes Buckets entscheidet der WSJF-Score
@@ -17,10 +18,12 @@ Projekte verglichen werden. Innerhalb jedes Buckets entscheidet der WSJF-Score
 |---|---|
 | Deployment | Einzelne `.html`-Datei |
 | Datenhaltung | `localStorage` des Browsers |
-| Charts | Chart.js (inline im HTML gebündelt) |
+| Charts | Custom Inline-SVG (keine Library) |
 | Sprache | Vanilla JS (kein Framework, kein Build-Schritt) |
+| Fonts | System-Font-Stack (keine Web-Fonts) |
 | Browser | Chromium-basiert (Chrome / Edge) |
 | UI-Sprache | Deutsch |
+| Design | Reduziert, gedämpfte Palette (Salbe/Terracotta), große Zahlen |
 
 ---
 

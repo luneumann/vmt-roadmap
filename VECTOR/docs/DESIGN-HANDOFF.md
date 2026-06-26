@@ -2,32 +2,45 @@
 
 ---
 
-## Design Tokens
+## Design-Sprache
+
+Reduziertes „Produkt-Design": warmer heller Hintergrund, weiße Cards mit feinem Rahmen
+und großem Radius, viel Weißraum, **große Zahlen als Fokuspunkte**, gedämpfte
+Salbe/Terracotta-Palette, custom geometrische Daten-Viz. System-Fonts, keine Web-Fonts.
+
+## Design Tokens (CSS Custom Properties in `:root`)
 
 | Token | Wert | Verwendung |
 |---|---|---|
-| `--c-bg` | `#f8fafc` | App-Hintergrund |
-| `--c-surface` | `#ffffff` | Cards, Modals |
-| `--c-border` | `#e2e8f0` | Alle Rahmen |
-| `--c-text` | `#1e293b` | Primärtext |
-| `--c-text-muted` | `#64748b` | Labels, Metadaten |
-| `--c-primary` | `#2563eb` | Primäre Aktionen, WSJF-Score, Links |
-| `--c-primary-hover` | `#1d4ed8` | Hover-State Primär-Button |
-| `--c-danger` | `#dc2626` | Lösch-Aktionen, Überallokierungs-Balken |
-| `--c-success` | `#16a34a` | Hohe Scores (≥ 70), OK-Balken |
-| `--c-warning` | `#d97706` | Mittlere Scores (40–69) |
-| `--c-shadow` | `0 1px 3px rgba(0,0,0,.1)` | Card-Schatten |
-| `--radius` | `8px` | Standard-Radius |
-| `--font` | `-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif` | Systemfont-Stack |
+| `--bg` | `#f6f5f2` | App-Hintergrund (warmes Off-White) |
+| `--surface` | `#ffffff` | Cards |
+| `--surface-2` | `#faf9f6` | Hover, eingelassene Flächen |
+| `--border` | `#ebe9e3` | Rahmen, Trennlinien |
+| `--border-strong` | `#ddd9d0` | Input-Rahmen |
+| `--text` | `#211f1c` | Primärtext, große Zahlen |
+| `--text-2` | `#6b6760` | Labels, Beschreibungen |
+| `--text-3` | `#a8a399` | Tertiär, Platzhalter, Unterallokierung |
+| `--sage` | `#6f7f5b` | Primäraktion, hohe Scores, WSJF-Akzent, Bucket 1 |
+| `--sage-deep` | `#5d6c4b` | Hover, Score-Text |
+| `--sage-soft` | `#eef1e8` | Aktive Tab/Nav, OK-Status, Badge „aktiv" |
+| `--terra` | `#a5614a` | Sekundär, niedrige Scores, Überallokierung, Bucket 2 |
+| `--terra-soft` | `#f6ece7` | Aufwand-Block, Über-Status |
+| `--blue` / `--blue-soft` | `#6b85a8` / `#eaeff4` | Info-Boxen |
+| `--amber` / `--amber-soft` | `#b0843f` / `#f7efe2` | Mittlere Scores (40–69), Warn-Boxen |
+| `--radius` / `--radius-sm` | `18px` / `12px` | Cards / Sub-Elemente |
+| `--radius-pill` | `999px` | Buttons, Chips, Badges, Segmente |
+| `--font` | `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif` | **System-Stack, keine Web-Fonts** |
 
 **Score-Farbcodierung:**
-- ≥ 70: `#16a34a` (grün, `--c-success`)
-- 40–69: `#d97706` (gelb, `--c-warning`)
-- < 40: `#dc2626` (rot, `--c-danger`)
+- ≥ 70: `--sage` (Salbeigrün)
+- 40–69: `--amber` (gedämpftes Ocker)
+- < 40: `--terra` (Terracotta)
 
 **Bucket-Farben (Default):**
-- Strategisch / RTI: `#2563eb`
-- Opportunistisch / Turn-Key: `#7c3aed`
+- Strategisch / RTI: `#6f7f5b` (Salbe)
+- Opportunistisch / Turn-Key: `#a5614a` (Terracotta)
+
+**Icons:** Handgeschriebene Inline-SVG (Stroke, `currentColor`), zentral im JS-Objekt `I`.
 
 ---
 
@@ -115,7 +128,7 @@ Score-Summary-Box (4 Kacheln):
   Wert-Score | Aufwand | WSJF-Score | Trend
 
 Card: Score-Verlauf
-  → ab 2 Runden: Chart.js Liniendiagramm (Wert-Score + WSJF, 2 Linien)
+  → ab 2 Runden: custom Inline-SVG Liniendiagramm (Wert-Score sage + WSJF terra, 2 Linien, 0–100-Skala)
   → < 2 Runden: Hinweistext
 
 Card: Bewertungsrunden (N)
@@ -258,5 +271,6 @@ Laut PRD: Ausschließlich Desktop-Nutzung (Chrome/Edge). Keine Mobile-Optimierun
 | Kapazitätsbalken | CSS `transition: width .3s` |
 | Toast | CSS `transition: opacity .3s`, Auto-Hide nach 2.5s |
 | Buttons | CSS `transition: all .15s` |
-| Score-Verlauf | Chart.js Default-Animations |
+| Score-Verlauf | Statisches SVG (keine Animation nötig) |
+| Toast | Slide-up + Fade (`transform`/`opacity`, .3s) |
 | Confirm-Dialog | Kein Fade (instant) |

@@ -7,7 +7,8 @@ Lokales Projektpriorisierungs- und Sequenzierungstool für Entwicklungsressource
 - Single-File HTML-Anwendung (`VECTOR.html`)
 - Vanilla JavaScript, kein Build-Schritt
 - Datenhaltung: `localStorage` des Browsers
-- Charts: Chart.js (CDN, benötigt Internetverbindung beim ersten Laden)
+- Charts: Custom Inline-SVG (keine Library, kein CDN)
+- **Null externe Abhängigkeiten — voll offline / airgap-tauglich**
 - Browser: Chrome / Edge (Chromium-basiert)
 
 ## Lokale Entwicklung starten
@@ -18,7 +19,7 @@ npx serve -p 4400 .
 # Öffne: http://localhost:4400/VECTOR.html
 ```
 
-Alternativ direkt die `VECTOR.html` im Browser öffnen (Datei-Doppelklick). Chart.js-Diagramme brauchen dann eine aktive Internetverbindung.
+Alternativ direkt die `VECTOR.html` im Browser öffnen (Datei-Doppelklick) — funktioniert vollständig offline, kein Server und keine Internetverbindung nötig.
 
 ## Tests ausführen
 

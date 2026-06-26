@@ -23,12 +23,12 @@ npx serve -p 4400 .
 # Öffne: http://localhost:4400/VECTOR.html
 ```
 
-### 2. Internetverbindung beim ersten Laden
+### 2. Vollständig offline
 
-Score-Verlaufsdiagramme nutzen [Chart.js](https://www.chartjs.org/) über CDN. Die Datei wird
-beim ersten Laden aus dem Internet geladen und anschließend vom Browser gecacht.
-
-Falls du VECTOR dauerhaft offline nutzen möchtest, lies `docs/DEPLOY-CHECKLIST.md` (Abschnitt "Chart.js offline").
+VECTOR braucht **keine Internetverbindung** — weder beim ersten noch bei späteren Starts.
+Diagramme, Schriften und Logik sind alle in der einen `VECTOR.html`-Datei enthalten. Du
+kannst das Tool bedenkenlos auf einem komplett vom Netz getrennten Rechner nutzen. Das ist
+gewollt, da die App vertrauliche Projektdaten enthält.
 
 ### 3. Erste Schritte
 
@@ -75,7 +75,7 @@ Aufbewahrungsempfehlung: letzte 3 Backups behalten.
 
 - **Datenverlust-Risiko:** localStorage wird gelöscht wenn Browser-Daten gelöscht werden → regelmäßig Backup erstellen
 - **Single-Browser:** Daten sind nur im Browser/Profil sichtbar, in dem das Tool geöffnet wurde
-- **Chart.js ohne Internet:** Score-Verlauf-Diagramm ist leer ohne Internetverbindung (CDN-Abhängigkeit) — offline-Lösung: siehe Deploy-Checkliste
+- **Daten unverschlüsselt:** localStorage speichert im Klartext im Browser-Profil. Wer Zugriff auf dein entsperrtes Benutzerprofil hat, kann die Daten lesen. Für ein desktop-only Single-User-Tool ist das akzeptabel, solange dein Rechner/Profil gesichert ist (Bildschirmsperre, Festplattenverschlüsselung). Optionale Passphrase-Verschlüsselung wäre ein möglicher v1.1-Schritt.
 - **Kein Undo:** Gelöschte Projekte können nicht wiederhergestellt werden (außer aus JSON-Backup)
 - **Max. ~5 MB Datenbasis:** localStorage-Limit; bei sehr vielen Projekten und langen Bewertungshistorien kann das Limit erreicht werden (in der Praxis bei < 50 Projekten kein Problem)
 - **Druckoptimierung:** Optimiert für DIN A4 Querformat. Bei mehr als 8 aktiven Projekten pro Bucket kann die Druckansicht mehr als 2 Seiten umfassen
@@ -88,8 +88,7 @@ VECTOR hat keine laufenden Kosten. Alle Abhängigkeiten sind kostenlos:
 
 | Komponente | Kosten |
 |---|---|
-| VECTOR.html | Kostenlos |
-| Chart.js (CDN) | Kostenlos (jsdelivr.net) |
+| VECTOR.html | Kostenlos (null externe Abhängigkeiten) |
 | Browser (Chrome / Edge) | Kostenlos |
 | localStorage | Im Browser eingebaut, kostenlos |
 | Lokaler Dev-Server (`npx serve`) | Kostenlos (Node.js nötig) |
