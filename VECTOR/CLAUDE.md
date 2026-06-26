@@ -44,11 +44,11 @@ Projekte verglichen werden. Innerhalb jedes Buckets entscheidet der WSJF-Score
 | Schritt | Aufgabe | Status |
 |---|---|---|
 | 1 | CLAUDE.md | ✅ Abgeschlossen |
-| 2 | Architecture Decision Record | ⬜ Offen |
-| 3 | System Design + Datenmodell | ⬜ Offen |
-| 4 | localStorage-Schema (entspricht DB-Migration) | ⬜ Offen |
-| 5 | Hauptanwendung VECTOR.html | ⬜ Offen |
-| 6 | Design Handoff | ⬜ Offen |
-| 7 | Tests + Teststrategie | ⬜ Offen |
-| 8 | README + Deploy-Checkliste | ⬜ Offen |
+| 2 | Architecture Decision Record | ✅ Abgeschlossen |
+| 3 | System Design + Datenmodell | ✅ Abgeschlossen |
+| 4 | localStorage-Schema (entspricht DB-Migration) | ✅ Abgeschlossen |
+| 5 | Hauptanwendung VECTOR.html | ✅ Abgeschlossen |
+| 6 | Design Handoff | ✅ Abgeschlossen |
+| 7 | Tests + Teststrategie | ✅ Abgeschlossen |
+| 8 | README + Deploy-Checkliste | ✅ Abgeschlossen |
 | 9 | SETUP.md | ⬜ Offen |
