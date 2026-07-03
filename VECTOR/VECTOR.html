@@ -253,6 +253,29 @@
   .dialog p { color: var(--text-2); margin-bottom: 24px; }
   .dialog-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
+  /* ── Guide / Leitfaden ────────────────────────────── */
+  .guide { background: var(--surface); border-radius: var(--radius); max-width: 640px; width: 92%; max-height: 88vh; overflow-y: auto; box-shadow: var(--shadow-pop); }
+  .guide-head { position: sticky; top: 0; background: var(--surface); padding: 26px 30px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; z-index: 1; }
+  .guide-head h2 { font-size: 20px; font-weight: 600; letter-spacing: -.3px; }
+  .guide-head p { font-size: 13px; color: var(--text-2); margin-top: 4px; max-width: 440px; }
+  .guide-body { padding: 22px 30px 30px; }
+  .guide-phase { font-size: 11.5px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--text-3); margin: 22px 0 14px; }
+  .guide-phase:first-child { margin-top: 4px; }
+  .step { display: flex; gap: 16px; padding: 16px 18px; border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 10px; background: var(--surface-2); }
+  .step-num { flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--sage-soft); color: var(--sage-deep); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+  .step-body { flex: 1; min-width: 0; }
+  .step-body h4 { font-size: 14.5px; font-weight: 600; margin-bottom: 3px; }
+  .step-body p { font-size: 13px; color: var(--text-2); margin: 0 0 10px; line-height: 1.55; }
+  .step-body .why { color: var(--sage-deep); }
+  .step-action { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: var(--sage-deep); font-weight: 600; font-size: 12.5px; font-family: var(--font); cursor: pointer; padding: 0; }
+  .step-action:hover { text-decoration: underline; }
+  .step-action svg { width: 15px; height: 15px; }
+  .guide-loop { display: flex; align-items: center; gap: 10px; padding: 14px 18px; background: var(--blue-soft); border: 1px solid #d6e0ea; border-radius: var(--radius-sm); font-size: 13px; color: #41566e; margin-top: 6px; }
+  .guide-loop svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  /* Page subtitle */
+  .page-sub { font-size: 13.5px; color: var(--text-2); margin: -14px 0 22px; max-width: 620px; }
+
   /* ── Helpers ──────────────────────────────────────── */
   .flex { display: flex; }
   .items-center { align-items: center; }
@@ -284,6 +307,8 @@
   <header>
     <div class="brand">VECTOR</div>
     <nav id="main-nav"></nav>
+    <div style="flex:1"></div>
+    <button class="btn btn-secondary btn-sm" onclick="openGuide()" title="So arbeitest du mit VECTOR"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.8 2.5-2.8 2.5"/><line x1="12" y1="17" x2="12" y2="17"/></svg><span>Leitfaden</span></button>
   </header>
   <main id="main-content"></main>
 </div>
@@ -306,7 +331,9 @@ const I = {
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
   save: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>',
   spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/></svg>',
-  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>',
+  arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>'
 };
 
 // ============================================================
@@ -336,7 +363,7 @@ let state = { projects: [], criteria: [], buckets: [], config: { bucketAllocatio
   scoringMode: false,
   configTab: 'criteria',
   editingCriterionId: null, editingBucketId: null,
-  showConfirm: null
+  showConfirm: null, showGuide: false
 }};
 
 // ============================================================
@@ -467,16 +494,100 @@ function render() {
 }
 
 // ============================================================
+// LEITFADEN / WORKFLOW GUIDE
+// ============================================================
+const GUIDE_STEPS = [
+  { phase: 'Einrichten — einmal pro Planungszyklus' },
+  { n:1, title:'Kapazität auf Buckets aufteilen', body:'Lege fest, wie viel Prozent deiner Entwicklungskapazität auf jeden Strategic Bucket entfällt (Ziel-Anteile, Summe 100 %).',
+    why:'Das ist der wichtigste Schritt: Weil Kapazität <b>vor</b> dem Einzel-Vergleich aufgeteilt wird, verlieren strategische Langfristprojekte nicht ständig gegen dringende Opportunitäten.',
+    action:'Zu den Buckets', fn:"closeGuide();navigate('config');state.ui.configTab='buckets';render()" },
+  { n:2, title:'Bewertungskriterien prüfen', body:'Passe die 4 Wert-Kriterien und ihre Gewichte an deine Strategie an — oder übernimm die Defaults. Der Aufwand ist bewusst kein Kriterium.',
+    action:'Zu den Kriterien', fn:"closeGuide();navigate('config');state.ui.configTab='criteria';render()" },
+  { phase: 'Laufender Betrieb' },
+  { n:3, title:'Projekte anlegen', body:'Erfasse jedes Projekt und weise ihm einen Bucket zu (Name, Typ, Bucket).',
+    action:'Neues Projekt', fn:"closeGuide();openProjectForm(null)" },
+  { n:4, title:'Projekt bewerten', body:'Bewerte pro Projekt die Wert-Kriterien (1–5) und den Aufwand (1–5). VECTOR berechnet live den Wert-Score und daraus <b>WSJF = Wert-Score / Aufwand</b> — der Sequenzierungs-Index.',
+    action:'Zu den Projekten', fn:"closeGuide();navigate('projects')" },
+  { n:5, title:'Priorisieren & Kapazität prüfen', body:'Im Dashboard siehst du je Bucket das WSJF-Ranking und ob die Ist-Auslastung deinem Ziel-Anteil entspricht (Soll/Ist-Balken: grün = im Ziel, terracotta = überallokiert).',
+    action:'Zum Dashboard', fn:"closeGuide();navigate('dashboard')" },
+  { n:6, title:'Aktuell halten & mit Management teilen', body:'Bewerte Projekte regelmäßig neu — der Score-Verlauf zeigt die Entwicklung. Für Raphael/Management exportierst du per CSV oder druckfähiger Ansicht.',
+    action:'Export & Druck', fn:"closeGuide();navigate('dashboard')" }
+];
+function renderGuide() {
+  const steps = GUIDE_STEPS.map(s => {
+    if (s.phase) return `<div class="guide-phase">${esc(s.phase)}</div>`;
+    return `<div class="step">
+      <div class="step-num">${s.n}</div>
+      <div class="step-body">
+        <h4>${esc(s.title)}</h4>
+        <p>${s.body}${s.why?` <span class="why">${s.why}</span>`:''}</p>
+        ${s.action?`<button class="step-action" onclick="${s.fn}">${s.action} ${I.arrow}</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="overlay" id="guide-overlay" onclick="if(event.target===this)closeGuide()">
+    <div class="guide">
+      <div class="guide-head">
+        <div><h2>So arbeitest du mit VECTOR</h2><p>VECTOR trennt zwei Dinge: <b>wie viel</b> Kapazität eine strategische Kategorie bekommt (Buckets) und <b>welches</b> Projekt darin zuerst drankommt (WSJF). Diese Reihenfolge ist das Kernprinzip.</p></div>
+        <button class="icon-btn" onclick="closeGuide()" title="Schließen">${I.close}</button>
+      </div>
+      <div class="guide-body">
+        ${steps}
+        <div class="guide-loop">${I.spark}<div><b>Der Kreislauf:</b> Schritte 3–6 wiederholst du laufend. Die Bucket-Aufteilung (1) legst du seltener neu fest — meist gemeinsam mit Raphael zu Beginn eines Planungszyklus.</div></div>
+      </div>
+    </div>
+  </div>`;
+}
+function openGuide() {
+  if (document.getElementById('guide-overlay')) return;
+  const div = document.createElement('div');
+  div.innerHTML = renderGuide();
+  document.body.appendChild(div.firstElementChild);
+  try { localStorage.setItem('vector_guide_seen', '1'); } catch(e){}
+}
+function closeGuide() { const o = document.getElementById('guide-overlay'); if (o) o.remove(); }
+
+// ============================================================
+// ONBOARDING (dashboard when no projects yet)
+// ============================================================
+function renderOnboarding() {
+  const steps = GUIDE_STEPS.filter(s => !s.phase).map(s => `<div class="step">
+      <div class="step-num">${s.n}</div>
+      <div class="step-body">
+        <h4>${esc(s.title)}</h4>
+        <p style="margin-bottom:${s.action?'10px':'0'}">${s.body}</p>
+        ${s.action?`<button class="step-action" onclick="${s.fn}">${s.action} ${I.arrow}</button>`:''}
+      </div>
+    </div>`).join('');
+  return `<div class="card" style="max-width:720px;margin:0 auto">
+    <div class="card-pad" style="padding:32px 34px">
+      <div class="eyebrow" style="margin-bottom:10px">Willkommen bei VECTOR</div>
+      <h1 style="font-size:26px;font-weight:600;letter-spacing:-.5px;margin-bottom:8px">Lass uns dein erstes Projekt priorisieren</h1>
+      <p class="muted" style="max-width:560px;margin-bottom:8px">VECTOR teilt deine Entwicklungskapazität zuerst strategisch auf <b>Buckets</b> auf — und rankt dann die Projekte innerhalb jedes Buckets nach ihrem <b>WSJF-Score</b> (Wert ÷ Aufwand). So gewinnen nicht immer die dringendsten, sondern die strategisch klügsten Projekte.</p>
+      <div class="flex gap-2" style="margin:20px 0 8px">
+        <button class="btn btn-primary" onclick="openProjectForm(null)">${I.plus}<span>Erstes Projekt anlegen</span></button>
+        <button class="btn btn-secondary" onclick="openGuide()">Leitfaden öffnen</button>
+      </div>
+      <div style="height:1px;background:var(--border);margin:22px 0"></div>
+      <div class="eyebrow" style="margin-bottom:14px">Die 6 Schritte</div>
+      ${steps}
+    </div>
+  </div>`;
+}
+
+// ============================================================
 // DASHBOARD
 // ============================================================
 function renderDashboard() {
   const { dashboardView, filterStatus, filterBucket } = state.ui;
   const bucketSummary = state.buckets.map(b => b.name + ' ' + b.targetPercent + '%').join(' · ');
+  if (state.projects.length === 0) return renderOnboarding();
   return `
   <div id="print-header">
     <h2>VECTOR — Projektpriorisierung</h2>
     <p>Exportiert am ${new Date().toLocaleDateString('de-DE')} &nbsp;·&nbsp; Buckets: ${esc(bucketSummary)}</p>
   </div>
+  <p class="page-sub" style="margin-top:0">Priorisierung je Bucket. Prüfe, ob die Ist-Auslastung deinem Ziel-Anteil entspricht — der WSJF-Score bestimmt die Reihenfolge innerhalb jedes Buckets.</p>
   <div class="toolbar">
     <div class="seg">
       <button class="${dashboardView==='bucket'?'active':''}" onclick="setDashView('bucket')">${I.dashboard}<span>Buckets</span></button>
@@ -627,11 +738,13 @@ function renderProjectList() {
     return (br?br.wsjfScore:0)-(ar?ar.wsjfScore:0);
   });
   return `
-  <div class="toolbar">
+  <div class="toolbar" style="margin-bottom:8px">
     <h1 class="page-title">Projekte</h1>
     <div class="spacer"></div>
+    <button class="btn btn-secondary btn-sm" onclick="openGuide()" title="So arbeitest du mit VECTOR">Leitfaden</button>
     <button class="btn btn-primary" onclick="openProjectForm(null)">${I.plus}<span>Neues Projekt</span></button>
   </div>
+  <p class="page-sub">Lege Projekte an, weise ihnen einen Bucket zu und bewerte sie. Öffne ein Projekt für „Neue Bewertung" — der WSJF-Score aus Wert und Aufwand bestimmt die Priorität.</p>
   ${!projects.length ? `<div class="card"><div class="empty"><div class="ring">${I.projects}</div><p>Noch keine Projekte angelegt. Lege dein erstes Projekt an, um es zu bewerten und zu priorisieren.</p><button class="btn btn-primary" onclick="openProjectForm(null)">${I.plus}<span>Erstes Projekt anlegen</span></button></div></div>` : `
   <div class="card"><div class="table-wrap"><table>
     <thead><tr><th>Projekt</th><th>Bucket</th><th>Typ</th><th class="num">Wert</th><th class="num">WSJF</th><th class="num">Runden</th><th>Status</th><th></th></tr></thead>
@@ -809,8 +922,14 @@ function buildLineChart(rounds) {
 // ============================================================
 function renderConfigTab() {
   const { configTab } = state.ui;
+  const subs = {
+    criteria: 'Definiere die Wert-Kriterien und ihre Gewichte. Der Aufwand ist bewusst kein Kriterium — er wirkt als Divisor (WSJF = Wert-Score ÷ Aufwand).',
+    buckets: 'Teile deine Kapazität strategisch auf. Die Ziel-Anteile (Summe 100 %) steuern, wie viel jede Kategorie bekommt — der erste und wichtigste Schritt im Workflow.',
+    export: 'Exportiere für Management (CSV/Druck) oder sichere die gesamte Datenbasis als JSON-Backup.'
+  };
   return `
-  <h1 class="page-title mb-6">Konfiguration</h1>
+  <h1 class="page-title" style="margin-bottom:6px">Konfiguration</h1>
+  <p class="page-sub">${subs[configTab]}</p>
   <div class="tabs">
     <button class="${configTab==='criteria'?'active':''}" onclick="state.ui.configTab='criteria';render()">Bewertungsmodell</button>
     <button class="${configTab==='buckets'?'active':''}" onclick="state.ui.configTab='buckets';render()">Strategic Buckets</button>
@@ -1050,6 +1169,8 @@ function esc(s){ return s==null?'':String(s).replace(/&/g,'&amp;').replace(/</g,
 
 // INIT
 loadState(); render();
+// Leitfaden beim allerersten Start automatisch zeigen
+try { if (!localStorage.getItem('vector_guide_seen') && state.projects.length === 0) openGuide(); } catch(e){}
 </script>
 </body>
 </html>

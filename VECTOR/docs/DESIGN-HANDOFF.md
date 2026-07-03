@@ -233,6 +233,27 @@ Notiz-Textarea
 
 ---
 
+### Screen 11 — Leitfaden (Workflow-Guide) & Onboarding
+
+**Zweck:** Den Arbeitsablauf direkt im Tool sichtbar machen, damit klar ist *wie* man VECTOR benutzt.
+
+**Zugang:**
+- **Header-Button „Leitfaden"** — jederzeit erreichbar, öffnet den Guide als Overlay
+- **Auto-Öffnen** beim allerersten Start (kein `vector_guide_seen`-Flag und keine Projekte)
+- **Onboarding-Startansicht** — ist das Dashboard leer (keine Projekte), erscheint statt der Bucket-Ansicht eine Willkommens-Karte mit denselben 6 Schritten und direkten Aktions-Buttons
+
+**Guide-Inhalt (6 Schritte, Quelle: `GUIDE_STEPS`):**
+- Phase „Einrichten": (1) Kapazität auf Buckets aufteilen, (2) Kriterien prüfen
+- Phase „Laufender Betrieb": (3) Projekte anlegen, (4) bewerten, (5) priorisieren & Kapazität prüfen, (6) aktuell halten & exportieren
+- Jeder Schritt hat einen Aktions-Link, der den Guide schließt und zur passenden Stelle navigiert
+- Abschluss-Hinweis: Schritte 3–6 sind der laufende Kreislauf, Schritt 1 seltener (pro Planungszyklus)
+
+**Kontextzeilen (`.page-sub`):** Jede Hauptseite (Dashboard, Projekte, Konfiguration/Tabs) trägt unter dem Titel eine kurze Zeile, die ihren Zweck im Workflow erklärt.
+
+**States:** Overlay offen/geschlossen; Klick auf Backdrop schließt. Onboarding erscheint nur bei 0 Projekten.
+
+---
+
 ## Komponenten-Bibliothek
 
 | Komponente | CSS-Klasse(n) | Variants |
