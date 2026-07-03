@@ -52,7 +52,14 @@ Salbe/Terracotta-Palette, custom geometrische Daten-Viz. System-Fonts, keine Web
 
 **Layout:**
 - Filter-Leiste oben: Toggle Bucket/Ranking, Status-Dropdown, Bucket-Dropdown, CSV-Export, Drucken
+- **Kapazitäts-Übersicht** (nur bei Filter „Alle Buckets"): Reihe von **Töpfen** (SVG-Eimer, `buildPot`) je Bucket + **Donut** (`buildDonut`) mit Projektverteilung
 - Je Bucket: Header-Karte (Titel, Ziel%, Anzahl Projekte, Ist%) + Kapazitätsbalken + Projekttabelle
+
+**Kapazitäts-Übersicht (Töpfe + Donut):**
+- **Topf je Bucket:** Eimer-Silhouette mit Henkel und Rand; Flüssigkeits-Füllstand = Ist-Anteil; gestrichelte Linie = Ziel-Anteil. Farbe: Bucket-Farbe wenn im Ziel, Terracotta wenn überallokiert, Grau wenn unterallokiert.
+- **Donut:** Segmente je Bucket (Projektanzahl), Bucket-Farben, Zentrum = Gesamtzahl aktiver Projekte. Legende mit Anzahl + %-Anteil.
+- Responsive: Töpfe umbrechen bei schmaler Breite; Trenner zwischen Töpfen und Donut wird ausgeblendet.
+- Beispieldaten via `loadExampleData()` (3 Buckets, 6 Projekte) — Buttons im Onboarding und in Konfiguration → Export.
 
 **States:**
 | State | Beschreibung |
