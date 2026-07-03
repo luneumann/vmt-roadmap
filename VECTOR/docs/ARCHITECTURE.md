@@ -96,7 +96,7 @@
 
 ## ADR-008: Reduziertes Design-System (System-Fonts, keine Web-Fonts)
 
-**Entscheidung:** Eigenes, reduziertes Design-System mit gedämpfter Palette (Salbeigrün `#6f7f5b` / Terracotta `#a5614a`), großzügigem Weißraum, runden Cards und großen Zahlen als Fokuspunkten. Typografie ausschließlich über den **System-Font-Stack** (`system-ui` / SF Pro / Segoe UI) — keine Google Fonts, keine Web-Font-Requests. Icons als handgeschriebene Inline-SVGs.
+**Entscheidung:** Eigenes, reduziertes Design-System mit **Teal-Akzent `rgb(0,165,135)` = `#00a587`** (Score-/Status-Sekundärfarben: Ocker `#cf9834`, Koralle `#dd6150`, Blau `#3f7ea6`), großzügigem Weißraum, runden Cards und großen Zahlen als Fokuspunkten. Typografie ausschließlich über den **System-Font-Stack** (`system-ui` / SF Pro / Segoe UI) — keine Google Fonts, keine Web-Font-Requests. Icons als handgeschriebene Inline-SVGs. Datenvisualisierung: 2D-SVG (Töpfe für Kapazität, Donut für Projektanzahl, Liniendiagramm für Score-Verlauf). Die CSS-Variablennamen `--sage*` tragen aus historischen Gründen die Teal-Werte.
 
 **Begründung:** Konsistent mit ADR-001/004 darf nichts extern geladen werden (geheime Daten, offline). Web-Fonts wären ein externer Request und damit unzulässig. System-Fonts sehen auf den Zielplattformen (macOS/Windows, Chrome/Edge) hochwertig aus. Das reduzierte, „Produkt-Design"-orientierte Erscheinungsbild wurde explizit gegenüber dem ursprünglichen Enterprise-SaaS-Look gewählt.
 

@@ -12,33 +12,37 @@ Salbe/Terracotta-Palette, custom geometrische Daten-Viz. System-Fonts, keine Web
 
 | Token | Wert | Verwendung |
 |---|---|---|
-| `--bg` | `#f6f5f2` | App-Hintergrund (warmes Off-White) |
+> **Akzentfarbe:** `rgb(0,165,135)` = `#00a587` (Teal). Die CSS-Variablennamen `--sage*`
+> sind aus historischen Gründen beibehalten, tragen aber die Teal-Werte.
+
+| `--bg` | `#f3f6f5` | App-Hintergrund (kühles Off-White) |
 | `--surface` | `#ffffff` | Cards |
-| `--surface-2` | `#faf9f6` | Hover, eingelassene Flächen |
-| `--border` | `#ebe9e3` | Rahmen, Trennlinien |
-| `--border-strong` | `#ddd9d0` | Input-Rahmen |
-| `--text` | `#211f1c` | Primärtext, große Zahlen |
-| `--text-2` | `#6b6760` | Labels, Beschreibungen |
-| `--text-3` | `#a8a399` | Tertiär, Platzhalter, Unterallokierung |
-| `--sage` | `#6f7f5b` | Primäraktion, hohe Scores, WSJF-Akzent, Bucket 1 |
-| `--sage-deep` | `#5d6c4b` | Hover, Score-Text |
-| `--sage-soft` | `#eef1e8` | Aktive Tab/Nav, OK-Status, Badge „aktiv" |
-| `--terra` | `#a5614a` | Sekundär, niedrige Scores, Überallokierung, Bucket 2 |
-| `--terra-soft` | `#f6ece7` | Aufwand-Block, Über-Status |
-| `--blue` / `--blue-soft` | `#6b85a8` / `#eaeff4` | Info-Boxen |
-| `--amber` / `--amber-soft` | `#b0843f` / `#f7efe2` | Mittlere Scores (40–69), Warn-Boxen |
+| `--surface-2` | `#f5f8f7` | Hover, eingelassene Flächen, leerer Topf |
+| `--border` | `#e5eae8` | Rahmen, Trennlinien |
+| `--border-strong` | `#d4dbd8` | Input-Rahmen, Topf-Kontur |
+| `--text` | `#1a2320` | Primärtext, große Zahlen, Ziel-Linie |
+| `--text-2` | `#5c6763` | Labels, Beschreibungen |
+| `--text-3` | `#97a09b` | Tertiär, Platzhalter, Unterallokierung |
+| `--sage` (= Akzent Teal) | `#00a587` | Primäraktion, hohe Scores, Bucket 1 |
+| `--sage-deep` | `#007e67` | Hover, Score-Text |
+| `--sage-soft` | `#ddf2ec` | Aktive Tab/Nav, OK-Status, Badge „aktiv" |
+| `--terra` | `#dd6150` | Niedrige Scores, Überallokierung (Koralle) |
+| `--terra-soft` | `#fbe8e4` | Aufwand-Block, Über-Status |
+| `--blue` / `--blue-soft` | `#3f7ea6` / `#e6eff5` | WSJF-Chartlinie, Info-Boxen, Bucket 3 |
+| `--amber` / `--amber-soft` | `#cf9834` / `#f7efda` | Mittlere Scores (40–69), Warn-Boxen |
 | `--radius` / `--radius-sm` | `18px` / `12px` | Cards / Sub-Elemente |
 | `--radius-pill` | `999px` | Buttons, Chips, Badges, Segmente |
 | `--font` | `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif` | **System-Stack, keine Web-Fonts** |
 
 **Score-Farbcodierung:**
-- ≥ 70: `--sage` (Salbeigrün)
-- 40–69: `--amber` (gedämpftes Ocker)
-- < 40: `--terra` (Terracotta)
+- ≥ 70: `--sage` (Teal)
+- 40–69: `--amber` (Ocker)
+- < 40: `--terra` (Koralle)
 
 **Bucket-Farben (Default):**
-- Strategisch / RTI: `#6f7f5b` (Salbe)
-- Opportunistisch / Turn-Key: `#a5614a` (Terracotta)
+- Strategisch / RTI: `#00a587` (Teal)
+- Opportunistisch / Turn-Key: `#e0864c` (Orange)
+- (Beispieldaten Bucket 3: `#3f7ea6` Blau)
 
 **Icons:** Handgeschriebene Inline-SVG (Stroke, `currentColor`), zentral im JS-Objekt `I`.
 
@@ -56,7 +60,7 @@ Salbe/Terracotta-Palette, custom geometrische Daten-Viz. System-Fonts, keine Web
 - Je Bucket: Header-Karte (Titel, Ziel%, Anzahl Projekte, Ist%) + Kapazitätsbalken + Projekttabelle
 
 **Kapazitäts-Übersicht (Töpfe + Donut):**
-- **Topf je Bucket:** Eimer-Silhouette mit Henkel und Rand; Flüssigkeits-Füllstand = Ist-Anteil; gestrichelte Linie = Ziel-Anteil. Farbe: Bucket-Farbe wenn im Ziel, Terracotta wenn überallokiert, Grau wenn unterallokiert.
+- **Topf je Bucket:** flaches **2D**-Behälter-Symbol (leicht konisch, ohne 3D-Rand/Henkel); Füllstand = Ist-**Kapazitäts**anteil (aufwandsgewichtet, s.u.); gestrichelte Linie = Ziel-Anteil. Farbe: Bucket-Farbe wenn im Ziel, Koralle wenn überallokiert, Grau wenn unterallokiert.
 - **Donut:** Segmente je Bucket (Projektanzahl), Bucket-Farben, Zentrum = Gesamtzahl aktiver Projekte. Legende mit Anzahl + %-Anteil.
 - Responsive: Töpfe umbrechen bei schmaler Breite; Trenner zwischen Töpfen und Donut wird ausgeblendet.
 - Beispieldaten via `loadExampleData()` (3 Buckets, 6 Projekte) — Buttons im Onboarding und in Konfiguration → Export.

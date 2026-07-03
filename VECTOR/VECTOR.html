@@ -3,27 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VECTOR — Projektpriorisierung</title>
+<title>VECTOR</title>
 <style>
   :root {
-    --bg: #f6f5f2;
+    /* Akzent = rgb(0,165,135) Teal. Variablennamen (--sage) historisch beibehalten. */
+    --bg: #f3f6f5;
     --surface: #ffffff;
-    --surface-2: #faf9f6;
-    --border: #ebe9e3;
-    --border-strong: #ddd9d0;
-    --text: #211f1c;
-    --text-2: #6b6760;
-    --text-3: #a8a399;
-    --sage: #6f7f5b;
-    --sage-deep: #5d6c4b;
-    --sage-soft: #eef1e8;
-    --terra: #a5614a;
-    --terra-deep: #8f5340;
-    --terra-soft: #f6ece7;
-    --blue: #6b85a8;
-    --blue-soft: #eaeff4;
-    --amber: #b0843f;
-    --amber-soft: #f7efe2;
+    --surface-2: #f5f8f7;
+    --border: #e5eae8;
+    --border-strong: #d4dbd8;
+    --text: #1a2320;
+    --text-2: #5c6763;
+    --text-3: #97a09b;
+    --sage: #00a587;
+    --sage-deep: #007e67;
+    --sage-soft: #ddf2ec;
+    --terra: #dd6150;
+    --terra-deep: #c34c3c;
+    --terra-soft: #fbe8e4;
+    --blue: #3f7ea6;
+    --blue-soft: #e6eff5;
+    --amber: #cf9834;
+    --amber-soft: #f7efda;
     --radius: 18px;
     --radius-sm: 12px;
     --radius-pill: 999px;
@@ -216,9 +217,9 @@
   .tabs button.active { background: var(--sage-soft); color: var(--sage-deep); }
 
   /* ── Boxes ────────────────────────────────────────── */
-  .note-box { background: var(--blue-soft); border: 1px solid #d6e0ea; border-radius: var(--radius-sm); padding: 13px 16px; font-size: 13px; color: #41566e; }
+  .note-box { background: var(--blue-soft); border: 1px solid #cee0ec; border-radius: var(--radius-sm); padding: 13px 16px; font-size: 13px; color: #41566e; }
   .warn-box { background: var(--amber-soft); border: 1px solid #ecdcbd; border-radius: var(--radius-sm); padding: 13px 16px; font-size: 13px; color: #7d5b22; }
-  .ok-box { background: var(--sage-soft); border: 1px solid #d6dec8; border-radius: var(--radius-sm); padding: 13px 16px; font-size: 13px; color: var(--sage-deep); }
+  .ok-box { background: var(--sage-soft); border: 1px solid #bde5db; border-radius: var(--radius-sm); padding: 13px 16px; font-size: 13px; color: var(--sage-deep); }
   .note-box svg, .warn-box svg, .ok-box svg { width: 15px; height: 15px; display: inline-block; vertical-align: -3px; flex-shrink: 0; }
 
   /* ── Empty state ──────────────────────────────────── */
@@ -237,7 +238,7 @@
   .summary .eyebrow { margin-bottom: 9px; }
   .summary .v { font-size: 32px; font-weight: 600; letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; }
   .summary .s { font-size: 11.5px; color: var(--text-3); margin-top: 6px; }
-  .summary.live { background: var(--sage-soft); border-color: #d6dec8; }
+  .summary.live { background: var(--sage-soft); border-color: #bde5db; }
   .summary.live .cell { background: rgba(255,255,255,.6); }
 
   /* ── Toast ────────────────────────────────────────── */
@@ -270,7 +271,7 @@
   .step-action { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: var(--sage-deep); font-weight: 600; font-size: 12.5px; font-family: var(--font); cursor: pointer; padding: 0; }
   .step-action:hover { text-decoration: underline; }
   .step-action svg { width: 15px; height: 15px; }
-  .guide-loop { display: flex; align-items: center; gap: 10px; padding: 14px 18px; background: var(--blue-soft); border: 1px solid #d6e0ea; border-radius: var(--radius-sm); font-size: 13px; color: #41566e; margin-top: 6px; }
+  .guide-loop { display: flex; align-items: center; gap: 10px; padding: 14px 18px; background: var(--blue-soft); border: 1px solid #cee0ec; border-radius: var(--radius-sm); font-size: 13px; color: #41566e; margin-top: 6px; }
   .guide-loop svg { width: 18px; height: 18px; flex-shrink: 0; }
 
   /* Page subtitle */
@@ -364,8 +365,8 @@ const DEFAULT_CRITERIA = [
   { id: 'crit-urgency',   name: 'Dringlichkeit / Cost of Delay', description: 'Wirtschaftliche Kosten / Risiken des Verschiebens', weight: 15, active: true, order: 3 }
 ];
 const DEFAULT_BUCKETS = [
-  { id: 'bucket-strategic', name: 'Strategisch / RTI', color: '#6f7f5b', targetPercent: 60, locked: false, order: 0 },
-  { id: 'bucket-opport',    name: 'Opportunistisch / Turn-Key', color: '#a5614a', targetPercent: 40, locked: false, order: 1 }
+  { id: 'bucket-strategic', name: 'Strategisch / RTI', color: '#00a587', targetPercent: 60, locked: false, order: 0 },
+  { id: 'bucket-opport',    name: 'Opportunistisch / Turn-Key', color: '#e0864c', targetPercent: 40, locked: false, order: 1 }
 ];
 const EFFORT_LABELS = ['', '< 1 Woche', '1–4 Wochen', '1–2 Monate', '2–4 Monate', '> 4 Monate'];
 
@@ -435,13 +436,18 @@ function getTrend(p) {
 function trendClass(t) { return t === '↑' ? 'up' : t === '↓' ? 'down' : 'flat'; }
 function scoreClass(s) { return s >= 70 ? 'high' : s >= 40 ? 'mid' : 'low'; }
 
+function projectEffort(p) { const r = getLatestRound(p); return r ? r.effort : 0; }
 function getBucketStats(bucketId) {
   const allActive = state.projects.filter(p => p.status === 'aktiv');
   const active = allActive.filter(p => p.bucketId === bucketId);
   const bucket = state.buckets.find(b => b.id === bucketId);
-  if (!bucket) return { count: 0, total: 0, target: 0, pct: 0 };
-  const pct = allActive.length > 0 ? Math.round((active.length / allActive.length) * 100) : 0;
-  return { count: active.length, total: allActive.length, target: bucket.targetPercent, pct };
+  if (!bucket) return { count: 0, total: 0, target: 0, pct: 0, effort: 0, totalEffort: 0 };
+  const totalEffort = allActive.reduce((s,p)=>s+projectEffort(p),0);
+  const bucketEffort = active.reduce((s,p)=>s+projectEffort(p),0);
+  // Ist-Anteil = Anteil an der Entwicklungskapazität (Summe der Aufwände), nicht bloße Projektanzahl
+  const pct = totalEffort > 0 ? Math.round((bucketEffort / totalEffort) * 100) : 0;
+  const countPct = allActive.length > 0 ? Math.round((active.length / allActive.length) * 100) : 0;
+  return { count: active.length, total: allActive.length, target: bucket.targetPercent, pct, effort: bucketEffort, totalEffort, countPct };
 }
 
 // ============================================================
@@ -607,7 +613,9 @@ function renderDashboard() {
     <h2>VECTOR — Projektpriorisierung</h2>
     <p>Exportiert am ${new Date().toLocaleDateString('de-DE')} &nbsp;·&nbsp; Buckets: ${esc(bucketSummary)}</p>
   </div>
-  <p class="page-sub" style="margin-top:0">Priorisierung je Bucket. Prüfe, ob die Ist-Auslastung deinem Ziel-Anteil entspricht — der WSJF-Score bestimmt die Reihenfolge innerhalb jedes Buckets.</p>
+  <p class="page-sub" style="margin-top:0">${dashboardView==='bucket'
+    ? 'Priorisierung <b>je Bucket</b>. Prüfe, ob die Ist-Auslastung deinem Ziel-Anteil entspricht — der WSJF-Score bestimmt die Reihenfolge innerhalb jedes Buckets.'
+    : 'Alle aktiven Projekte in <b>einer</b> Liste über alle Buckets hinweg, frei sortierbar — die reine WSJF-Reihenfolge <b>ohne</b> Bucket-Aufteilung (Kontrast zur Bucket-Ansicht). Nur zum Ansehen/Sortieren; Anlegen und Bearbeiten läuft über den Reiter <b>Projekte</b>.'}</p>
   <div class="toolbar">
     <div class="seg">
       <button class="${dashboardView==='bucket'?'active':''}" onclick="setDashView('bucket')">${I.dashboard}<span>Buckets</span></button>
@@ -677,7 +685,7 @@ function renderBucketView() {
       </div>
       ${bp.length===0 ? `<div class="bucket-empty">Keine Projekte in diesem Bucket</div>` : `
       <div class="bucket-table table-wrap"><table>
-        <thead><tr><th style="width:40px">#</th><th>Projekt</th><th>Typ</th><th class="num">Wert</th><th class="num">Aufwand</th><th class="num">WSJF</th><th>Trend</th><th>Status</th><th class="no-print"></th></tr></thead>
+        <thead><tr><th style="width:40px">#</th><th>Projekt</th><th>Typ</th><th class="num" title="Wert-Score (0–100): gewichteter Nutzen aus den Bewertungskriterien">Wert</th><th class="num" title="Aufwand / benötigte Entwicklungskapazität (1–5): 1 = < 1 Woche … 5 = > 4 Monate">Aufwand</th><th class="num" title="WSJF = Wert-Score ÷ Aufwand. Sequenzierungs-Priorität — höher heißt zuerst umsetzen">WSJF</th><th title="Entwicklung des WSJF gegenüber der vorherigen Bewertungsrunde">Trend</th><th>Status</th><th class="no-print"></th></tr></thead>
         <tbody>${bp.map((p,i) => projectRow(p,i+1,false)).join('')}</tbody>
       </table></div>`}
     </div>`;
@@ -718,10 +726,10 @@ function renderRankingView() {
   return `<div class="card"><div class="table-wrap"><table>
     <thead><tr>
       <th style="width:40px">#</th><th>Projekt</th><th>Bucket</th><th>Typ</th>
-      <th class="num sortable" onclick="setSortRanking('value')">Wert${arr('value')}</th>
-      <th class="num">Aufwand</th>
-      <th class="num sortable" onclick="setSortRanking('wsjf')">WSJF${arr('wsjf')}</th>
-      <th>Trend</th>
+      <th class="num sortable" onclick="setSortRanking('value')" title="Wert-Score (0–100): gewichteter Nutzen aus den Bewertungskriterien">Wert${arr('value')}</th>
+      <th class="num" title="Aufwand / benötigte Entwicklungskapazität (1–5): 1 = < 1 Woche … 5 = > 4 Monate">Aufwand</th>
+      <th class="num sortable" onclick="setSortRanking('wsjf')" title="WSJF = Wert-Score ÷ Aufwand. Sequenzierungs-Priorität — höher heißt zuerst umsetzen">WSJF${arr('wsjf')}</th>
+      <th title="Entwicklung des WSJF gegenüber der vorherigen Bewertungsrunde">Trend</th>
       <th class="sortable" onclick="setSortRanking('date')">Bewertet${arr('date')}</th>
       <th>Status</th><th class="no-print"></th>
     </tr></thead>
@@ -768,7 +776,7 @@ function renderProjectList() {
   <p class="page-sub">Lege Projekte an, weise ihnen einen Bucket zu und bewerte sie. Öffne ein Projekt für „Neue Bewertung" — der WSJF-Score aus Wert und Aufwand bestimmt die Priorität.</p>
   ${!projects.length ? `<div class="card"><div class="empty"><div class="ring">${I.projects}</div><p>Noch keine Projekte angelegt. Lege dein erstes Projekt an, um es zu bewerten und zu priorisieren.</p><button class="btn btn-primary" onclick="openProjectForm(null)">${I.plus}<span>Erstes Projekt anlegen</span></button></div></div>` : `
   <div class="card"><div class="table-wrap"><table>
-    <thead><tr><th>Projekt</th><th>Bucket</th><th>Typ</th><th class="num">Wert</th><th class="num">WSJF</th><th class="num">Runden</th><th>Status</th><th></th></tr></thead>
+    <thead><tr><th>Projekt</th><th>Bucket</th><th>Typ</th><th class="num" title="Wert-Score (0–100): gewichteter Nutzen aus den Bewertungskriterien">Wert</th><th class="num" title="WSJF = Wert-Score ÷ Aufwand. Sequenzierungs-Priorität — höher heißt zuerst umsetzen">WSJF</th><th class="num" title="Anzahl gespeicherter Bewertungsrunden (Score-Historie)">Bewertungen</th><th>Status</th><th></th></tr></thead>
     <tbody>${projects.map(p => {
       const r = getLatestRound(p), bucket = state.buckets.find(b=>b.id===p.bucketId);
       return `<tr>
@@ -843,7 +851,7 @@ function renderProjectDetail() {
     <div class="cell"><div class="eyebrow">Trend</div><div class="v"><span class="trend ${trendClass(t)}" style="font-size:32px">${t}</span></div><div class="s">vs. Vorperiode</div></div>
   </div>` : `<div class="note-box mb-6">Noch keine Bewertungsrunde vorhanden. Starte mit „Neue Bewertung".</div>`}
   <div class="card mb-6">
-    <div class="card-head"><h3>Score-Verlauf</h3>${p.rounds.length>=2?`<div class="chart-legend"><span><span class="dot" style="background:var(--sage)"></span>Wert-Score</span><span><span class="dot" style="background:var(--terra)"></span>WSJF</span></div>`:''}</div>
+    <div class="card-head"><h3>Score-Verlauf</h3>${p.rounds.length>=2?`<div class="chart-legend"><span><span class="dot" style="background:var(--sage)"></span>Wert-Score</span><span><span class="dot" style="background:var(--blue)"></span>WSJF</span></div>`:''}</div>
     <div class="card-pad">${p.rounds.length<2 ? `<div class="muted-3" style="font-size:13px">Der Verlauf erscheint ab der zweiten Bewertungsrunde.</div>` : buildLineChart(p.rounds)}</div>
   </div>
   ${p.rounds.length ? `
@@ -891,9 +899,9 @@ function renderScoringForm(p) {
           <div class="scale-labels"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
         </div>
       </div>`).join('')}
-      <div class="eyebrow mb-4" style="margin-top:24px">Stufe 2 — Aufwand <span style="text-transform:none;letter-spacing:0;color:var(--text-3)">(Divisor)</span></div>
-      <div class="crit-row" style="background:var(--terra-soft);border-color:#ecd6cd">
-        <div class="crit-info"><strong>Aufwand</strong><span>Geschätzter Implementierungsaufwand — wirkt als Divisor auf den Wert-Score.</span></div>
+      <div class="eyebrow mb-4" style="margin-top:24px">Stufe 2 — Aufwand / Entwicklungskapazität <span style="text-transform:none;letter-spacing:0;color:var(--text-3)">(Divisor)</span></div>
+      <div class="crit-row" style="background:var(--terra-soft);border-color:#f0d5cd">
+        <div class="crit-info"><strong>Aufwand — benötigte Entwicklungskapazität</strong><span>Hier trägst du ein, wie viel Entwicklungskapazität das Projekt braucht (Skala 1–5). Wirkt als Divisor (WSJF = Wert ÷ Aufwand) <b>und</b> bestimmt den Kapazitätsanteil des Buckets in der Übersicht.</span></div>
         <div class="crit-input">
           <div class="crit-val terra" id="disp-effort">—</div>
           <input type="range" min="1" max="5" step="1" value="3" id="range-effort" class="terra" oninput="updateEffortDisplay();updateLiveScore()">
@@ -933,8 +941,8 @@ function buildLineChart(rounds) {
   ).join('');
   return `<svg class="chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" font-family="var(--font)">
     ${grid}${xlabels}
-    ${line('valueScore','#6f7f5b')}
-    ${line('wsjfScore','#a5614a')}
+    ${line('valueScore','#00a587')}
+    ${line('wsjfScore','#3f7ea6')}
   </svg>`;
 }
 
@@ -942,31 +950,25 @@ function buildLineChart(rounds) {
 // SVG POT (Kapazitäts-Topf je Bucket)
 // ============================================================
 function buildPot(bucket, stats) {
-  const topY = 30, botY = 132, bodyH = botY - topY, topRx = 44, botRx = 30;
-  const rxAt = y => topRx - (topRx - botRx) * ((y - topY) / bodyH);
+  // Flaches 2D-Behälter-Symbol (leicht konisch), Füllstand = Ist-Anteil, gestrichelte Linie = Ziel
+  const topY = 24, botY = 130, bodyH = botY - topY, topHalf = 45, botHalf = 34, r = 6;
+  const halfAt = y => topHalf - (topHalf - botHalf) * ((y - topY) / bodyH);
   const fillFrac = Math.max(0, Math.min(1, stats.pct / 100));
   const fillY = botY - fillFrac * bodyH;
   const tgtFrac = Math.max(0, Math.min(1, bucket.targetPercent / 100));
   const tgtY = botY - tgtFrac * bodyH;
   const diff = stats.pct - bucket.targetPercent;
   const cls = Math.abs(diff) <= 5 ? 'ok' : diff > 5 ? 'over' : 'under';
-  const liquid = cls === 'ok' ? bucket.color : cls === 'over' ? '#b5563a' : '#cbc7be';
+  const liquid = cls === 'ok' ? bucket.color : cls === 'over' ? 'var(--terra)' : '#c2c9c5';
   const cid = 'clip-' + bucket.id;
-  const body = `M${60-topRx},${topY} L${60+topRx},${topY} L${60+botRx},${botY} A${botRx} 8 0 0 1 ${60-botRx} ${botY} Z`;
-  const surfaceRx = rxAt(fillY);
-  const tgtRx = rxAt(tgtY);
-  return `<svg viewBox="0 0 120 150" preserveAspectRatio="xMidYMid meet" font-family="var(--font)">
+  const body = `M${60-topHalf},${topY} L${60+topHalf},${topY} L${60+botHalf},${botY-r} Q${60+botHalf},${botY} ${60+botHalf-r},${botY} L${60-botHalf+r},${botY} Q${60-botHalf},${botY} ${60-botHalf},${botY-r} Z`;
+  const tgtHalf = halfAt(tgtY);
+  return `<svg viewBox="0 0 120 142" preserveAspectRatio="xMidYMid meet" font-family="var(--font)">
     <defs><clipPath id="${cid}"><path d="${body}"/></clipPath></defs>
-    <path d="M18,30 Q60,-10 102,30" fill="none" stroke="#d8d4ca" stroke-width="3.5" stroke-linecap="round"/>
-    <path d="${body}" fill="#f3f1ec" stroke="#d8d4ca" stroke-width="2"/>
-    <g clip-path="url(#${cid})">
-      <rect x="0" y="${fillY}" width="120" height="150" fill="${liquid}"/>
-      ${fillFrac > 0.02 ? `<ellipse cx="60" cy="${fillY}" rx="${surfaceRx}" ry="5" fill="${liquid}" opacity="0.65"/>` : ''}
-    </g>
-    <line x1="${60-tgtRx-2}" y1="${tgtY}" x2="${60+tgtRx+2}" y2="${tgtY}" stroke="#211f1c" stroke-width="1.6" stroke-dasharray="4 3"/>
-    <path d="${body}" fill="none" stroke="#c4c0b6" stroke-width="2"/>
-    <ellipse cx="60" cy="${topY}" rx="${topRx}" ry="8" fill="none" stroke="#c4c0b6" stroke-width="2"/>
-    <text x="60" y="${topY+2}" text-anchor="middle" font-size="8.5" fill="var(--text-3)" font-weight="600" opacity="0"></text>
+    <path d="${body}" fill="var(--surface-2)"/>
+    <rect clip-path="url(#${cid})" x="0" y="${fillY}" width="120" height="142" fill="${liquid}"/>
+    <line x1="${60-tgtHalf-3}" y1="${tgtY}" x2="${60+tgtHalf+3}" y2="${tgtY}" stroke="var(--text)" stroke-width="1.6" stroke-dasharray="4 3"/>
+    <path d="${body}" fill="none" stroke="var(--border-strong)" stroke-width="2" stroke-linejoin="round"/>
   </svg>`;
 }
 
@@ -1009,13 +1011,13 @@ function renderCapacityOverview() {
   const segs = activeBuckets.map(b => ({ label: b.name, value: getBucketStats(b.id).count, color: b.color }));
   const legend = activeBuckets.map(b => {
     const st = getBucketStats(b.id);
-    return `<div class="row"><span class="dot" style="background:${b.color}"></span><span style="flex:1">${esc(b.name)}</span><b>${st.count}</b><span class="muted-3">${st.pct}%</span></div>`;
+    return `<div class="row"><span class="dot" style="background:${b.color}"></span><span style="flex:1">${esc(b.name)}</span><b>${st.count}</b><span class="muted-3">${st.countPct}%</span></div>`;
   }).join('');
   return `<div class="card mb-6"><div class="card-pad">
-    <div class="flex items-center gap-2" style="margin-bottom:18px">
+    <div class="flex items-center gap-2" style="margin-bottom:4px">
       <h3 class="card-title" style="font-size:15px;font-weight:600">Kapazitäts-Übersicht</h3>
-      <span class="muted-3" style="font-size:12px">— Füllstand = Ist-Anteil, gestrichelte Linie = Ziel</span>
     </div>
+    <p class="muted-3" style="font-size:12px;margin-bottom:20px">Töpfe = Anteil an der Entwicklungskapazität (nach Aufwand gewichtet), gestrichelte Linie = Ziel · Donut = Anzahl Projekte</p>
     <div class="overview">
       <div class="pots">${pots}</div>
       <div class="ov-divider"></div>
@@ -1120,7 +1122,7 @@ function renderBucketForm(b) {
   return `<div class="card mb-4" style="border-color:var(--sage)"><div class="card-pad">
     <div class="eyebrow mb-4">${isNew?'Neuer Bucket':'Bucket bearbeiten'}</div>
     <form onsubmit="saveBucket(event,'${isNew?'':b.id}')">
-      <div class="form-row-3"><div class="form-group"><label>Name *</label><input type="text" id="bf-name" value="${b?esc(b.name):''}" required></div><div class="form-group"><label>Zielanteil %</label><input type="number" id="bf-target" value="${b?b.targetPercent:0}" min="0" max="100" required></div><div class="form-group"><label>Farbe</label><input type="color" id="bf-color" value="${b?b.color:'#6f7f5b'}" class="color-input"></div></div>
+      <div class="form-row-3"><div class="form-group"><label>Name *</label><input type="text" id="bf-name" value="${b?esc(b.name):''}" required></div><div class="form-group"><label>Zielanteil %</label><input type="number" id="bf-target" value="${b?b.targetPercent:0}" min="0" max="100" required></div><div class="form-group"><label>Farbe</label><input type="color" id="bf-color" value="${b?b.color:'#00a587'}" class="color-input"></div></div>
       <div class="flex gap-2"><button type="submit" class="btn btn-primary btn-sm">Speichern</button><button type="button" class="btn btn-secondary btn-sm" onclick="state.ui.editingBucketId=null;render()">Abbrechen</button></div>
     </form>
   </div></div>`;
@@ -1286,9 +1288,9 @@ function restoreJSON(input){
 function loadExampleData() {
   if (state.projects.length > 0 && !confirm('Aktuelle Projekte werden durch Beispieldaten ersetzt. Fortfahren?')) return;
   const buckets = [
-    { id:'ex-b1', name:'Strategisch / RTI', color:'#6f7f5b', targetPercent:55, locked:false, order:0 },
-    { id:'ex-b2', name:'Opportunistisch / Turn-Key', color:'#a5614a', targetPercent:35, locked:false, order:1 },
-    { id:'ex-b3', name:'Plattform / Innovation', color:'#6b85a8', targetPercent:10, locked:false, order:2 }
+    { id:'ex-b1', name:'Strategisch / RTI', color:'#00a587', targetPercent:55, locked:false, order:0 },
+    { id:'ex-b2', name:'Opportunistisch / Turn-Key', color:'#e0864c', targetPercent:35, locked:false, order:1 },
+    { id:'ex-b3', name:'Plattform / Innovation', color:'#3f7ea6', targetPercent:10, locked:false, order:2 }
   ];
   const criteria = JSON.parse(JSON.stringify(DEFAULT_CRITERIA));
   const w = { 'crit-strategic':30, 'crit-market':30, 'crit-customer':25, 'crit-urgency':15 };

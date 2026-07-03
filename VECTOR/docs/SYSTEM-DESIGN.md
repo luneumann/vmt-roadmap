@@ -157,6 +157,21 @@ Vergleich des WSJF-Scores der letzten zwei Runden:
 - → sonst (stabil)
 - — wenn nur eine Runde vorhanden
 
+### Bucket-Auslastung (Ist-Anteil der Kapazität)
+
+Der **Aufwand** eines Projekts (1–5, letzte Bewertungsrunde) ist gleichzeitig die
+benötigte **Entwicklungskapazität**. Der Ist-Anteil eines Buckets ist daher
+**aufwandsgewichtet**, nicht nur die Projektanzahl (`getBucketStats`):
+
+```
+Ist-Anteil(Bucket) = Σ Aufwand(aktive Projekte im Bucket) / Σ Aufwand(alle aktiven Projekte) × 100
+```
+
+So zählt ein großes Projekt (Aufwand 5) fünffach gegenüber einem kleinen (Aufwand 1).
+Projekte ohne Bewertungsrunde tragen 0 Kapazität bei. Der **Donut** hingegen zeigt die
+reine **Projektanzahl** je Bucket (zweite Perspektive). Status: |Ist − Ziel| ≤ 5 % = im
+Ziel, > +5 % überallokiert, < −5 % unterallokiert.
+
 ---
 
 ## UI-Ansichten
