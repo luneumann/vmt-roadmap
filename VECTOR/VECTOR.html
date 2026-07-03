@@ -279,6 +279,18 @@
   /* Page subtitle */
   .page-sub { font-size: 13.5px; color: var(--text-2); margin: -14px 0 22px; max-width: 620px; }
 
+  /* ── Quartals-Leiste (Dashboard oben) ─────────────── */
+  .qbar { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .qbar-head { display: flex; flex-direction: column; line-height: 1.1; }
+  .qbar-eye { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
+  .qbar-ttl { font-size: 19px; font-weight: 600; letter-spacing: -.3px; color: var(--text); }
+  .qpills { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+  .qpill { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-2); font-family: var(--font); font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; }
+  .qpill:hover { border-color: var(--sage); color: var(--text); }
+  .qpill.active { background: var(--sage); border-color: var(--sage); color: #fff; }
+  .qpill-sub { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--text-3); font-variant-numeric: tabular-nums; }
+  .qpill.active .qpill-sub { background: rgba(255,255,255,.25); color: #fff; }
+
   /* ── Kapazitäts-Übersicht (Töpfe + Donut) ─────────── */
   .overview { display: flex; gap: 28px; flex-wrap: wrap; align-items: center; }
   .pots { display: flex; gap: 24px; flex: 1; flex-wrap: wrap; justify-content: center; min-width: 240px; }
@@ -372,12 +384,23 @@ const DEFAULT_BUCKETS = [
 ];
 const EFFORT_LABELS = ['', '< 1 Woche', '1–4 Wochen', '1–2 Monate', '2–4 Monate', '> 4 Monate'];
 
+// Quartale (Zeitdimension). Wert intern 'YYYY-Qn', Anzeige 'Qn YYYY'.
+const QUARTER_YEARS = [2026, 2027, 2028];
+const QUARTER_OPTIONS = [];
+QUARTER_YEARS.forEach(y => [1,2,3,4].forEach(q => QUARTER_OPTIONS.push(`${y}-Q${q}`)));
+function quarterLabel(v){ if(!v) return 'Ohne Quartal'; const [y,q] = v.split('-'); return `${q} ${y}`; }
+function quartersInfo(){
+  const set = new Set(); let hasNone = false;
+  state.projects.forEach(p => { if(p.quarter) set.add(p.quarter); else hasNone = true; });
+  return { quarters: [...set].sort(), hasNone };
+}
+
 // ============================================================
 // STATE
 // ============================================================
 let state = { projects: [], criteria: [], buckets: [], config: { bucketAllocationLocked: false }, ui: {
   activeTab: 'dashboard', dashboardView: 'bucket',
-  filterStatus: 'aktiv', filterBucket: 'all',
+  filterStatus: 'aktiv', filterBucket: 'all', filterQuarter: 'all',
   rankSortBy: 'wsjf', rankSortDir: 'desc',
   projectSubTab: 'list',
   editingProjectId: null, detailProjectId: null,
@@ -439,8 +462,15 @@ function trendClass(t) { return t === '↑' ? 'up' : t === '↓' ? 'down' : 'fla
 function scoreClass(s) { return s >= 70 ? 'high' : s >= 40 ? 'mid' : 'low'; }
 
 function projectEffort(p) { const r = getLatestRound(p); return r ? r.effort : 0; }
+function inQuarter(p) {
+  const fq = state.ui.filterQuarter;
+  if (fq === 'all') return true;
+  if (fq === 'none') return !p.quarter;
+  return p.quarter === fq;
+}
+function activeInScope() { return state.projects.filter(p => p.status === 'aktiv' && inQuarter(p)); }
 function getBucketStats(bucketId) {
-  const allActive = state.projects.filter(p => p.status === 'aktiv');
+  const allActive = activeInScope();
   const active = allActive.filter(p => p.bucketId === bucketId);
   const bucket = state.buckets.find(b => b.id === bucketId);
   if (!bucket) return { count: 0, total: 0, target: 0, pct: 0, effort: 0, totalEffort: 0 };
@@ -457,16 +487,16 @@ function getBucketStats(bucketId) {
 // ============================================================
 function exportCSV() {
   const activeCriteria = state.criteria.filter(c => c.active);
-  const headers = ['Name','Bucket','Typ','Datum','Aufwand', ...activeCriteria.map(c => c.name), 'Wert-Score','WSJF-Score','Status'];
+  const headers = ['Name','Quartal','Bucket','Typ','Datum','Aufwand', ...activeCriteria.map(c => c.name), 'Wert-Score','WSJF-Score','Status'];
   const rows = [headers];
-  const projects = state.projects.filter(p => p.status === 'aktiv').sort((a,b) => {
+  const projects = activeInScope().sort((a,b) => {
     const ar = getLatestRound(a), br = getLatestRound(b);
     return (br?br.wsjfScore:0) - (ar?ar.wsjfScore:0);
   });
   for (const p of projects) {
     const r = getLatestRound(p);
     const bucket = state.buckets.find(b => b.id === p.bucketId);
-    rows.push([ p.name, bucket?bucket.name:'', p.type, r?r.date.slice(0,10):'', r?r.effort:'',
+    rows.push([ p.name, p.quarter?quarterLabel(p.quarter):'', bucket?bucket.name:'', p.type, r?r.date.slice(0,10):'', r?r.effort:'',
       ...activeCriteria.map(c => r ? (r.scores[c.id] ?? '') : ''),
       r?r.valueScore:'', r?r.wsjfScore:'', p.status ]);
   }
@@ -604,6 +634,28 @@ function renderOnboarding() {
 }
 
 // ============================================================
+// QUARTALS-AUSWAHL
+// ============================================================
+function setQuarterFilter(v){ state.ui.filterQuarter = v; render(); }
+function quarterHeadline(){
+  const fq = state.ui.filterQuarter;
+  return fq === 'all' ? 'Alle Quartale' : fq === 'none' ? 'Ohne Quartal' : quarterLabel(fq);
+}
+function renderQuarterBar(){
+  const { quarters, hasNone } = quartersInfo();
+  const fq = state.ui.filterQuarter;
+  const pill = (val, label, sub) => `<button class="qpill ${fq===val?'active':''}" onclick="setQuarterFilter('${val}')">${label}${sub!=null?`<span class="qpill-sub">${sub}</span>`:''}</button>`;
+  const countIn = q => state.projects.filter(p => p.status==='aktiv' && (q==='none'? !p.quarter : p.quarter===q)).length;
+  let pills = pill('all', 'Alle');
+  quarters.forEach(q => pills += pill(q, quarterLabel(q), countIn(q)));
+  if (hasNone) pills += pill('none', 'Ohne Quartal', countIn('none'));
+  return `<div class="qbar">
+    <div class="qbar-head"><span class="qbar-eye">Zeitraum</span><span class="qbar-ttl">Quartal</span></div>
+    <div class="qpills">${pills}</div>
+  </div>`;
+}
+
+// ============================================================
 // DASHBOARD
 // ============================================================
 function renderDashboard() {
@@ -613,8 +665,9 @@ function renderDashboard() {
   return `
   <div id="print-header">
     <h2>VECTOR — Projektpriorisierung</h2>
-    <p>Exportiert am ${new Date().toLocaleDateString('de-DE')} &nbsp;·&nbsp; Buckets: ${esc(bucketSummary)}</p>
+    <p>${quarterHeadline()} &nbsp;·&nbsp; Exportiert am ${new Date().toLocaleDateString('de-DE')} &nbsp;·&nbsp; Buckets: ${esc(bucketSummary)}</p>
   </div>
+  ${renderQuarterBar()}
   <p class="page-sub" style="margin-top:0">${dashboardView==='bucket'
     ? 'Priorisierung <b>je Bucket</b>. Prüfe, ob die Ist-Auslastung deinem Ziel-Anteil entspricht — der WSJF-Score bestimmt die Reihenfolge innerhalb jedes Buckets.'
     : 'Alle aktiven Projekte in <b>einer</b> Liste über alle Buckets hinweg, frei sortierbar — die reine WSJF-Reihenfolge <b>ohne</b> Bucket-Aufteilung (Kontrast zur Bucket-Ansicht). Nur zum Ansehen/Sortieren; Anlegen und Bearbeiten läuft über den Reiter <b>Projekte</b>.'}</p>
@@ -647,6 +700,7 @@ function getFilteredProjects() {
   return state.projects.filter(p => {
     if (state.ui.filterStatus !== 'all' && p.status !== state.ui.filterStatus) return false;
     if (state.ui.filterBucket !== 'all' && p.bucketId !== state.ui.filterBucket) return false;
+    if (!inQuarter(p)) return false;
     return true;
   });
 }
@@ -698,9 +752,10 @@ function projectRow(p, rank, showBucket) {
   const r = getLatestRound(p);
   const t = getTrend(p);
   const bucket = state.buckets.find(b => b.id === p.bucketId);
+  const qTag = (state.ui.filterQuarter==='all' && p.quarter) ? ` <span style="font-size:10.5px;font-weight:600;color:var(--text-3);letter-spacing:.02em">· ${quarterLabel(p.quarter)}</span>` : '';
   return `<tr>
     <td class="rank">${rank}</td>
-    <td><div style="font-weight:600">${esc(p.name)}</div>${p.description?`<div style="font-size:12px;color:var(--text-3);margin-top:1px">${esc(p.description)}</div>`:''}</td>
+    <td><div style="font-weight:600">${esc(p.name)}${qTag}</div>${p.description?`<div style="font-size:12px;color:var(--text-3);margin-top:1px">${esc(p.description)}</div>`:''}</td>
     ${showBucket ? `<td>${bucket?`<span class="chip" style="background:${bucket.color}1a;color:${bucket.color}"><span class="dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>`:'—'}</td>` : ''}
     <td><span class="badge badge-type">${esc(p.type)}</span></td>
     <td class="num">${r?`<span class="score ${scoreClass(r.valueScore)}">${r.valueScore}</span>`:'<span class="muted-3">—</span>'}</td>
@@ -737,9 +792,10 @@ function renderRankingView() {
     </tr></thead>
     <tbody>${projects.map((p,i) => {
       const r = getLatestRound(p), t = getTrend(p), bucket = state.buckets.find(b=>b.id===p.bucketId);
+      const qTag = (state.ui.filterQuarter==='all' && p.quarter) ? ` <span style="font-size:10.5px;font-weight:600;color:var(--text-3)">· ${quarterLabel(p.quarter)}</span>` : '';
       return `<tr>
         <td class="rank">${i+1}</td>
-        <td style="font-weight:600">${esc(p.name)}</td>
+        <td style="font-weight:600">${esc(p.name)}${qTag}</td>
         <td>${bucket?`<span class="chip" style="background:${bucket.color}1a;color:${bucket.color}"><span class="dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>`:'—'}</td>
         <td><span class="badge badge-type">${esc(p.type)}</span></td>
         <td class="num">${r?`<span class="score ${scoreClass(r.valueScore)}">${r.valueScore}</span>`:'<span class="muted-3">—</span>'}</td>
@@ -778,11 +834,12 @@ function renderProjectList() {
   <p class="page-sub">Lege Projekte an, weise ihnen einen Bucket zu und bewerte sie. Öffne ein Projekt für „Neue Bewertung" — der WSJF-Score aus Wert und Aufwand bestimmt die Priorität.</p>
   ${!projects.length ? `<div class="card"><div class="empty"><div class="ring">${I.projects}</div><p>Noch keine Projekte angelegt. Lege dein erstes Projekt an, um es zu bewerten und zu priorisieren.</p><button class="btn btn-primary" onclick="openProjectForm(null)">${I.plus}<span>Erstes Projekt anlegen</span></button></div></div>` : `
   <div class="card"><div class="table-wrap"><table>
-    <thead><tr><th>Projekt</th><th>Bucket</th><th>Typ</th><th class="num" title="Wert-Score (0–100): gewichteter Nutzen aus den Bewertungskriterien">Wert</th><th class="num" title="WSJF = Wert-Score ÷ Aufwand. Sequenzierungs-Priorität — höher heißt zuerst umsetzen">WSJF</th><th class="num" title="Anzahl gespeicherter Bewertungsrunden (Score-Historie)">Bewertungen</th><th>Status</th><th></th></tr></thead>
+    <thead><tr><th>Projekt</th><th>Quartal</th><th>Bucket</th><th>Typ</th><th class="num" title="Wert-Score (0–100): gewichteter Nutzen aus den Bewertungskriterien">Wert</th><th class="num" title="WSJF = Wert-Score ÷ Aufwand. Sequenzierungs-Priorität — höher heißt zuerst umsetzen">WSJF</th><th class="num" title="Anzahl gespeicherter Bewertungsrunden (Score-Historie)">Bewertungen</th><th>Status</th><th></th></tr></thead>
     <tbody>${projects.map(p => {
       const r = getLatestRound(p), bucket = state.buckets.find(b=>b.id===p.bucketId);
       return `<tr>
         <td><div style="font-weight:600">${esc(p.name)}</div>${p.description?`<div style="font-size:12px;color:var(--text-3);margin-top:1px">${esc(p.description)}</div>`:''}</td>
+        <td>${p.quarter?`<span class="badge badge-type">${quarterLabel(p.quarter)}</span>`:'<span class="muted-3">—</span>'}</td>
         <td>${bucket?`<span class="chip" style="background:${bucket.color}1a;color:${bucket.color}"><span class="dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>`:'—'}</td>
         <td><span class="badge badge-type">${esc(p.type)}</span></td>
         <td class="num">${r?`<span class="score ${scoreClass(r.valueScore)}">${r.valueScore}</span>`:'<span class="muted-3">—</span>'}</td>
@@ -815,7 +872,10 @@ function renderProjectForm() {
         <div class="form-group"><label>Typ *</label><select id="f-type" required>${['RTI-Produkt','Turn-Key','Feature'].map(t=>`<option value="${t}" ${p&&p.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
         <div class="form-group"><label>Bucket *</label><select id="f-bucket" required><option value="">— wählen —</option>${state.buckets.map(b=>`<option value="${b.id}" ${p&&p.bucketId===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}</select></div>
       </div>
-      <div class="form-group" style="max-width:240px"><label>Status</label><select id="f-status">${['aktiv','zurückgestellt','abgeschlossen'].map(s=>`<option value="${s}" ${(p&&p.status===s)||(!p&&s==='aktiv')?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}</select></div>
+      <div class="form-row">
+        <div class="form-group"><label>Status</label><select id="f-status">${['aktiv','zurückgestellt','abgeschlossen'].map(s=>`<option value="${s}" ${(p&&p.status===s)||(!p&&s==='aktiv')?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}</select></div>
+        <div class="form-group"><label>Quartal</label><select id="f-quarter"><option value="">— kein Quartal —</option>${QUARTER_OPTIONS.map(q=>`<option value="${q}" ${p&&p.quarter===q?'selected':''}>${quarterLabel(q)}</option>`).join('')}</select></div>
+      </div>
       <div class="flex gap-2 mt-4">
         <button type="submit" class="btn btn-primary">${I.save}<span>Speichern</span></button>
         <button type="button" class="btn btn-secondary" onclick="backToList()">Abbrechen</button>
@@ -837,6 +897,7 @@ function renderProjectDetail() {
     <button class="icon-btn" onclick="backToList()" title="Zurück">${I.back}</button>
     <div class="detail-head" style="margin:0">
       <h2>${esc(p.name)}</h2>
+      ${p.quarter?`<span class="badge badge-type">${quarterLabel(p.quarter)}</span>`:''}
       ${bucket?`<span class="chip" style="background:${bucket.color}1a;color:${bucket.color}"><span class="dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>`:''}
       <span class="badge badge-${p.status}">${p.status}</span>
     </div>
@@ -1001,7 +1062,7 @@ function buildDonut(segs, centerNum, centerLbl) {
 // ============================================================
 function renderCapacityOverview() {
   const activeBuckets = [...state.buckets].sort((a,b)=>a.order-b.order);
-  const totalActive = state.projects.filter(p => p.status === 'aktiv').length;
+  const totalActive = activeInScope().length;
   const pots = activeBuckets.map(b => {
     const stats = getBucketStats(b.id);
     return `<div class="pot">
@@ -1173,12 +1234,13 @@ function saveProject(e) {
   const type=document.getElementById('f-type').value;
   const bucket=document.getElementById('f-bucket').value;
   const status=document.getElementById('f-status').value;
+  const quarter=document.getElementById('f-quarter').value;
   if (!bucket) { alert('Bitte einen Bucket wählen.'); return; }
   if (state.ui.editingProjectId) {
     const p=state.projects.find(pr=>pr.id===state.ui.editingProjectId);
-    if (p) { p.name=name; p.description=desc; p.type=type; p.bucketId=bucket; p.status=status; }
+    if (p) { p.name=name; p.description=desc; p.type=type; p.bucketId=bucket; p.status=status; p.quarter=quarter; }
   } else {
-    state.projects.push({ id:newId(), name, description:desc, type, bucketId:bucket, status, rounds:[], createdAt:new Date().toISOString() });
+    state.projects.push({ id:newId(), name, description:desc, type, bucketId:bucket, status, quarter, rounds:[], createdAt:new Date().toISOString() });
   }
   saveData(); backToList(); showToast('Projekt gespeichert');
 }

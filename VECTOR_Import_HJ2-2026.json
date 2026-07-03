@@ -1,0 +1,53 @@
+{
+  "version": "1.0",
+  "exportedAt": "2026-07-03T00:00:00.000Z",
+  "config": { "bucketAllocationLocked": false },
+  "buckets": [
+    { "id": "bk-rti",  "name": "Strategisch / RTI",           "color": "#00a587", "targetPercent": 50, "locked": false, "order": 0 },
+    { "id": "bk-tk",   "name": "Opportunistisch / Turn-Key",  "color": "#e0864c", "targetPercent": 30, "locked": false, "order": 1 },
+    { "id": "bk-en",   "name": "Enabler / Plattform",         "color": "#3f7ea6", "targetPercent": 20, "locked": false, "order": 2 }
+  ],
+  "criteria": [
+    { "id": "crit-strategic", "name": "Strategische Passung",        "description": "Alignment mit Produktstrategie und VMT-Portfolio",     "weight": 30, "active": true, "order": 0 },
+    { "id": "crit-market",    "name": "Marktpotenzial",              "description": "Adressierbare Opportunität, Anzahl potenzieller Kunden", "weight": 30, "active": true, "order": 1 },
+    { "id": "crit-customer",  "name": "Kundennutzen / Effizienz",    "description": "Messbarer Mehrwert für den Endkunden",                  "weight": 25, "active": true, "order": 2 },
+    { "id": "crit-urgency",   "name": "Dringlichkeit / Cost of Delay","description": "Wirtschaftliche Kosten / Risiken des Verschiebens",     "weight": 15, "active": true, "order": 3 }
+  ],
+  "projects": [
+    {
+      "id": "rp-em-rti", "name": "EM RTI", "type": "RTI-Produkt", "bucketId": "bk-rti", "status": "aktiv", "quarter": "2026-Q3",
+      "description": "Produktisierung Environmental Monitoring: automatische Agar-Platten-Auswertung. Pilot: Vetter. Erster Life-Science-RTI. Regulatorisch: GAMP 5 Cat. 4, FDA 21 CFR Part 11, EU GMP Annex 11.",
+      "createdAt": "2026-07-03T00:00:00.000Z", "rounds": []
+    },
+    {
+      "id": "rp-3dle-s", "name": "3DLE Simplify", "type": "Turn-Key", "bucketId": "bk-tk", "status": "aktiv", "quarter": "2026-Q4",
+      "description": "Turn-Key 3DLE nach Simplify-Konzept: gleiche Funktion, vereinfachte Bedienung und Workflow. Keine neuen Funktionen — reine Vereinfachung des bestehenden 3DLE Turn-Key. Führt zu CarPos Agentic.",
+      "createdAt": "2026-07-03T00:00:00.000Z", "rounds": []
+    },
+    {
+      "id": "rp-pvc-s", "name": "PVC Simplify", "type": "Turn-Key", "bucketId": "bk-tk", "status": "aktiv", "quarter": "2026-Q4",
+      "description": "Turn-Key PVC nach Simplify-Konzept: gleiche Kernfunktion, bessere Bedienung und Workflow. Abhängig von Simplify Konzept, MQTT Dashboard und Image KI.",
+      "createdAt": "2026-07-03T00:00:00.000Z", "rounds": []
+    },
+    {
+      "id": "rp-plug-s", "name": "Plug Simplify", "type": "Turn-Key", "bucketId": "bk-tk", "status": "aktiv", "quarter": "2026-Q4",
+      "description": "Turn-Key Plug nach Simplify-Konzept. Applikationsnah zu PVC Simplify (ähnliche Prozesse). Abhängig von Simplify Konzept, MQTT Dashboard und Image KI.",
+      "createdAt": "2026-07-03T00:00:00.000Z", "rounds": []
+    },
+    {
+      "id": "rp-simplify", "name": "Simplify Konzept", "type": "Feature", "bucketId": "bk-en", "status": "aktiv", "quarter": "2026-Q3",
+      "description": "Enabler (Cross-Market): Verbindliche Usability-Standards und vereinfachte Workflows für alle Turn-Key-Produkte. Basis für alle Simplify-Produkte.",
+      "createdAt": "2026-07-03T00:00:00.000Z", "rounds": []
+    },
+    {
+      "id": "rp-mqtt", "name": "MQTT Dashboard", "type": "Feature", "bucketId": "bk-en", "status": "aktiv", "quarter": "2026-Q3",
+      "description": "Enabler (Cross-Market): Verkaufbares Dashboard zur Visualisierung von Produktionsdaten — Nacharbeitsstation, Linienübersicht, Management. Direkt verkaufbar, nicht nur interner Enabler.",
+      "createdAt": "2026-07-03T00:00:00.000Z", "rounds": []
+    },
+    {
+      "id": "rp-image-ki", "name": "Image KI (DENKweit)", "type": "Feature", "bucketId": "bk-en", "status": "aktiv", "quarter": "2026-Q3",
+      "description": "Enabler (Cross-Market): Integration der DENKweit-Plattform (VISION AI Hub) — KI-Bildverarbeitung für alle Produkte und Projekte. Partner: DENKweit, aktuell in Integration.",
+      "createdAt": "2026-07-03T00:00:00.000Z", "rounds": []
+    }
+  ]
+}
