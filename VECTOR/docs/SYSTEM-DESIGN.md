@@ -188,30 +188,34 @@ die als eigenständiges `#app-modal`-Overlay über die Hauptseite gelegt werden.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ VECTOR   [Kapazität][Buckets][Alle Projekte]  [Leitfaden][⚙ Konfiguration][+ Neues Projekt] │  ← sticky Header
+│ VECTOR   [Kapazität][Alle Projekte]  [Leitfaden][⚙ Konfiguration][+ Neues Projekt] │  ← sticky Header
 ├──────────────────────────────────────────────────────────────┤
 │ Quartal:  [Alle] [Q3 2026 · 4] [Q4 2026 · 3] ...              │  ← Quartals-Leiste
 │ Filter: [Status ▾] [Bucket ▾]         [📄 CSV] [🖨 Drucken]   │
 ├──────────────────────────────────────────────────────────────┤
 │ #capacity-tile   Kapazitäts-Übersicht: Töpfe + Donut          │
 ├──────────────────────────────────────────────────────────────┤
-│ #buckets-tile    Bucket-Grid (CSS Grid, responsive Kacheln)   │
-│   ┌ Bucket A ┐  ┌ Bucket B ┐  ┌ Bucket C ┐                   │
-│   │ Ziel/Ist │  │ Ziel/Ist │  │ Ziel/Ist │  … je eigene Tabelle │
-│   └──────────┘  └──────────┘  └──────────┘                   │
-├──────────────────────────────────────────────────────────────┤
-│ #all-projects-tile  Alle Projekte (eine sortierbare Tabelle)  │
+│ #all-projects-tile  Alle Projekte (eine sortierbare Tabelle,  │
+│   Spalte "Bucket" als farbiger Chip — ersetzt die frühere     │
+│   Bucket-Kachel-Ansicht vollständig)                          │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-- Header-Buttons `Kapazität`/`Buckets`/`Alle Projekte` sind **Anker-Scrolls**
-  (`scrollToSection(id)`) zu den drei Bereichen — keine Seitenwechsel.
-- `Status`- und `Bucket`-Filter wirken auf Bucket-Kacheln *und* die Projekt-Tabelle
-  gemeinsam (ein Filter, ein Zustand).
-- Ist bei `filterBucket !== 'all'` nur ein Bucket sichtbar, entfällt die
-  Kapazitäts-Übersicht (Töpfe für alle Buckets wären dann irreführend).
+- Header-Buttons `Kapazität`/`Alle Projekte` sind **Anker-Scrolls**
+  (`scrollToSection(id)`) zu den zwei Bereichen — keine Seitenwechsel.
+- `Status`- und `Bucket`-Filter wirken auf die Kapazitäts-Übersicht *und* die
+  Alle-Projekte-Tabelle gemeinsam (ein Filter, ein Zustand).
+- Ist bei `filterBucket !== 'all'` nur ein Bucket ausgewählt, entfällt die
+  Kapazitäts-Übersicht (Töpfe für alle Buckets wären dann irreführend); die Tabelle
+  filtert weiterhin auf diesen Bucket.
 - Ohne Projekte zeigt die Hauptseite `renderOnboarding()` (Willkommens-Karte mit
-  den 6 Leitfaden-Schritten) statt der Kacheln.
+  den 6 Leitfaden-Schritten) statt der Kacheln/Tabelle.
+- Es gibt bewusst **keine separaten Bucket-Kacheln mehr** (frühere `renderBucketTiles()`/
+  `projectRow()` entfernt) — die Bucket-Zugehörigkeit ist in der Alle-Projekte-Tabelle
+  als Spalte sichtbar, das reicht für die tägliche Arbeit.
+- **Projektbeschreibungen** erscheinen nicht mehr als Fließtext in der Tabelle, sondern
+  als **ⓘ-Icon** neben dem Projektnamen mit nativem `title`-Tooltip (`.info-dot`,
+  Hover zeigt die volle Beschreibung) — hält die Zeilenhöhe konstant bei langen Texten.
 
 ### Pop-up: Projekt-Modal (`renderProjectModal()`, 3 Ansichten in einem Overlay)
 
@@ -254,14 +258,14 @@ Detail-Modal heraus) — Escape schließt in der Reihenfolge Bestätigung → Mo
 ein Modal offen bleibt), sodass immer die Hauptseite gedruckt wird:
 - Deckblatt-Zeile: Titel, Export-Datum, Bucket-Zielaufteilung
 - Kapazitäts-Übersicht (Soll vs. Ist je Bucket)
-- Bucket-Kacheln + Alle-Projekte-Tabelle
+- Alle-Projekte-Tabelle (Bucket als Spalte)
 
 ---
 
 ## Datenfluss — Haupt-Use-Case "Projekt bewerten"
 
 ```
-1. Nutzer klickt ein Projekt (Bucket-Kachel oder Alle-Projekte-Tabelle) → openDetail(id)
+1. Nutzer klickt ein Projekt in der Alle-Projekte-Tabelle → openDetail(id)
 2. Projekt-Modal öffnet in der Detail-Ansicht
 3. Klick "Neue Bewertung" → enterScoring() wechselt den Modal-Inhalt (kein Reload)
 4. Formular zeigt alle aktiven Kriterien (aus vector_criteria)
@@ -270,7 +274,7 @@ ein Modal offen bleibt), sodass immer die Hauptseite gedruckt wird:
 7. Nutzer klickt "Speichern" (saveScoringRound)
 8. Neue ScoringRound wird zu project.rounds gepusht, saveData() persistiert
 9. Modal springt zurück zur Detail-Ansicht (refreshProjectModal), Hauptseite
-   aktualisiert im Hintergrund (render()) — Bucket-Kachel/Tabelle zeigen sofort
+   aktualisiert im Hintergrund (render()) — die Alle-Projekte-Tabelle zeigt sofort
    den neuen Trend, ohne dass das Modal geschlossen werden muss
 ```
 

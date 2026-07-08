@@ -52,47 +52,50 @@ Salbe/Terracotta-Palette, custom geometrische Daten-Viz. System-Fonts, keine Web
 
 ### Screen 1 — Hauptseite (Single Page, immer sichtbar)
 
-**Zweck:** Alles auf einer Seite — Kapazität, Buckets und Projekte gleichzeitig im Blick,
-keine Seiten-Tabs mehr. `renderPage()` baut diese eine Ansicht; sie ist die einzige
-„Seite" der App. Details/Bewertung/Konfiguration öffnen als Pop-up (Screen 2/3).
+**Zweck:** Alles auf einer Seite — Kapazität und Projekte gleichzeitig im Blick, keine
+Seiten-Tabs mehr. `renderPage()` baut diese eine Ansicht; sie ist die einzige „Seite"
+der App. Details/Bewertung/Konfiguration öffnen als Pop-up (Screen 2/3).
 
 **Layout, von oben nach unten:**
-- Sticky Header: Anker-Buttons `Kapazität` / `Buckets` / `Alle Projekte` (Scroll, keine
+- Sticky Header: Anker-Buttons `Kapazität` / `Alle Projekte` (Scroll, keine
   Seitenwechsel) + `Leitfaden` + `⚙ Konfiguration` (öffnet Screen 3) + `+ Neues Projekt`
   (öffnet Screen 2 im Form-Modus)
 - Quartals-Leiste (Pills: Alle / Q3 2026 / Q4 2026 …)
 - Filter-Leiste: Status-Dropdown, Bucket-Dropdown, CSV-Export, Drucken — wirkt auf
-  Kapazitäts-Übersicht, Bucket-Kacheln **und** Alle-Projekte-Tabelle gemeinsam
+  Kapazitäts-Übersicht **und** Alle-Projekte-Tabelle gemeinsam
 - `#capacity-tile`: **Kapazitäts-Übersicht** (nur wenn Bucket-Filter = „Alle"): Reihe von
   **Töpfen** (SVG, `buildPot`) je Bucket + **Donut** (`buildDonut`) mit Projektverteilung
-- `#buckets-tile`: **Bucket-Grid** — CSS-Grid-Kacheln (`grid-template-columns:
-  repeat(auto-fit, minmax(420px,1fr))`), responsive nebeneinander auf Desktop-Breite,
-  gestapelt auf schmalen Fenstern. Je Kachel: Titel, Ziel%, Anzahl Projekte,
-  Kapazitätsbalken, Projekttabelle. Ist nur ein Bucket gefiltert, erscheint nur diese
-  eine Kachel.
-- `#all-projects-tile`: **Alle Projekte** — eine sortierbare Tabelle über alle
-  gefilterten Buckets hinweg (ersetzt die frühere separate „Projekte"-Seite)
+- `#all-projects-tile`: **Alle Projekte** — eine einzige sortierbare Tabelle über alle
+  gefilterten Buckets hinweg, mit Bucket als farbiger Chip-Spalte. Ersetzt sowohl die
+  frühere separate „Projekte"-Seite als auch die frühere Bucket-Kachel-Ansicht (Kacheln
+  je Bucket mit eigener Mini-Tabelle) — bewusst entfernt, da Bucket-Zugehörigkeit +
+  Sortierung in einer Tabelle für den täglichen Gebrauch ausreicht.
 
 **Kapazitäts-Übersicht (Töpfe + Donut):**
 - **Topf je Bucket:** flaches **2D**-Behälter-Symbol (leicht konisch, ohne 3D-Rand/Henkel); Füllstand = Ist-**Kapazitäts**anteil (aufwandsgewichtet); gestrichelte Linie = Ziel-Anteil. Farbe: Bucket-Farbe wenn im Ziel, Koralle wenn überallokiert, Grau wenn unterallokiert.
 - **Donut:** Segmente je Bucket (Projektanzahl), Bucket-Farben, Zentrum = Gesamtzahl aktiver Projekte. Legende mit Anzahl + %-Anteil.
 - Beispieldaten via `loadExampleData()` (3 Buckets, 6 Projekte) — Buttons im Onboarding und in Konfiguration → Export.
 
-**Klick auf ein Projekt** (in Bucket-Kachel oder Alle-Projekte-Tabelle, Button „Öffnen"):
-öffnet Screen 2 (Projekt-Modal) in der Detail-Ansicht — `openDetail(id)`.
+**Klick auf ein Projekt** (Alle-Projekte-Tabelle, Button „Öffnen"): öffnet Screen 2
+(Projekt-Modal) in der Detail-Ansicht — `openDetail(id)`.
+
+**Projektbeschreibung als Tooltip:** Neben dem Projektnamen erscheint bei vorhandener
+Beschreibung ein kleines **ⓘ-Icon** (`.info-dot`, Klasse `I.info`). Hover zeigt die volle
+Beschreibung über den nativen HTML-`title`-Tooltip des Browsers — kein Custom-JS, keine
+zusätzliche Bibliothek. Hält die Tabellenzeile kompakt auch bei langen Freitexten.
 
 **States:**
 | State | Beschreibung |
 |---|---|
 | Keine Projekte | `renderOnboarding()` ersetzt die gesamte Hauptseite (Willkommens-Karte, 6 Leitfaden-Schritte) |
-| Leerer Bucket | Placeholder-Text "Keine Projekte in diesem Bucket" innerhalb der Kachel |
-| Mit Projekten | Kachel-Tabelle: Rang, Name, Typ, Wert-Score, Aufwand, WSJF, Trend, Status |
-| Filter aktiv | Kacheln + Alle-Projekte-Tabelle filtern synchron, Bucket-Stats bleiben immer auf aktiven Projekten (+ Quartal) |
+| Leere Tabelle (Filter) | Empty-State „Keine Projekte mit aktuellem Filter." |
+| Mit Projekten | Tabelle: Rang, Name (+ ⓘ-Tooltip), Bucket-Chip, Typ, Wert-Score, Aufwand, WSJF, Trend, Bewertet, Status |
+| Filter aktiv | Kapazitäts-Übersicht + Alle-Projekte-Tabelle filtern synchron (Status, Bucket, Quartal) |
 
-**Kapazitätsbalken:**
+**Kapazitätsbalken (in den Töpfen):**
 - Grün: Ist-Anteil ≤ Ziel + 5%
-- Rot (Koralle): Ist-Anteil > Ziel + 5% → Label "Überallokiert"
-- Grau: Ist-Anteil < Ziel - 5% → Label "Unterallokiert"
+- Rot (Koralle): Ist-Anteil > Ziel + 5% → Überallokiert
+- Grau: Ist-Anteil < Ziel - 5% → Unterallokiert
 
 ---
 
@@ -168,7 +171,7 @@ Backup wiederherstellen (File-Input), Beispieldaten laden, Alle Daten löschen.
 **Layout (DIN A4 Querformat):**
 - Deckzeile: "VECTOR — Projektpriorisierung" | Quartal | Datum | Bucket-Zielaufteilung
 - Kapazitäts-Übersicht (Soll vs. Ist je Bucket)
-- Bucket-Kacheln + Alle-Projekte-Tabelle (nach WSJF sortiert)
+- Alle-Projekte-Tabelle (nach WSJF sortiert, Bucket als Spalte)
 
 **Versteckt im Druck:** Header/Anker-Nav, Filter-Leiste, alle Buttons, **jedes offene
 Pop-up-Modal** (`.overlay` global ausgeblendet — `openPrintView()` schließt zusätzlich
@@ -209,11 +212,11 @@ Hauptseite gedruckt wird).
 | Score-Wert | `.score` | `.high` (grün), `.mid` (ocker), `.low` (koralle) |
 | WSJF-Score | `.wsjf` | — |
 | Trend | `.trend` | `.up`, `.down`, `.flat` |
-| Kapazitätsbalken | `.cap-fill` | Farbe inline (ok/über/unter) |
+| Kapazitäts-Topf | SVG (`buildPot()`) | Farbe inline (ok/über/unter), kein CSS-Balken mehr |
+| Info-Tooltip | `.info-dot` (+ `I.info`) | nativer `title`-Tooltip für lange Projektbeschreibungen |
 | Card | `.card` | + `.card-pad`, `.card-head` |
 | **Pop-up-Modal** | `.overlay` + `.modal` | `.modal-md` (640px), `.modal-lg` (880px); Kopf/Körper reusen `.guide-head` / `.guide-body` |
 | Quartals-Pill | `.qpill` | `.active` |
-| Bucket-Grid | `.bucket-grid` | responsive `auto-fit` Kacheln |
 | Info-Box | `.note-box` | — (blau) |
 | Warn-Box | `.warn-box` | — (ocker) |
 | OK-Box | `.ok-box` | — (teal) |

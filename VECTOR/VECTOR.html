@@ -144,6 +144,9 @@
   .badge-type { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
   .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border-radius: var(--radius-pill); font-size: 11.5px; font-weight: 600; }
   .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .info-dot { display: inline-flex; color: var(--text-3); cursor: help; flex-shrink: 0; }
+  .info-dot svg { width: 14px; height: 14px; }
+  .info-dot:hover { color: var(--sage-deep); }
 
   /* ── Toolbar / filters ────────────────────────────── */
   .toolbar { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; flex-wrap: wrap; }
@@ -155,34 +158,6 @@
   .field-inline { display: inline-flex; align-items: center; gap: 8px; }
   .field-inline label { margin: 0; font-size: 12px; color: var(--text-3); white-space: nowrap; }
   .field-inline select { padding: 7px 30px 7px 12px; font-size: 13px; width: auto; border-radius: 10px; }
-
-  /* ── Bucket tiles (grid) ───────────────────────────── */
-  .bucket-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; align-items: start; }
-  .bucket-card { overflow: hidden; }
-  .bucket-top { display: flex; align-items: flex-start; gap: 24px; padding: 24px 26px 20px; }
-  .bucket-id { flex: 1; min-width: 0; }
-  .bucket-name { display: flex; align-items: center; gap: 9px; font-size: 17px; font-weight: 600; letter-spacing: -.2px; }
-  .bucket-name .dot { width: 11px; height: 11px; }
-  .bucket-sub { color: var(--text-2); font-size: 13px; margin-top: 3px; }
-  .bucket-hero { text-align: right; flex-shrink: 0; }
-  .bucket-hero .stat-num { font-size: 40px; }
-  .bucket-hero .lbl { font-size: 11.5px; color: var(--text-3); margin-top: 4px; font-weight: 500; }
-  .bucket-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 4px 12px; border-radius: var(--radius-pill); margin-top: 8px; }
-  .status-ok { background: var(--sage-soft); color: var(--sage-deep); }
-  .status-over { background: var(--terra-soft); color: var(--terra); }
-  .status-under { background: #f0efec; color: var(--text-2); }
-
-  /* Capacity bar with target tick */
-  .cap { padding: 0 26px 22px; }
-  .cap-track { position: relative; height: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-pill); overflow: visible; }
-  .cap-fill { height: 100%; border-radius: var(--radius-pill); transition: width .4s cubic-bezier(.2,.7,.3,1); }
-  .cap-target { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--text); border-radius: 2px; }
-  .cap-target::after { content: ''; position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 7px; height: 7px; border-radius: 50%; background: var(--text); }
-  .cap-legend { display: flex; gap: 16px; margin-top: 10px; font-size: 12px; color: var(--text-2); }
-  .cap-legend b { color: var(--text); font-weight: 600; }
-
-  .bucket-table { border-top: 1px solid var(--border); }
-  .bucket-empty { padding: 28px 26px; text-align: center; color: var(--text-3); font-size: 13px; border-top: 1px solid var(--border); }
 
   /* ── Scoring form ─────────────────────────────────── */
   .crit-row { display: flex; align-items: center; gap: 28px; padding: 20px 22px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; }
@@ -316,7 +291,7 @@
   .mt-4 { margin-bottom: 0; margin-top: 16px; }
 
   /* Scroll anchor offsets (sticky header) */
-  #capacity-tile, #buckets-tile, #all-projects-tile { scroll-margin-top: 88px; }
+  #capacity-tile, #all-projects-tile { scroll-margin-top: 88px; }
 
   /* ── Print ────────────────────────────────────────── */
   #print-header { display: none; }
@@ -325,7 +300,6 @@
     header, .toolbar, .btn, .icon-btn, .seg, .no-print, .overlay { display: none !important; }
     main { padding: 0; max-width: none; }
     .card { box-shadow: none; break-inside: avoid; border-color: #ccc; }
-    .bucket-card { break-inside: avoid; }
     @page { size: A4 landscape; margin: 14mm; }
     #print-header { display: block; padding-bottom: 14px; border-bottom: 2px solid #333; margin-bottom: 20px; }
     #print-header h2 { font-size: 19px; }
@@ -340,7 +314,6 @@
     <div class="brand">VECTOR</div>
     <nav>
       <button onclick="scrollToSection('capacity-tile')"><span>Kapazität</span></button>
-      <button onclick="scrollToSection('buckets-tile')"><span>Buckets</span></button>
       <button onclick="scrollToSection('all-projects-tile')"><span>Alle Projekte</span></button>
     </nav>
     <div style="flex:1"></div>
@@ -378,7 +351,8 @@ const I = {
   spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/></svg>',
   lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>',
-  arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>'
+  arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>',
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16.5"/><circle cx="12" cy="7.3" r="0.6" fill="currentColor" stroke="none"/></svg>'
 };
 
 // ============================================================
@@ -683,7 +657,7 @@ function renderPage() {
     <p>${quarterHeadline()} &nbsp;·&nbsp; Exportiert am ${new Date().toLocaleDateString('de-DE')} &nbsp;·&nbsp; Buckets: ${esc(bucketSummary)}</p>
   </div>
   ${renderQuarterBar()}
-  <p class="page-sub" style="margin-top:0">Kapazität wird zuerst strukturell auf <b>Buckets</b> verteilt — innerhalb jedes Buckets entscheidet der <b>WSJF-Score</b> über die Reihenfolge. Klicke ein Projekt für Details, Bewertung oder Bearbeitung.</p>
+  <p class="page-sub" style="margin-top:0">Kapazität wird zuerst strukturell auf <b>Buckets</b> verteilt — der <b>WSJF-Score</b> bestimmt die Reihenfolge. Klicke ein Projekt für Details, Bewertung oder Bearbeitung.</p>
   <div class="toolbar">
     <div class="field-inline">
       <label>Status</label>
@@ -703,7 +677,6 @@ function renderPage() {
     <button class="btn btn-secondary btn-sm" onclick="openPrintView()">${I.print}<span>Drucken</span></button>
   </div>
   ${filterBucket === 'all' ? renderCapacityOverview() : ''}
-  ${renderBucketTiles()}
   ${renderAllProjectsTile()}
   `;
 }
@@ -715,77 +688,6 @@ function getFilteredProjects() {
     if (!inQuarter(p)) return false;
     return true;
   });
-}
-
-function renderBucketTiles() {
-  const projects = getFilteredProjects();
-  if (!state.buckets.length) return `<div class="card mb-6"><div class="empty"><div class="ring">${I.dashboard}</div><p>Keine Buckets konfiguriert.</p><button class="btn btn-primary" onclick="openConfig('buckets')">Buckets anlegen</button></div></div>`;
-  const bucketsToShow = state.ui.filterBucket === 'all'
-    ? [...state.buckets].sort((a,b)=>a.order-b.order)
-    : state.buckets.filter(b => b.id === state.ui.filterBucket);
-  const tiles = bucketsToShow.map(bucket => {
-    const bp = projects.filter(p => p.bucketId === bucket.id).sort((a,b) => {
-      const ar=getLatestRound(a), br=getLatestRound(b);
-      return (br?br.wsjfScore:0)-(ar?ar.wsjfScore:0);
-    });
-    const stats = getBucketStats(bucket.id);
-    const diff = stats.pct - bucket.targetPercent;
-    const cls = Math.abs(diff) <= 5 ? 'ok' : diff > 5 ? 'over' : 'under';
-    const fillColor = cls==='ok' ? bucket.color : cls==='over' ? 'var(--terra)' : 'var(--text-3)';
-    const statusTxt = cls==='ok' ? 'Im Zielbereich' : cls==='over' ? 'Überallokiert' : 'Unterallokiert';
-    return `
-    <div class="card bucket-card">
-      <div class="bucket-top">
-        <div class="bucket-id">
-          <div class="bucket-name"><span class="dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</div>
-          <div class="bucket-sub">Zielanteil ${bucket.targetPercent}% &nbsp;·&nbsp; ${stats.count} aktive${stats.count===1?'s':''} Projekt${stats.count===1?'':'e'}</div>
-          <div class="bucket-status status-${cls}"><span class="dot" style="background:currentColor"></span>${statusTxt}</div>
-        </div>
-        <div class="bucket-hero">
-          <div class="stat-num">${stats.pct}<span style="font-size:20px;font-weight:500;color:var(--text-3)">%</span></div>
-          <div class="lbl">Ist-Anteil der Kapazität</div>
-        </div>
-      </div>
-      <div class="cap">
-        <div class="cap-track">
-          <div class="cap-fill" style="width:${Math.min(stats.pct,100)}%;background:${fillColor}"></div>
-          <div class="cap-target" style="left:${Math.min(bucket.targetPercent,100)}%" title="Ziel ${bucket.targetPercent}%"></div>
-        </div>
-        <div class="cap-legend"><span>Ist <b>${stats.pct}%</b></span><span>Ziel <b>${bucket.targetPercent}%</b></span></div>
-      </div>
-      ${bp.length===0 ? `<div class="bucket-empty">Keine Projekte in diesem Bucket</div>` : `
-      <div class="bucket-table table-wrap"><table>
-        <thead><tr><th style="width:40px">#</th><th>Projekt</th><th>Typ</th><th class="num" title="Wert-Score (0–100): gewichteter Nutzen aus den Bewertungskriterien">Wert</th><th class="num" title="Aufwand / benötigte Entwicklungskapazität (1–5): 1 = < 1 Woche … 5 = > 4 Monate">Aufwand</th><th class="num" title="WSJF = Wert-Score ÷ Aufwand. Sequenzierungs-Priorität — höher heißt zuerst umsetzen">WSJF</th><th title="Entwicklung des WSJF gegenüber der vorherigen Bewertungsrunde">Trend</th><th>Status</th><th class="no-print"></th></tr></thead>
-        <tbody>${bp.map((p,i) => projectRow(p,i+1,false)).join('')}</tbody>
-      </table></div>`}
-    </div>`;
-  }).join('');
-  return `<div id="buckets-tile">
-    <div class="flex items-center gap-2 mb-4" style="margin-top:4px">
-      <h3 style="font-size:15px;font-weight:600">Buckets</h3>
-      <span class="muted-3" style="font-size:12px">— Priorisierung je Bucket, sortiert nach WSJF</span>
-    </div>
-    <div class="bucket-grid">${tiles}</div>
-  </div>`;
-}
-
-function projectRow(p, rank, showBucket) {
-  const r = getLatestRound(p);
-  const t = getTrend(p);
-  const bucket = state.buckets.find(b => b.id === p.bucketId);
-  const qTag = (state.ui.filterQuarter==='all' && p.quarter) ? ` <span style="font-size:10.5px;font-weight:600;color:var(--text-3);letter-spacing:.02em">· ${quarterLabel(p.quarter)}</span>` : '';
-  return `<tr>
-    <td class="rank">${rank}</td>
-    <td><div style="font-weight:600">${esc(p.name)}${qTag}</div>${p.description?`<div style="font-size:12px;color:var(--text-3);margin-top:1px">${esc(p.description)}</div>`:''}</td>
-    ${showBucket ? `<td>${bucket?`<span class="chip" style="background:${bucket.color}1a;color:${bucket.color}"><span class="dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>`:'—'}</td>` : ''}
-    <td><span class="badge badge-type">${esc(p.type)}</span></td>
-    <td class="num">${r?`<span class="score ${scoreClass(r.valueScore)}">${r.valueScore}</span>`:'<span class="muted-3">—</span>'}</td>
-    <td class="num">${r?`<span class="tnum" title="${EFFORT_LABELS[r.effort]}">${r.effort}</span>`:'<span class="muted-3">—</span>'}</td>
-    <td class="num">${r?`<span class="wsjf">${r.wsjfScore}</span>`:'<span class="muted-3">—</span>'}</td>
-    <td><span class="trend ${trendClass(t)}">${t}</span></td>
-    <td><span class="badge badge-${p.status}">${p.status}</span></td>
-    <td class="no-print" style="text-align:right"><button class="btn btn-ghost btn-sm" onclick="openDetail('${p.id}')">Öffnen</button></td>
-  </tr>`;
 }
 
 function renderAllProjectsTile() {
@@ -817,7 +719,7 @@ function renderAllProjectsTile() {
         const qTag = (state.ui.filterQuarter==='all' && p.quarter) ? ` <span style="font-size:10.5px;font-weight:600;color:var(--text-3)">· ${quarterLabel(p.quarter)}</span>` : '';
         return `<tr>
           <td class="rank">${i+1}</td>
-          <td style="font-weight:600">${esc(p.name)}${qTag}</td>
+          <td><span style="font-weight:600;display:inline-flex;align-items:center;gap:6px">${esc(p.name)}${p.description?`<span class="info-dot" title="${esc(p.description)}">${I.info}</span>`:''}${qTag}</span></td>
           <td>${bucket?`<span class="chip" style="background:${bucket.color}1a;color:${bucket.color}"><span class="dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>`:'—'}</td>
           <td><span class="badge badge-type">${esc(p.type)}</span></td>
           <td class="num">${r?`<span class="score ${scoreClass(r.valueScore)}">${r.valueScore}</span>`:'<span class="muted-3">—</span>'}</td>
