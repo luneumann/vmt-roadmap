@@ -169,6 +169,7 @@
   .crit-val { text-align: center; font-size: 26px; font-weight: 600; color: var(--sage-deep); margin-bottom: 8px; font-variant-numeric: tabular-nums; }
   .crit-val.terra { color: var(--terra); }
   .scale-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-3); margin-top: 6px; }
+  .crit-input input[type="number"] { text-align: center; font-weight: 600; font-size: 14px; }
 
   /* ── Chart ────────────────────────────────────────── */
   .chart-legend { display: flex; gap: 20px; margin-top: 4px; }
@@ -359,10 +360,10 @@ const I = {
 // DEFAULT DATA
 // ============================================================
 const DEFAULT_CRITERIA = [
-  { id: 'crit-strategic', name: 'Strategische Passung', description: 'Alignment mit Produktstrategie und VMT-Portfolio', weight: 30, active: true, order: 0 },
-  { id: 'crit-market',    name: 'Marktpotenzial',       description: 'Adressierbare Opportunität, Anzahl potenzieller Kunden', weight: 30, active: true, order: 1 },
-  { id: 'crit-customer',  name: 'Kundennutzen / Effizienz', description: 'Messbarer Mehrwert für den Endkunden', weight: 25, active: true, order: 2 },
-  { id: 'crit-urgency',   name: 'Dringlichkeit / Cost of Delay', description: 'Wirtschaftliche Kosten / Risiken des Verschiebens', weight: 15, active: true, order: 3 }
+  { id: 'crit-strategic', name: 'Strategische Passung', description: 'Alignment mit Produktstrategie und VMT-Portfolio', weight: 30, active: true, order: 0, valueType: 'scale' },
+  { id: 'crit-market',    name: 'Marktpotenzial (SOM)', description: 'Service Obtainable Market — realistisch erreichbarer Umsatz in diesem Segment', weight: 30, active: true, order: 1, valueType: 'numeric', min: 500000, max: 10000000, unit: '€' },
+  { id: 'crit-customer',  name: 'Kundennutzen / Effizienz', description: 'Messbarer Mehrwert für den Endkunden', weight: 25, active: true, order: 2, valueType: 'scale' },
+  { id: 'crit-urgency',   name: 'Dringlichkeit / Cost of Delay', description: 'Geschätzte wirtschaftliche Kosten des Verschiebens pro Jahr', weight: 15, active: true, order: 3, valueType: 'numeric', min: 0, max: 5000000, unit: '€' }
 ];
 const DEFAULT_BUCKETS = [
   { id: 'bucket-strategic', name: 'Strategisch / RTI', color: '#00a587', targetPercent: 60, locked: false, order: 0 },
@@ -418,12 +419,37 @@ function newId() { return 'id-' + Date.now().toString(36) + '-' + Math.random().
 // ============================================================
 // SCORING ENGINE
 // ============================================================
+// Normiert den Rohwert eines Kriteriums auf eine 1–5-Skala.
+// 'scale' (Default, Rückwärtskompatibel): Rohwert ist bereits 1–5.
+// 'numeric': Rohwert liegt zwischen min/max (z.B. € SOM) und wird linear auf 1–5 abgebildet.
+function normalizedCriterionScore(criterion, rawValue) {
+  if (rawValue == null || isNaN(rawValue)) return null;
+  if (criterion.valueType === 'numeric') {
+    const min = criterion.min ?? 0, max = criterion.max ?? 1;
+    const frac = max > min ? (rawValue - min) / (max - min) : 0;
+    return 1 + 4 * Math.max(0, Math.min(1, frac));
+  }
+  return rawValue;
+}
+// Formatiert einen Kriterien-Rohwert für die Anzeige (Tabellen, Live-Vorschau).
+function formatCriterionValue(criterion, value) {
+  if (value == null || isNaN(value)) return '—';
+  if (criterion.valueType === 'numeric') {
+    const unit = criterion.unit || '';
+    if (unit === '€') {
+      if (Math.abs(value) >= 1000000) return (value/1000000).toLocaleString('de-DE',{maximumFractionDigits:2}) + ' Mio. €';
+      return value.toLocaleString('de-DE') + ' €';
+    }
+    return value.toLocaleString('de-DE') + (unit ? ' ' + unit : '');
+  }
+  return String(value);
+}
 function calculateValueScore(scores, criteria) {
   const activeCrit = criteria.filter(c => c.active);
   let numerator = 0, denominator = 0;
   for (const c of activeCrit) {
-    const s = scores[c.id];
-    if (s != null) { numerator += s * c.weight; denominator += c.weight; }
+    const norm = normalizedCriterionScore(c, scores[c.id]);
+    if (norm != null) { numerator += norm * c.weight; denominator += c.weight; }
   }
   if (denominator === 0) return 0;
   return Math.round((numerator / denominator) * 20 * 10) / 10;
@@ -936,7 +962,7 @@ function renderProjectDetailModal() {
           <thead><tr><th>Datum</th>${activeCrit.map(c=>`<th class="num">${esc(c.name)}</th>`).join('')}<th class="num">Aufwand</th><th class="num">Wert</th><th class="num">WSJF</th>${p.rounds.some(r=>r.note)?'<th>Notiz</th>':''}</tr></thead>
           <tbody>${[...p.rounds].reverse().map((r,i)=>`<tr${i===0?' style="background:var(--sage-soft)"':''}>
             <td style="font-weight:${i===0?600:400}">${new Date(r.date).toLocaleDateString('de-DE')}</td>
-            ${activeCrit.map(c=>`<td class="num tnum">${r.scores[c.id]!=null?r.scores[c.id]:'<span class="muted-3">—</span>'}</td>`).join('')}
+            ${activeCrit.map(c=>`<td class="num tnum">${r.scores[c.id]!=null?formatCriterionValue(c, r.scores[c.id]):'<span class="muted-3">—</span>'}</td>`).join('')}
             <td class="num tnum">${r.effort}</td>
             <td class="num"><span class="score ${scoreClass(r.valueScore)}">${r.valueScore}</span></td>
             <td class="num"><span class="wsjf">${r.wsjfScore}</span></td>
@@ -944,6 +970,29 @@ function renderProjectDetailModal() {
           </tr>`).join('')}</tbody>
         </table></div>
       </div>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderScoringCriterionRow(c, totalW) {
+  const info = `<div class="crit-info"><strong>${esc(c.name)}</strong><span>${esc(c.description)}</span><div class="w">Gewicht ${c.weight} · ${Math.round(c.weight/totalW*100)}% normiert</div></div>`;
+  if (c.valueType === 'numeric') {
+    const mid = Math.round((c.min + c.max) / 2);
+    return `<div class="crit-row">
+      ${info}
+      <div class="crit-input">
+        <div class="crit-val" id="disp-${c.id}">${formatCriterionValue(c, mid)}</div>
+        <input type="number" min="${c.min}" max="${c.max}" step="any" value="${mid}" required id="crit-input-${c.id}" oninput="updateNumericDisplay('${c.id}');updateLiveScore()">
+        <div class="scale-labels"><span>${formatCriterionValue(c, c.min)}</span><span id="disp-${c.id}-norm" class="muted-3">≈ ${normalizedCriterionScore(c, mid).toFixed(1)} / 5</span><span>${formatCriterionValue(c, c.max)}</span></div>
+      </div>
+    </div>`;
+  }
+  return `<div class="crit-row">
+    ${info}
+    <div class="crit-input">
+      <div class="crit-val" id="disp-${c.id}">—</div>
+      <input type="range" min="1" max="5" step="1" value="3" id="crit-input-${c.id}" oninput="updateScoreDisplay('${c.id}');updateLiveScore()">
+      <div class="scale-labels"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
     </div>
   </div>`;
 }
@@ -962,7 +1011,7 @@ function renderScoringFormModal(p) {
       <button class="icon-btn" onclick="closeModal()" title="Schließen">${I.close}</button>
     </div>
     <div class="guide-body">
-      <div class="note-box mb-6">Zweistufiges Scoring: <b>Stufe 1</b> bewertet den strategischen Wert (Skala 1–5). <b>Stufe 2</b> verrechnet den Aufwand als Divisor → <b>WSJF = Wert-Score / Aufwand</b>.</div>
+      <div class="note-box mb-6">Zweistufiges Scoring: <b>Stufe 1</b> bewertet den strategischen Wert — je Kriterium entweder Skala 1–5 oder ein numerischer Wert (z.B. €), der automatisch auf 1–5 normiert wird. <b>Stufe 2</b> verrechnet den Aufwand als Divisor → <b>WSJF = Wert-Score / Aufwand</b>.</div>
       <div class="summary live" id="score-preview">
         <div class="cell"><div class="eyebrow">Wert-Score</div><div class="v" id="prev-value">—</div><div class="s">von 100</div></div>
         <div class="cell"><div class="eyebrow">Aufwand</div><div class="v" id="prev-effort">—</div><div class="s">Divisor</div></div>
@@ -971,15 +1020,7 @@ function renderScoringFormModal(p) {
       <form onsubmit="saveScoringRound(event,'${p.id}')">
         <div class="form-group" style="max-width:220px"><label>Bewertungsdatum</label><input type="date" id="s-date" value="${today}"></div>
         <div class="eyebrow mb-4" style="margin-top:8px">Stufe 1 — Wert-Kriterien</div>
-        ${activeCrit.map(c=>`
-        <div class="crit-row">
-          <div class="crit-info"><strong>${esc(c.name)}</strong><span>${esc(c.description)}</span><div class="w">Gewicht ${c.weight} · ${Math.round(c.weight/totalW*100)}% normiert</div></div>
-          <div class="crit-input">
-            <div class="crit-val" id="disp-${c.id}">—</div>
-            <input type="range" min="1" max="5" step="1" value="3" id="range-${c.id}" oninput="updateScoreDisplay('${c.id}');updateLiveScore()">
-            <div class="scale-labels"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
-          </div>
-        </div>`).join('')}
+        ${activeCrit.map(c => renderScoringCriterionRow(c, totalW)).join('')}
         <div class="eyebrow mb-4" style="margin-top:24px">Stufe 2 — Aufwand / Entwicklungskapazität <span style="text-transform:none;letter-spacing:0;color:var(--text-3)">(Divisor)</span></div>
         <div class="crit-row" style="background:var(--terra-soft);border-color:#f0d5cd">
           <div class="crit-info"><strong>Aufwand — benötigte Entwicklungskapazität</strong><span>Hier trägst du ein, wie viel Entwicklungskapazität das Projekt braucht (Skala 1–5). Wirkt als Divisor (WSJF = Wert ÷ Aufwand) <b>und</b> bestimmt den Kapazitätsanteil des Buckets in der Übersicht.</span></div>
@@ -1085,9 +1126,10 @@ function renderCriteriaConfig() {
     ${criteria.map(c=>{
       if (editId===c.id) return renderCriterionForm(c);
       const pct = totalW>0?Math.round(c.weight/totalW*100):0;
+      const isNumeric = c.valueType === 'numeric';
       return `<div class="cfg-row${c.active?'':' legacy'}">
         <div style="flex:1">
-          <div class="flex items-center gap-2"><strong style="font-size:14px">${esc(c.name)}</strong>${!c.active?'<span class="badge badge-abgeschlossen">Legacy</span>':''}</div>
+          <div class="flex items-center gap-2"><strong style="font-size:14px">${esc(c.name)}</strong>${isNumeric?`<span class="badge badge-type">${formatCriterionValue(c,c.min)} – ${formatCriterionValue(c,c.max)}</span>`:''}${!c.active?'<span class="badge badge-abgeschlossen">Legacy</span>':''}</div>
           <div class="muted" style="font-size:12.5px">${esc(c.description)}</div>
           ${c.active?`<div class="flex items-center gap-3" style="margin-top:7px"><span style="font-size:12.5px;font-weight:600;min-width:64px">${c.weight} · ${pct}%</span><div class="weight-track" style="flex:1"><div class="weight-fill" style="width:${pct}%"></div></div></div>`:''}
         </div>
@@ -1098,11 +1140,25 @@ function renderCriteriaConfig() {
 }
 function renderCriterionForm(c) {
   const isNew = !c;
+  const valueType = c?.valueType || 'scale';
+  const numDisplay = valueType === 'numeric' ? '' : 'none';
   return `<div class="card mb-4" style="border-color:var(--sage)"><div class="card-pad">
     <div class="eyebrow mb-4">${isNew?'Neues Kriterium':'Kriterium bearbeiten'}</div>
     <form onsubmit="saveCriterion(event,'${isNew?'':c.id}')">
       <div class="form-row"><div class="form-group"><label>Name *</label><input type="text" id="cf-name" value="${c?esc(c.name):''}" required></div><div class="form-group"><label>Gewicht</label><input type="number" id="cf-weight" value="${c?c.weight:25}" min="1" max="100" required></div></div>
       <div class="form-group"><label>Beschreibung</label><input type="text" id="cf-desc" value="${c?esc(c.description):''}"></div>
+      <div class="form-group">
+        <label>Bewertungsart</label>
+        <select id="cf-valuetype" onchange="document.getElementById('cf-numeric-fields').style.display=this.value==='numeric'?'':'none'">
+          <option value="scale" ${valueType==='scale'?'selected':''}>Skala 1–5</option>
+          <option value="numeric" ${valueType==='numeric'?'selected':''}>Numerischer Wert (z.B. €, %)</option>
+        </select>
+      </div>
+      <div id="cf-numeric-fields" class="form-row-3" style="display:${numDisplay}">
+        <div class="form-group"><label>Minimum</label><input type="number" id="cf-min" value="${c?.min ?? 0}"></div>
+        <div class="form-group"><label>Maximum</label><input type="number" id="cf-max" value="${c?.max ?? 100}"></div>
+        <div class="form-group"><label>Einheit</label><input type="text" id="cf-unit" value="${c?esc(c.unit||'€'):'€'}" placeholder="€, %, h …"></div>
+      </div>
       <div class="flex gap-2"><button type="submit" class="btn btn-primary btn-sm">Speichern</button><button type="button" class="btn btn-secondary btn-sm" onclick="state.ui.editingCriterionId=null;refreshConfigModal()">Abbrechen</button></div>
     </form>
   </div></div>`;
@@ -1216,7 +1272,7 @@ function saveScoringRound(e, projectId) {
   const p=state.projects.find(pr=>pr.id===projectId); if(!p)return;
   const activeCrit=state.criteria.filter(c=>c.active);
   const scores={};
-  for (const c of activeCrit){ const el=document.getElementById('range-'+c.id); if(el) scores[c.id]=parseInt(el.value); }
+  for (const c of activeCrit){ const el=document.getElementById('crit-input-'+c.id); if(el) scores[c.id]=Number(el.value); }
   const effortEl=document.getElementById('range-effort');
   const effort=effortEl?parseInt(effortEl.value):0;
   if(!effort){ alert('Bitte Aufwand bewerten.'); return; }
@@ -1242,8 +1298,17 @@ function saveCriterion(e,id) {
   const name=document.getElementById('cf-name').value.trim();
   const weight=parseInt(document.getElementById('cf-weight').value);
   const description=document.getElementById('cf-desc').value.trim();
-  if(!id) state.criteria.push({ id:newId(), name, description, weight, active:true, order:state.criteria.length });
-  else { const c=state.criteria.find(x=>x.id===id); if(c){ c.name=name; c.weight=weight; c.description=description; } }
+  const valueType=document.getElementById('cf-valuetype').value;
+  let min, max, unit;
+  if (valueType === 'numeric') {
+    min = Number(document.getElementById('cf-min').value);
+    max = Number(document.getElementById('cf-max').value);
+    unit = document.getElementById('cf-unit').value.trim();
+    if (isNaN(min) || isNaN(max) || max <= min) { alert('Bitte gültige Werte angeben: Maximum muss größer als Minimum sein.'); return; }
+  }
+  const payload = valueType === 'numeric' ? { name, description, weight, valueType, min, max, unit } : { name, description, weight, valueType, min: undefined, max: undefined, unit: undefined };
+  if(!id) state.criteria.push({ id:newId(), ...payload, active:true, order:state.criteria.length });
+  else { const c=state.criteria.find(x=>x.id===id); if(c){ Object.assign(c, payload); } }
   saveData();
   state.ui.editingCriterionId=null;
   refreshConfigModal();
@@ -1292,11 +1357,19 @@ function confirmDeleteBucket(id) {
 }
 
 // Live score
-function updateScoreDisplay(cid){ const el=document.getElementById('range-'+cid),d=document.getElementById('disp-'+cid); if(el&&d)d.textContent=el.value; }
+function updateScoreDisplay(cid){ const el=document.getElementById('crit-input-'+cid),d=document.getElementById('disp-'+cid); if(el&&d)d.textContent=el.value; }
 function updateEffortDisplay(){ const el=document.getElementById('range-effort'),d=document.getElementById('disp-effort'); if(el&&d)d.textContent=el.value; }
+function updateNumericDisplay(cid){
+  const c=state.criteria.find(x=>x.id===cid); if(!c)return;
+  const el=document.getElementById('crit-input-'+cid); if(!el)return;
+  let v=Number(el.value); if(isNaN(v))v=c.min;
+  v=Math.max(c.min,Math.min(c.max,v));
+  const disp=document.getElementById('disp-'+cid); if(disp)disp.textContent=formatCriterionValue(c,v);
+  const norm=document.getElementById('disp-'+cid+'-norm'); if(norm)norm.textContent='≈ '+normalizedCriterionScore(c,v).toFixed(1)+' / 5';
+}
 function updateLiveScore(){
   const activeCrit=state.criteria.filter(c=>c.active); const scores={};
-  for(const c of activeCrit){ const el=document.getElementById('range-'+c.id); if(el)scores[c.id]=parseInt(el.value); }
+  for(const c of activeCrit){ const el=document.getElementById('crit-input-'+c.id); if(el)scores[c.id]=Number(el.value); }
   const effortEl=document.getElementById('range-effort');
   const effort=effortEl?parseInt(effortEl.value):0;
   const vs=calculateValueScore(scores,state.criteria);
@@ -1346,23 +1419,22 @@ function loadExampleData() {
     { id:'ex-b3', name:'Plattform / Innovation', color:'#3f7ea6', targetPercent:10, locked:false, order:2 }
   ];
   const criteria = JSON.parse(JSON.stringify(DEFAULT_CRITERIA));
-  const w = { 'crit-strategic':30, 'crit-market':30, 'crit-customer':25, 'crit-urgency':15 };
-  const vs = s => { let num=0,den=0; for(const k in w){ num+=s[k]*w[k]; den+=w[k]; } return Math.round(num/den*20*10)/10; };
-  const mk = (date, s, eff) => { const v=vs(s); return { id:newId(), date:date+'T00:00:00.000Z', scores:{...s}, effort:eff, valueScore:v, wsjfScore:Math.round(v/eff*10)/10 }; };
-  const S = (a,b,c,d) => ({ 'crit-strategic':a, 'crit-market':b, 'crit-customer':c, 'crit-urgency':d });
+  const mk = (date, s, eff) => { const v=calculateValueScore(s, criteria); return { id:newId(), date:date+'T00:00:00.000Z', scores:{...s}, effort:eff, valueScore:v, wsjfScore:calculateWSJF(v, eff) }; };
+  // strategic (1-5), SOM in € (500k-10M), customer (1-5), Cost of Delay in € (0-5M)
+  const S = (strategic, som, customer, cod) => ({ 'crit-strategic':strategic, 'crit-market':som, 'crit-customer':customer, 'crit-urgency':cod });
   const projects = [
     { id:newId(), name:'Kunden-Portal v3', description:'Self-Service-Portal, Ablösung Altsystem', type:'RTI-Produkt', bucketId:'ex-b1', status:'aktiv', createdAt:'2026-01-10',
-      rounds:[ mk('2026-02-01',S(4,3,4,2),3), mk('2026-04-01',S(4,4,5,3),2), mk('2026-06-15',S(5,4,5,4),2) ] },
+      rounds:[ mk('2026-02-01',S(4,2800000,4,500000),3), mk('2026-04-01',S(4,3200000,5,700000),2), mk('2026-06-15',S(5,3600000,5,900000),2) ] },
     { id:newId(), name:'Predictive Maintenance', description:'ML-Wartungsprognose für Anlagen', type:'RTI-Produkt', bucketId:'ex-b1', status:'aktiv', createdAt:'2026-01-20',
-      rounds:[ mk('2026-03-01',S(5,4,3,3),4), mk('2026-06-01',S(5,5,4,3),4) ] },
+      rounds:[ mk('2026-03-01',S(5,5000000,3,1200000),4), mk('2026-06-01',S(5,6200000,4,1500000),4) ] },
     { id:newId(), name:'RTI Sensor-Plattform', description:'Modulare Sensor-Basis für Neuprodukte', type:'RTI-Produkt', bucketId:'ex-b1', status:'aktiv', createdAt:'2026-02-05',
-      rounds:[ mk('2026-04-10',S(5,4,4,2),5), mk('2026-06-20',S(5,5,4,2),5) ] },
+      rounds:[ mk('2026-04-10',S(5,7000000,4,600000),5), mk('2026-06-20',S(5,8500000,4,700000),5) ] },
     { id:newId(), name:'GM Sonderanfrage Linie 4', description:'Kurzfristige Kundenanpassung Automotive', type:'Turn-Key', bucketId:'ex-b2', status:'aktiv', createdAt:'2026-04-01',
-      rounds:[ mk('2026-05-01',S(2,3,4,5),1) ] },
+      rounds:[ mk('2026-05-01',S(2,900000,4,4200000),1) ] },
     { id:newId(), name:'Retrofit Kunde Nord', description:'Nachrüstung Bestandsanlage', type:'Turn-Key', bucketId:'ex-b2', status:'aktiv', createdAt:'2026-03-15',
-      rounds:[ mk('2026-04-20',S(3,3,4,3),2), mk('2026-06-18',S(3,4,4,4),2) ] },
+      rounds:[ mk('2026-04-20',S(3,1100000,4,1600000),2), mk('2026-06-18',S(3,1300000,4,2000000),2) ] },
     { id:newId(), name:'CI/CD-Modernisierung', description:'Build-Pipeline & Testautomatisierung', type:'Feature', bucketId:'ex-b3', status:'aktiv', createdAt:'2026-02-20',
-      rounds:[ mk('2026-05-05',S(4,2,3,3),3), mk('2026-06-25',S(4,3,4,3),3) ] }
+      rounds:[ mk('2026-05-05',S(4,700000,3,450000),3), mk('2026-06-25',S(4,750000,4,600000),3) ] }
   ];
   state.buckets = buckets; state.criteria = criteria; state.projects = projects;
   state.ui.filterBucket = 'all'; state.ui.filterStatus = 'aktiv'; state.ui.filterQuarter = 'all';

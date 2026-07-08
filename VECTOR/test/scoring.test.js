@@ -27,12 +27,22 @@ function assertEq(description, actual, expected) {
 
 // ─── Scoring Engine (copied from VECTOR.html) ───────────────────────────────
 
+function normalizedCriterionScore(criterion, rawValue) {
+  if (rawValue == null || isNaN(rawValue)) return null;
+  if (criterion.valueType === 'numeric') {
+    const min = criterion.min ?? 0, max = criterion.max ?? 1;
+    const frac = max > min ? (rawValue - min) / (max - min) : 0;
+    return 1 + 4 * Math.max(0, Math.min(1, frac));
+  }
+  return rawValue;
+}
+
 function calculateValueScore(scores, criteria) {
   const activeCrit = criteria.filter(c => c.active);
   let numerator = 0, denominator = 0;
   for (const c of activeCrit) {
-    const s = scores[c.id];
-    if (s != null) { numerator += s * c.weight; denominator += c.weight; }
+    const norm = normalizedCriterionScore(c, scores[c.id]);
+    if (norm != null) { numerator += norm * c.weight; denominator += c.weight; }
   }
   if (denominator === 0) return 0;
   return Math.round((numerator / denominator) * 20 * 10) / 10;
@@ -136,6 +146,58 @@ assert('Inactive criterion ignored → 100 when remaining all=5',
     criteriaWithInactive
   ),
   100
+);
+
+// ─── normalizedCriterionScore Tests (numerische Kriterien, z.B. SOM/Cost of Delay) ──
+
+console.log('\n=== normalizedCriterionScore ===');
+
+const somCriterion = { valueType: 'numeric', min: 500000, max: 10000000 };
+const codCriterion = { valueType: 'numeric', min: 0, max: 5000000 };
+const scaleCriterion = { valueType: 'scale' };
+const legacyCriterion = {}; // kein valueType gesetzt (Altdaten) -> muss wie 'scale' behandelt werden
+
+assert('SOM at min (500k) → 1.0', normalizedCriterionScore(somCriterion, 500000), 1);
+assert('SOM at max (10M) → 5.0', normalizedCriterionScore(somCriterion, 10000000), 5);
+assert('SOM at midpoint (5.25M) → 3.0', normalizedCriterionScore(somCriterion, 5250000), 3);
+assert('CoD at min (0) → 1.0', normalizedCriterionScore(codCriterion, 0), 1);
+assert('CoD at max (5M) → 5.0', normalizedCriterionScore(codCriterion, 5000000), 5);
+assert('CoD at 2.5M (midpoint) → 3.0', normalizedCriterionScore(codCriterion, 2500000), 3);
+assert('Numeric value below min clamps to 1.0', normalizedCriterionScore(somCriterion, 0), 1);
+assert('Numeric value above max clamps to 5.0', normalizedCriterionScore(somCriterion, 99000000), 5);
+assert('Scale criterion passes raw value through unchanged', normalizedCriterionScore(scaleCriterion, 4), 4);
+assert('Criterion without valueType (legacy) behaves like scale', normalizedCriterionScore(legacyCriterion, 3), 3);
+assertEq('null raw value → null', normalizedCriterionScore(somCriterion, null), null);
+
+// ─── calculateValueScore with mixed scale + numeric criteria ────────────────
+
+console.log('\n=== calculateValueScore (numerische Kriterien) ===');
+
+const mixedCriteria = [
+  { id: 'crit-strategic', weight: 30, active: true, valueType: 'scale' },
+  { id: 'crit-market',    weight: 30, active: true, valueType: 'numeric', min: 500000, max: 10000000 },
+  { id: 'crit-customer',  weight: 25, active: true, valueType: 'scale' },
+  { id: 'crit-urgency',   weight: 15, active: true, valueType: 'numeric', min: 0, max: 5000000 }
+];
+
+// strategic=5 (norm 5), SOM=10M (norm 5), customer=5 (norm 5), CoD=5M (norm 5) → alle 5 → 100
+assert('All criteria at their maximum (scale=5, numeric=upper bound) → 100',
+  calculateValueScore({ 'crit-strategic': 5, 'crit-market': 10000000, 'crit-customer': 5, 'crit-urgency': 5000000 }, mixedCriteria),
+  100
+);
+
+// strategic=1, SOM=500k (norm 1), customer=1, CoD=0 (norm 1) → alle 1 → 20
+assert('All criteria at their minimum → 20',
+  calculateValueScore({ 'crit-strategic': 1, 'crit-market': 500000, 'crit-customer': 1, 'crit-urgency': 0 }, mixedCriteria),
+  20
+);
+
+// strategic=5(30), SOM=8.5M->norm 4.368421(30), customer=4(25), CoD=700k->norm 1.56(15)
+// numerator = 5*30 + 4.368421*30 + 4*25 + 1.56*15 = 150 + 131.05263 + 100 + 23.4 = 404.45263
+// /100*20 = 80.8905 -> rounds to 80.9
+assert('Realistic mixed SOM/CoD example matches manual calculation → 80.9',
+  calculateValueScore({ 'crit-strategic': 5, 'crit-market': 8500000, 'crit-customer': 4, 'crit-urgency': 700000 }, mixedCriteria),
+  80.9
 );
 
 // ─── calculateWSJF Tests ─────────────────────────────────────────────────────

@@ -140,3 +140,49 @@ fokussiertes Overlay.
   jedes offene Modal vor `window.print()`
 - Header-Anker-Buttons (`scrollToSection()`) ersetzen die Tab-Navigation für
   Innerhalb-der-Seite-Sprünge
+
+---
+
+## ADR-010: Numerische Bewertungskriterien (SOM, Cost of Delay) statt reiner 1–5-Skala
+
+**Entscheidung:** Kriterien können zusätzlich zur bisherigen Skala-Eingabe (1–5) als
+**numerischer Wert** mit konfigurierbarem `min`/`max`/`unit` erfasst werden
+(`valueType: 'scale' | 'numeric'`). Der Rohwert wird linear auf 1–5 normiert
+(`normalizedCriterionScore()`), bevor er in die bestehende Wert-Score-Formel eingeht.
+Die zwei Default-Kriterien **Marktpotenzial** und **Dringlichkeit** wurden auf diese
+Weise umgestellt:
+- **Marktpotenzial → SOM** (Service Obtainable Market), 500.000 € – 10.000.000 €
+- **Dringlichkeit → Cost of Delay**, 0 € – 5.000.000 € (geschätzte jährliche Kosten des Verschiebens)
+
+**Begründung:** Eine 1–5-Skala für „Marktpotenzial" zwingt zu einer subjektiven
+Einschätzung, obwohl für diese Kriterien oft eine konkretere Zahl vorliegt oder
+geschätzt werden kann (adressierbarer Umsatz, wirtschaftlicher Schaden durch
+Verzögerung). Eine direkte Zahleneingabe ist präziser, nachvollziehbarer und
+über Bewertungsrunden hinweg besser vergleichbar als eine grobe 5-stufige Einordnung.
+
+**Warum lineare Normierung (nicht logarithmisch):** SOM-Werte reichen über eine
+Größenordnung (500k–10M). Eine lineare Abbildung wurde gewählt, weil sie transparent
+und ohne Zusatzerklärung nachvollziehbar ist ( „doppelter Umsatz → doppelter Normwert-
+Zuwachs"); eine logarithmische Skala hätte zwar Größenordnungs-Unterschiede gedämpft,
+wäre aber schwerer zu erklären gewesen. Bei Bedarf lässt sich das später als
+zusätzliche `normMode`-Option ergänzen, ohne das Datenmodell zu brechen.
+
+**Alternativen:**
+- Feste Umrechnungstabelle (z.B. 5 Buckets à 1,9 Mio. € Breite): verworfen — verschenkt
+  die Präzision einer echten Zahl, nur kosmetisch anders als die alte 1–5-Skala
+- Kriterien-Typ hart codiert nur für Marktpotenzial/Dringlichkeit: verworfen — die
+  gleiche Mechanik ist für zukünftige Kriterien (z.B. „Kundennutzen" als € oder %,
+  siehe offene Frage im PRD-Nachtrag) wiederverwendbar, wenn sie als generisches
+  `valueType`-Feature in der Kriterien-Konfiguration existiert statt hart codiert im UI
+
+**Konsequenzen:**
+- `<input type="number" step="any">` statt Schieberegler bei numerischen Kriterien —
+  bewusst *kein* `step`-Wert ungleich `"any"`, da ein berechneter Schrittwert
+  (`(max-min)/N`) dazu geführt hätte, dass frei eingetippte Beträge die native
+  HTML5-Step-Validierung verletzen und das Formular nicht mehr absendbar ist
+- Historische Bewertungsrunden speichern weiterhin nur den Rohwert (`scores[c.id]`);
+  ändert sich später `valueType`/`min`/`max` eines Kriteriums, werden alte Rohwerte
+  weiterhin mit der *aktuellen* Formatierung angezeigt (gleiches Verhalten wie bei
+  Namens-/Gewichtsänderungen — Kriterien-Metadaten werden nicht pro Runde eingefroren,
+  nur die berechneten `valueScore`/`wsjfScore` sind fixiert)
+- CSV-Export bleibt roh (unformatierte Zahl), damit Excel direkt weiterrechnen kann

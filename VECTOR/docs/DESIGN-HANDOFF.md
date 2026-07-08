@@ -123,12 +123,23 @@ Card: Bewertungsrunden (N)
 ```
 Trend-Darstellung: ↑ grün (WSJF > +1 vs. Vorperiode) · ↓ rot (< −1) · → grau (stabil) · — grau (nur 1 Runde).
 
-**scoring (`enterScoring()`, aus der Detail-Ansicht):** Kriterien-Schieberegler (1–5)
-+ **Aufwand-Regler** (Divisor) mit Live-Vorschau (Wert-Score/Aufwand/WSJF). **Das ist die
-Stelle, an der die benötigte Entwicklungskapazität eines Projekts eingetragen wird** —
-der Aufwand-Regler bestimmt sowohl WSJF als auch den Kapazitätsanteil im zugehörigen
-Bucket-Topf. Speichern (`saveScoringRound`) kehrt automatisch zur `detail`-Ansicht
-zurück; „Abbrechen"/Zurück-Pfeil ebenso, X schließt das ganze Modal.
+**scoring (`enterScoring()`, aus der Detail-Ansicht):** Ein Eingabefeld je aktivem
+Kriterium, Typ abhängig von `criterion.valueType` (`renderScoringCriterionRow()`):
+- **Skala-Kriterien:** Schieberegler 1–5 wie bisher.
+- **Numerische Kriterien** (z.B. Marktpotenzial/SOM, Cost of Delay): freies Zahlenfeld
+  (`<input type="number">`, `step="any"` — akzeptiert jeden Betrag, keine künstliche
+  Schrittweiten-Rundung) mit `min`/`max` aus der Kriteriums-Konfiguration. Großer
+  formatierter Live-Wert oben (z.B. „8,5 Mio. €"), darunter die Eingabe, darunter eine
+  Zeile mit Minimum, **normiertem Äquivalent** („≈ 4,4 / 5") und Maximum — macht
+  transparent, wie der Betrag in die Wert-Score-Formel eingeht (siehe System-Design →
+  Scoring-Algorithmus → Normierung).
+
+Plus **Aufwand-Regler** (Divisor, immer Skala 1–5) mit Live-Vorschau
+(Wert-Score/Aufwand/WSJF). **Das ist die Stelle, an der die benötigte
+Entwicklungskapazität eines Projekts eingetragen wird** — der Aufwand-Regler bestimmt
+sowohl WSJF als auch den Kapazitätsanteil im zugehörigen Bucket-Topf. Speichern
+(`saveScoringRound`) kehrt automatisch zur `detail`-Ansicht zurück; „Abbrechen"/
+Zurück-Pfeil ebenso, X schließt das ganze Modal.
 
 **form (`openProjectForm(id)`, aus Detail „Bearbeiten" oder Header „+ Neues Projekt"):**
 Name (Pflicht), Kurzbeschreibung, Typ, Bucket (Pflicht), Status, **Quartal**. Nach
@@ -150,9 +161,16 @@ erreichbar (⚙-Button im Header, `openConfig(tab)`). Tab-Wechsel und Inline-Edi
 gepflegt werden können.
 
 **Tab „Bewertungsmodell":** Info-Box zu Gewichten + Kriterien-Liste + Inline-Edit-Formular.
-Kriterium-Row: Name | Beschreibung | Gewicht (Zahl + % normiert) | Edit | Delete.
-Gewichts-Balken visualisiert den normierten Anteil. Legacy-Kriterien: ausgegraut, ohne
-Edit/Delete, Badge „Legacy".
+Kriterium-Row: Name (+ Bereichs-Badge bei numerischen Kriterien, z.B. „500.000 € – 10
+Mio. €") | Beschreibung | Gewicht (Zahl + % normiert) | Edit | Delete. Gewichts-Balken
+visualisiert den normierten Anteil. Legacy-Kriterien: ausgegraut, ohne Edit/Delete,
+Badge „Legacy".
+
+Formular pro Kriterium: Name, Gewicht, Beschreibung, dann **Bewertungsart**
+(Select: „Skala 1–5" / „Numerischer Wert") — bei „Numerisch" blenden sich zusätzliche
+Felder Minimum/Maximum/Einheit ein (reines Zeige/Verstecken per JS, kein
+Modal-Neuaufbau, damit Eingaben in anderen Feldern nicht verloren gehen). Speichern
+validiert Maximum > Minimum bei numerischen Kriterien.
 
 **Tab „Strategic Buckets":** Validierungsanzeige (Summe = 100%) + Bucket-Liste +
 Inline-Edit-Formular (Name, Zielanteil %, Farbe). Bucket-Row: farbiger Rand links |

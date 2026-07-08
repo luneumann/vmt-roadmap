@@ -8,10 +8,10 @@
     { "id": "bk-en",   "name": "Enabler / Plattform",         "color": "#3f7ea6", "targetPercent": 20, "locked": false, "order": 2 }
   ],
   "criteria": [
-    { "id": "crit-strategic", "name": "Strategische Passung",        "description": "Alignment mit Produktstrategie und VMT-Portfolio",     "weight": 30, "active": true, "order": 0 },
-    { "id": "crit-market",    "name": "Marktpotenzial",              "description": "Adressierbare Opportunität, Anzahl potenzieller Kunden", "weight": 30, "active": true, "order": 1 },
-    { "id": "crit-customer",  "name": "Kundennutzen / Effizienz",    "description": "Messbarer Mehrwert für den Endkunden",                  "weight": 25, "active": true, "order": 2 },
-    { "id": "crit-urgency",   "name": "Dringlichkeit / Cost of Delay","description": "Wirtschaftliche Kosten / Risiken des Verschiebens",     "weight": 15, "active": true, "order": 3 }
+    { "id": "crit-strategic", "name": "Strategische Passung",        "description": "Alignment mit Produktstrategie und VMT-Portfolio",     "weight": 30, "active": true, "order": 0, "valueType": "scale" },
+    { "id": "crit-market",    "name": "Marktpotenzial (SOM)",        "description": "Service Obtainable Market — realistisch erreichbarer Umsatz in diesem Segment", "weight": 30, "active": true, "order": 1, "valueType": "numeric", "min": 500000, "max": 10000000, "unit": "€" },
+    { "id": "crit-customer",  "name": "Kundennutzen / Effizienz",    "description": "Messbarer Mehrwert für den Endkunden",                  "weight": 25, "active": true, "order": 2, "valueType": "scale" },
+    { "id": "crit-urgency",   "name": "Dringlichkeit / Cost of Delay","description": "Geschätzte wirtschaftliche Kosten des Verschiebens pro Jahr", "weight": 15, "active": true, "order": 3, "valueType": "numeric", "min": 0, "max": 5000000, "unit": "€" }
   ],
   "projects": [
     {

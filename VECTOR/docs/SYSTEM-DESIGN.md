@@ -85,16 +85,28 @@ interface Criterion {
   weight: number;           // raw Zahl (z.B. 30), wird auf 100% normiert
   active: boolean;          // false = gelöscht aber legacy-sichtbar
   order: number;            // Sortierreihenfolge
+  valueType: 'scale' | 'numeric';  // Default 'scale' (fehlt bei Altdaten = 'scale')
+  // Nur bei valueType === 'numeric':
+  min?: number;              // untere Grenze des Eingabebereichs
+  max?: number;              // obere Grenze des Eingabebereichs
+  unit?: string;             // Anzeige-Einheit, z.B. '€', '%', 'h'
 }
 ```
 
+**`valueType` — zwei Eingabearten je Kriterium:**
+- **`scale`** (Standard): Bewertung per Schieberegler, Rohwert direkt 1–5.
+- **`numeric`**: freie Zahleneingabe innerhalb `[min, max]` (z.B. ein Euro-Betrag). Der
+  Rohwert wird **linear auf 1–5 normiert** (`normalizedCriterionScore()`), bevor er in
+  die Wert-Score-Formel eingeht — siehe Scoring-Algorithmus unten. Kriterien ohne
+  `valueType` (ältere gespeicherte Daten) werden wie `scale` behandelt.
+
 **Default-Kriterien:**
-| ID | Name | Gewicht |
-|---|---|---|
-| `crit-strategic` | Strategische Passung | 30 |
-| `crit-market` | Marktpotenzial | 30 |
-| `crit-customer` | Kundennutzen / Effizienz | 25 |
-| `crit-urgency` | Dringlichkeit / Cost of Delay | 15 |
+| ID | Name | Gewicht | Bewertungsart |
+|---|---|---|---|
+| `crit-strategic` | Strategische Passung | 30 | Skala 1–5 |
+| `crit-market` | Marktpotenzial (SOM) | 30 | Numerisch, 500.000 € – 10 Mio. € (Service Obtainable Market) |
+| `crit-customer` | Kundennutzen / Effizienz | 25 | Skala 1–5 |
+| `crit-urgency` | Dringlichkeit / Cost of Delay | 15 | Numerisch, 0 € – 5 Mio. € (geschätzte jährliche Kosten des Verschiebens) |
 
 ### `vector_buckets` — Array von Kapazitätskategorien
 
@@ -128,15 +140,36 @@ interface Config {
 
 ## Scoring-Algorithmus
 
+### Normierung numerischer Kriterien (`normalizedCriterionScore`)
+
+Bevor ein Kriterium in die Wert-Score-Formel eingeht, wird sein Rohwert auf eine 1–5-Skala
+normiert. Bei `valueType: 'scale'` ist der Rohwert bereits 1–5 (Identität). Bei
+`valueType: 'numeric'` wird linear zwischen `min` und `max` interpoliert und auf [1,5]
+geklemmt:
+
+```
+normalized(kriterium, rawValue) =
+  1 + 4 × clamp((rawValue − min) / (max − min), 0, 1)
+```
+
+Beispiel Marktpotenzial (SOM, min 500.000 €, max 10.000.000 €), Eingabe 8.500.000 €:
+- frac = (8.500.000 − 500.000) / (10.000.000 − 500.000) = 0,8421
+- normalized = 1 + 4 × 0,8421 = 4,37
+
+Diese Normierung ist der einzige Unterschied zu einer reinen Skala-Bewertung — die
+restliche Formel (Gewichtung, Summierung) bleibt unverändert. Dadurch lassen sich
+Skala- und Zahl-Kriterien beliebig mischen.
+
 ### Wert-Score (0–100)
 
 ```
-Wert-Score = Σ(score_i × weight_i) / Σ(weight_i) × 20
+Wert-Score = Σ(normalized_i × weight_i) / Σ(weight_i) × 20
 ```
 
-Wobei `score_i` ∈ {1,2,3,4,5} und `weight_i` die rohe Gewichtszahl des Kriteriums i.
+Wobei `normalized_i` der auf 1–5 normierte Wert des Kriteriums i ist (s.o.) und
+`weight_i` die rohe Gewichtszahl.
 
-Beispiel: 4 Kriterien mit Gewichten [30, 30, 25, 15], Scores [4, 3, 5, 2]:
+Beispiel: 4 Kriterien mit Gewichten [30, 30, 25, 15], normierte Werte [4, 3, 5, 2]:
 - Zähler = 4×30 + 3×30 + 5×25 + 2×15 = 120+90+125+30 = 365
 - Nenner = 100
 - Wert-Score = 365/100 × 20 = 73,0
