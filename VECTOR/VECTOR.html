@@ -43,7 +43,7 @@
   /* ── Layout ───────────────────────────────────────── */
   #app { display: flex; flex-direction: column; min-height: 100vh; }
   header {
-    display: flex; align-items: center; gap: 40px;
+    display: flex; align-items: center; gap: 28px;
     padding: 0 40px; height: 68px; flex-shrink: 0;
     background: rgba(246,245,242,.85); backdrop-filter: saturate(180%) blur(12px);
     border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50;
@@ -59,7 +59,7 @@
   nav button:hover { color: var(--text); background: rgba(0,0,0,.035); }
   nav button.active { color: var(--sage-deep); background: var(--sage-soft); }
   nav button svg { width: 17px; height: 17px; }
-  main { flex: 1; padding: 32px 40px 64px; max-width: 1160px; width: 100%; margin: 0 auto; }
+  main { flex: 1; padding: 32px 40px 64px; max-width: 1240px; width: 100%; margin: 0 auto; }
 
   /* ── Typography helpers ───────────────────────────── */
   .page-title { font-size: 24px; font-weight: 600; letter-spacing: -.4px; }
@@ -72,7 +72,7 @@
   /* ── Cards ────────────────────────────────────────── */
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
   .card-pad { padding: 24px 26px; }
-  .card-head { padding: 20px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .card-head { padding: 20px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   .card-head h3 { font-size: 15px; font-weight: 600; }
 
   /* ── Buttons ──────────────────────────────────────── */
@@ -87,7 +87,7 @@
   .btn-danger { background: var(--surface); border-color: var(--terra); color: var(--terra); }
   .btn-danger:hover { background: var(--terra); color: #fff; }
   .btn-sm { padding: 6px 12px; font-size: 12.5px; }
-  .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 9px; background: transparent; border: 1px solid transparent; color: var(--text-3); cursor: pointer; transition: all .15s; }
+  .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 9px; background: transparent; border: 1px solid transparent; color: var(--text-3); cursor: pointer; transition: all .15s; flex-shrink: 0; }
   .icon-btn svg { width: 16px; height: 16px; }
   .icon-btn:hover { background: var(--surface-2); border-color: var(--border); color: var(--text); }
   .icon-btn.danger:hover { background: var(--terra-soft); border-color: #e3c4ba; color: var(--terra); }
@@ -156,8 +156,9 @@
   .field-inline label { margin: 0; font-size: 12px; color: var(--text-3); white-space: nowrap; }
   .field-inline select { padding: 7px 30px 7px 12px; font-size: 13px; width: auto; border-radius: 10px; }
 
-  /* ── Bucket cards (dashboard) ─────────────────────── */
-  .bucket-card { margin-bottom: 20px; overflow: hidden; }
+  /* ── Bucket tiles (grid) ───────────────────────────── */
+  .bucket-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; align-items: start; }
+  .bucket-card { overflow: hidden; }
   .bucket-top { display: flex; align-items: flex-start; gap: 24px; padding: 24px 26px 20px; }
   .bucket-id { flex: 1; min-width: 0; }
   .bucket-name { display: flex; align-items: center; gap: 9px; font-size: 17px; font-weight: 600; letter-spacing: -.2px; }
@@ -183,14 +184,6 @@
   .bucket-table { border-top: 1px solid var(--border); }
   .bucket-empty { padding: 28px 26px; text-align: center; color: var(--text-3); font-size: 13px; border-top: 1px solid var(--border); }
 
-  /* ── Stat tiles ───────────────────────────────────── */
-  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
-  .tile { padding: 22px 24px; border-right: 1px solid var(--border); }
-  .tile:last-child { border-right: none; }
-  .tile .eyebrow { margin-bottom: 10px; }
-  .tile .big { font-size: 36px; font-weight: 600; letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; }
-  .tile .sub { font-size: 12px; color: var(--text-3); margin-top: 7px; }
-
   /* ── Scoring form ─────────────────────────────────── */
   .crit-row { display: flex; align-items: center; gap: 28px; padding: 20px 22px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; }
   .crit-info { flex: 1; min-width: 0; }
@@ -214,9 +207,9 @@
   .weight-fill { height: 100%; background: var(--sage); border-radius: 3px; }
 
   /* ── Tabs ─────────────────────────────────────────── */
-  .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 4px; width: fit-content; box-shadow: var(--shadow); }
+  .tabs { display: flex; gap: 4px; margin-bottom: 22px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 4px; width: fit-content; }
   .tabs button { border: none; background: transparent; padding: 8px 18px; border-radius: var(--radius-pill); cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-2); font-family: var(--font); transition: all .15s; }
-  .tabs button.active { background: var(--sage-soft); color: var(--sage-deep); }
+  .tabs button.active { background: var(--surface); color: var(--sage-deep); box-shadow: var(--shadow); }
 
   /* ── Boxes ────────────────────────────────────────── */
   .note-box { background: var(--blue-soft); border: 1px solid #cee0ec; border-radius: var(--radius-sm); padding: 13px 16px; font-size: 13px; color: #41566e; }
@@ -248,16 +241,19 @@
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   #toast svg { width: 16px; height: 16px; }
 
-  /* ── Dialog ───────────────────────────────────────── */
-  .overlay { position: fixed; inset: 0; background: rgba(33,31,28,.35); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: fade .15s; }
+  /* ── Overlay / Dialog / Modal (shared shell) ──────── */
+  .overlay { position: fixed; inset: 0; background: rgba(33,31,28,.35); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: fade .15s; padding: 24px; }
   @keyframes fade { from { opacity: 0; } }
   .dialog { background: var(--surface); border-radius: var(--radius); padding: 28px; max-width: 420px; width: 90%; box-shadow: var(--shadow-pop); }
   .dialog h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
   .dialog p { color: var(--text-2); margin-bottom: 24px; }
   .dialog-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
-  /* ── Guide / Leitfaden ────────────────────────────── */
-  .guide { background: var(--surface); border-radius: var(--radius); max-width: 640px; width: 92%; max-height: 88vh; overflow-y: auto; box-shadow: var(--shadow-pop); }
+  .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: var(--shadow-pop); }
+  .modal-md { max-width: 640px; }
+  .modal-lg { max-width: 880px; }
+
+  .guide { background: var(--surface); border-radius: var(--radius); max-width: 640px; width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: var(--shadow-pop); }
   .guide-head { position: sticky; top: 0; background: var(--surface); padding: 26px 30px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; z-index: 1; }
   .guide-head h2 { font-size: 20px; font-weight: 600; letter-spacing: -.3px; }
   .guide-head p { font-size: 13px; color: var(--text-2); margin-top: 4px; max-width: 440px; }
@@ -277,9 +273,9 @@
   .guide-loop svg { width: 18px; height: 18px; flex-shrink: 0; }
 
   /* Page subtitle */
-  .page-sub { font-size: 13.5px; color: var(--text-2); margin: -14px 0 22px; max-width: 620px; }
+  .page-sub { font-size: 13.5px; color: var(--text-2); margin: -14px 0 22px; max-width: 680px; }
 
-  /* ── Quartals-Leiste (Dashboard oben) ─────────────── */
+  /* ── Quartals-Leiste (oben) ────────────────────────── */
   .qbar { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
   .qbar-head { display: flex; flex-direction: column; line-height: 1.1; }
   .qbar-eye { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
@@ -319,11 +315,14 @@
   .mb-6 { margin-bottom: 24px; }
   .mt-4 { margin-bottom: 0; margin-top: 16px; }
 
+  /* Scroll anchor offsets (sticky header) */
+  #capacity-tile, #buckets-tile, #all-projects-tile { scroll-margin-top: 88px; }
+
   /* ── Print ────────────────────────────────────────── */
   #print-header { display: none; }
   @media print {
     body { background: #fff; font-size: 11px; }
-    header, .toolbar, .btn, .icon-btn, .seg, .no-print { display: none !important; }
+    header, .toolbar, .btn, .icon-btn, .seg, .no-print, .overlay { display: none !important; }
     main { padding: 0; max-width: none; }
     .card { box-shadow: none; break-inside: avoid; border-color: #ccc; }
     .bucket-card { break-inside: avoid; }
@@ -339,9 +338,24 @@
 <div id="app">
   <header>
     <div class="brand">VECTOR</div>
-    <nav id="main-nav"></nav>
+    <nav>
+      <button onclick="scrollToSection('capacity-tile')"><span>Kapazität</span></button>
+      <button onclick="scrollToSection('buckets-tile')"><span>Buckets</span></button>
+      <button onclick="scrollToSection('all-projects-tile')"><span>Alle Projekte</span></button>
+    </nav>
     <div style="flex:1"></div>
-    <button class="btn btn-secondary btn-sm" onclick="openGuide()" title="So arbeitest du mit VECTOR"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.8 2.5-2.8 2.5"/><line x1="12" y1="17" x2="12" y2="17"/></svg><span>Leitfaden</span></button>
+    <button class="btn btn-secondary btn-sm" onclick="openGuide()" title="So arbeitest du mit VECTOR">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.8 2.5-2.8 2.5"/><line x1="12" y1="17" x2="12" y2="17"/></svg>
+      <span>Leitfaden</span>
+    </button>
+    <button class="btn btn-secondary btn-sm" onclick="openConfig('criteria')" title="Konfiguration">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="8" x2="20" y2="8"/><circle cx="9" cy="8" r="2.4" fill="var(--bg)"/><line x1="4" y1="16" x2="20" y2="16"/><circle cx="15" cy="16" r="2.4" fill="var(--bg)"/></svg>
+      <span>Konfiguration</span>
+    </button>
+    <button class="btn btn-primary btn-sm" onclick="openProjectForm(null)" title="Neues Projekt">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Neues Projekt</span>
+    </button>
   </header>
   <main id="main-content"></main>
 </div>
@@ -353,8 +367,6 @@
 // ============================================================
 const I = {
   dashboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
-  projects: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>',
-  config: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="8" x2="20" y2="8"/><circle cx="9" cy="8" r="2.4" fill="var(--bg)"/><line x1="4" y1="16" x2="20" y2="16"/><circle cx="15" cy="16" r="2.4" fill="var(--bg)"/></svg>',
   plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
   edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg>',
@@ -399,15 +411,11 @@ function quartersInfo(){
 // STATE
 // ============================================================
 let state = { projects: [], criteria: [], buckets: [], config: { bucketAllocationLocked: false }, ui: {
-  activeTab: 'dashboard', dashboardView: 'bucket',
   filterStatus: 'aktiv', filterBucket: 'all', filterQuarter: 'all',
   rankSortBy: 'wsjf', rankSortDir: 'desc',
-  projectSubTab: 'list',
-  editingProjectId: null, detailProjectId: null,
-  scoringMode: false,
-  configTab: 'criteria',
-  editingCriterionId: null, editingBucketId: null,
-  showConfirm: null, showGuide: false
+  editingProjectId: null, detailProjectId: null, projectModalView: 'detail',
+  configTab: 'criteria', editingCriterionId: null, editingBucketId: null,
+  showConfirm: null
 }};
 
 // ============================================================
@@ -473,10 +481,9 @@ function getBucketStats(bucketId) {
   const allActive = activeInScope();
   const active = allActive.filter(p => p.bucketId === bucketId);
   const bucket = state.buckets.find(b => b.id === bucketId);
-  if (!bucket) return { count: 0, total: 0, target: 0, pct: 0, effort: 0, totalEffort: 0 };
+  if (!bucket) return { count: 0, total: 0, target: 0, pct: 0, effort: 0, totalEffort: 0, countPct: 0 };
   const totalEffort = allActive.reduce((s,p)=>s+projectEffort(p),0);
   const bucketEffort = active.reduce((s,p)=>s+projectEffort(p),0);
-  // Ist-Anteil = Anteil an der Entwicklungskapazität (Summe der Aufwände), nicht bloße Projektanzahl
   const pct = totalEffort > 0 ? Math.round((bucketEffort / totalEffort) * 100) : 0;
   const countPct = allActive.length > 0 ? Math.round((active.length / allActive.length) * 100) : 0;
   return { count: active.length, total: allActive.length, target: bucket.targetPercent, pct, effort: bucketEffort, totalEffort, countPct };
@@ -508,7 +515,7 @@ function exportCSV() {
   a.click(); URL.revokeObjectURL(url);
   showToast('CSV exportiert');
 }
-function openPrintView() { render(); window.print(); }
+function openPrintView() { closeModal(); window.print(); }
 
 // ============================================================
 // TOAST
@@ -522,31 +529,39 @@ function showToast(msg) {
 }
 
 // ============================================================
-// NAV
+// SCROLL / MODAL SYSTEM
 // ============================================================
-function renderNav() {
-  const tabs = [['dashboard','Dashboard',I.dashboard],['projects','Projekte',I.projects],['config','Konfiguration',I.config]];
-  document.getElementById('main-nav').innerHTML = tabs.map(([id,label,icon]) =>
-    `<button class="${state.ui.activeTab===id?'active':''}" onclick="navigate('${id}')">${icon}<span>${label}</span></button>`
-  ).join('');
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-function navigate(tab) {
-  state.ui.activeTab = tab;
-  if (tab !== 'projects') { state.ui.projectSubTab = 'list'; state.ui.editingProjectId = null; state.ui.detailProjectId = null; state.ui.scoringMode = false; }
-  renderNav(); render();
+function openModal(innerHtml) {
+  closeModal();
+  const div = document.createElement('div');
+  div.className = 'overlay';
+  div.id = 'app-modal';
+  div.onclick = (e) => { if (e.target === div) closeModal(); };
+  div.innerHTML = innerHtml;
+  document.body.appendChild(div);
 }
+function closeModal() {
+  const m = document.getElementById('app-modal');
+  if (m) m.remove();
+  render();
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('confirm-overlay')) { cancelConfirm(); return; }
+  if (document.getElementById('app-modal')) { closeModal(); return; }
+  if (document.getElementById('guide-overlay')) { closeGuide(); return; }
+});
 
 // ============================================================
-// RENDER
+// RENDER (single page)
 // ============================================================
 function render() {
-  renderNav();
   const el = document.getElementById('main-content');
-  let html = '';
-  if (state.ui.activeTab === 'dashboard') html = renderDashboard();
-  else if (state.ui.activeTab === 'projects') html = renderProjectsTab();
-  else if (state.ui.activeTab === 'config') html = renderConfigTab();
-  el.innerHTML = html;
+  el.innerHTML = renderPage();
 }
 
 // ============================================================
@@ -556,18 +571,18 @@ const GUIDE_STEPS = [
   { phase: 'Einrichten — einmal pro Planungszyklus' },
   { n:1, title:'Kapazität auf Buckets aufteilen', body:'Lege fest, wie viel Prozent deiner Entwicklungskapazität auf jeden Strategic Bucket entfällt (Ziel-Anteile, Summe 100 %).',
     why:'Das ist der wichtigste Schritt: Weil Kapazität <b>vor</b> dem Einzel-Vergleich aufgeteilt wird, verlieren strategische Langfristprojekte nicht ständig gegen dringende Opportunitäten.',
-    action:'Zu den Buckets', fn:"closeGuide();navigate('config');state.ui.configTab='buckets';render()" },
+    action:'Zu den Buckets', fn:"closeGuide();openConfig('buckets')" },
   { n:2, title:'Bewertungskriterien prüfen', body:'Passe die 4 Wert-Kriterien und ihre Gewichte an deine Strategie an — oder übernimm die Defaults. Der Aufwand ist bewusst kein Kriterium.',
-    action:'Zu den Kriterien', fn:"closeGuide();navigate('config');state.ui.configTab='criteria';render()" },
+    action:'Zu den Kriterien', fn:"closeGuide();openConfig('criteria')" },
   { phase: 'Laufender Betrieb' },
   { n:3, title:'Projekte anlegen', body:'Erfasse jedes Projekt und weise ihm einen Bucket zu (Name, Typ, Bucket).',
     action:'Neues Projekt', fn:"closeGuide();openProjectForm(null)" },
   { n:4, title:'Projekt bewerten', body:'Bewerte pro Projekt die Wert-Kriterien (1–5) und den Aufwand (1–5). VECTOR berechnet live den Wert-Score und daraus <b>WSJF = Wert-Score / Aufwand</b> — der Sequenzierungs-Index.',
-    action:'Zu den Projekten', fn:"closeGuide();navigate('projects')" },
-  { n:5, title:'Priorisieren & Kapazität prüfen', body:'Im Dashboard siehst du je Bucket das WSJF-Ranking und ob die Ist-Auslastung deinem Ziel-Anteil entspricht (Soll/Ist-Balken: grün = im Ziel, terracotta = überallokiert).',
-    action:'Zum Dashboard', fn:"closeGuide();navigate('dashboard')" },
+    action:'Zu den Projekten', fn:"closeGuide();scrollToSection('all-projects-tile')" },
+  { n:5, title:'Priorisieren & Kapazität prüfen', body:'Oben siehst du je Bucket das WSJF-Ranking und ob die Ist-Auslastung deinem Ziel-Anteil entspricht (Soll/Ist-Balken: grün = im Ziel, rot = überallokiert).',
+    action:'Zur Kapazitäts-Übersicht', fn:"closeGuide();scrollToSection('capacity-tile')" },
   { n:6, title:'Aktuell halten & mit Management teilen', body:'Bewerte Projekte regelmäßig neu — der Score-Verlauf zeigt die Entwicklung. Für Raphael/Management exportierst du per CSV oder druckfähiger Ansicht.',
-    action:'Export & Druck', fn:"closeGuide();navigate('dashboard')" }
+    action:'Export & Backup', fn:"closeGuide();openConfig('export')" }
 ];
 function renderGuide() {
   const steps = GUIDE_STEPS.map(s => {
@@ -584,7 +599,7 @@ function renderGuide() {
   return `<div class="overlay" id="guide-overlay" onclick="if(event.target===this)closeGuide()">
     <div class="guide">
       <div class="guide-head">
-        <div><h2>So arbeitest du mit VECTOR</h2><p>VECTOR trennt zwei Dinge: <b>wie viel</b> Kapazität eine strategische Kategorie bekommt (Buckets) und <b>welches</b> Projekt darin zuerst drankommt (WSJF). Diese Reihenfolge ist das Kernprinzip.</p></div>
+        <div><h2>So arbeitest du mit VECTOR</h2><p>Alles auf einer Seite: Kapazitäts-Übersicht, Buckets und Projekte stehen immer sichtbar untereinander. Details, Bewertung und Konfiguration öffnen sich als Pop-up. VECTOR trennt <b>wie viel</b> Kapazität eine Kategorie bekommt (Buckets) von <b>welches</b> Projekt darin zuerst drankommt (WSJF).</p></div>
         <button class="icon-btn" onclick="closeGuide()" title="Schließen">${I.close}</button>
       </div>
       <div class="guide-body">
@@ -604,7 +619,7 @@ function openGuide() {
 function closeGuide() { const o = document.getElementById('guide-overlay'); if (o) o.remove(); }
 
 // ============================================================
-// ONBOARDING (dashboard when no projects yet)
+// ONBOARDING (single page when no projects yet)
 // ============================================================
 function renderOnboarding() {
   const steps = GUIDE_STEPS.filter(s => !s.phase).map(s => `<div class="step">
@@ -656,26 +671,20 @@ function renderQuarterBar(){
 }
 
 // ============================================================
-// DASHBOARD
+// MAIN PAGE
 // ============================================================
-function renderDashboard() {
-  const { dashboardView, filterStatus, filterBucket } = state.ui;
-  const bucketSummary = state.buckets.map(b => b.name + ' ' + b.targetPercent + '%').join(' · ');
+function renderPage() {
   if (state.projects.length === 0) return renderOnboarding();
+  const { filterStatus, filterBucket } = state.ui;
+  const bucketSummary = state.buckets.map(b => b.name + ' ' + b.targetPercent + '%').join(' · ');
   return `
   <div id="print-header">
     <h2>VECTOR — Projektpriorisierung</h2>
     <p>${quarterHeadline()} &nbsp;·&nbsp; Exportiert am ${new Date().toLocaleDateString('de-DE')} &nbsp;·&nbsp; Buckets: ${esc(bucketSummary)}</p>
   </div>
   ${renderQuarterBar()}
-  <p class="page-sub" style="margin-top:0">${dashboardView==='bucket'
-    ? 'Priorisierung <b>je Bucket</b>. Prüfe, ob die Ist-Auslastung deinem Ziel-Anteil entspricht — der WSJF-Score bestimmt die Reihenfolge innerhalb jedes Buckets.'
-    : 'Alle aktiven Projekte in <b>einer</b> Liste über alle Buckets hinweg, frei sortierbar — die reine WSJF-Reihenfolge <b>ohne</b> Bucket-Aufteilung (Kontrast zur Bucket-Ansicht). Nur zum Ansehen/Sortieren; Anlegen und Bearbeiten läuft über den Reiter <b>Projekte</b>.'}</p>
+  <p class="page-sub" style="margin-top:0">Kapazität wird zuerst strukturell auf <b>Buckets</b> verteilt — innerhalb jedes Buckets entscheidet der <b>WSJF-Score</b> über die Reihenfolge. Klicke ein Projekt für Details, Bewertung oder Bearbeitung.</p>
   <div class="toolbar">
-    <div class="seg">
-      <button class="${dashboardView==='bucket'?'active':''}" onclick="setDashView('bucket')">${I.dashboard}<span>Buckets</span></button>
-      <button class="${dashboardView==='ranking'?'active':''}" onclick="setDashView('ranking')">${I.spark}<span>Gesamtranking</span></button>
-    </div>
     <div class="field-inline">
       <label>Status</label>
       <select onchange="state.ui.filterStatus=this.value;render()">
@@ -693,7 +702,10 @@ function renderDashboard() {
     <button class="btn btn-secondary btn-sm" onclick="exportCSV()">${I.download}<span>CSV</span></button>
     <button class="btn btn-secondary btn-sm" onclick="openPrintView()">${I.print}<span>Drucken</span></button>
   </div>
-  ${dashboardView==='bucket' ? renderBucketView() : renderRankingView()}`;
+  ${filterBucket === 'all' ? renderCapacityOverview() : ''}
+  ${renderBucketTiles()}
+  ${renderAllProjectsTile()}
+  `;
 }
 
 function getFilteredProjects() {
@@ -705,11 +717,13 @@ function getFilteredProjects() {
   });
 }
 
-function renderBucketView() {
+function renderBucketTiles() {
   const projects = getFilteredProjects();
-  if (!state.buckets.length) return `<div class="card"><div class="empty"><div class="ring">${I.dashboard}</div><p>Keine Buckets konfiguriert.</p><button class="btn btn-primary" onclick="navigate('config')">Buckets anlegen</button></div></div>`;
-  const overview = state.ui.filterBucket === 'all' ? renderCapacityOverview() : '';
-  return overview + [...state.buckets].sort((a,b)=>a.order-b.order).map(bucket => {
+  if (!state.buckets.length) return `<div class="card mb-6"><div class="empty"><div class="ring">${I.dashboard}</div><p>Keine Buckets konfiguriert.</p><button class="btn btn-primary" onclick="openConfig('buckets')">Buckets anlegen</button></div></div>`;
+  const bucketsToShow = state.ui.filterBucket === 'all'
+    ? [...state.buckets].sort((a,b)=>a.order-b.order)
+    : state.buckets.filter(b => b.id === state.ui.filterBucket);
+  const tiles = bucketsToShow.map(bucket => {
     const bp = projects.filter(p => p.bucketId === bucket.id).sort((a,b) => {
       const ar=getLatestRound(a), br=getLatestRound(b);
       return (br?br.wsjfScore:0)-(ar?ar.wsjfScore:0);
@@ -746,6 +760,13 @@ function renderBucketView() {
       </table></div>`}
     </div>`;
   }).join('');
+  return `<div id="buckets-tile">
+    <div class="flex items-center gap-2 mb-4" style="margin-top:4px">
+      <h3 style="font-size:15px;font-weight:600">Buckets</h3>
+      <span class="muted-3" style="font-size:12px">— Priorisierung je Bucket, sortiert nach WSJF</span>
+    </div>
+    <div class="bucket-grid">${tiles}</div>
+  </div>`;
 }
 
 function projectRow(p, rank, showBucket) {
@@ -767,7 +788,7 @@ function projectRow(p, rank, showBucket) {
   </tr>`;
 }
 
-function renderRankingView() {
+function renderAllProjectsTile() {
   const { rankSortBy, rankSortDir } = state.ui;
   let projects = getFilteredProjects().sort((a,b) => {
     const ar=getLatestRound(a), br=getLatestRound(b);
@@ -779,205 +800,46 @@ function renderRankingView() {
     return rankSortDir==='asc'?va-vb:vb-va;
   });
   const arr = c => rankSortBy===c ? (rankSortDir==='asc'?' ↑':' ↓') : '';
-  if (!projects.length) return `<div class="card"><div class="empty"><div class="ring">${I.spark}</div><p>Keine Projekte mit aktuellem Filter.</p></div></div>`;
-  return `<div class="card"><div class="table-wrap"><table>
-    <thead><tr>
-      <th style="width:40px">#</th><th>Projekt</th><th>Bucket</th><th>Typ</th>
-      <th class="num sortable" onclick="setSortRanking('value')" title="Wert-Score (0–100): gewichteter Nutzen aus den Bewertungskriterien">Wert${arr('value')}</th>
-      <th class="num" title="Aufwand / benötigte Entwicklungskapazität (1–5): 1 = < 1 Woche … 5 = > 4 Monate">Aufwand</th>
-      <th class="num sortable" onclick="setSortRanking('wsjf')" title="WSJF = Wert-Score ÷ Aufwand. Sequenzierungs-Priorität — höher heißt zuerst umsetzen">WSJF${arr('wsjf')}</th>
-      <th title="Entwicklung des WSJF gegenüber der vorherigen Bewertungsrunde">Trend</th>
-      <th class="sortable" onclick="setSortRanking('date')">Bewertet${arr('date')}</th>
-      <th>Status</th><th class="no-print"></th>
-    </tr></thead>
-    <tbody>${projects.map((p,i) => {
-      const r = getLatestRound(p), t = getTrend(p), bucket = state.buckets.find(b=>b.id===p.bucketId);
-      const qTag = (state.ui.filterQuarter==='all' && p.quarter) ? ` <span style="font-size:10.5px;font-weight:600;color:var(--text-3)">· ${quarterLabel(p.quarter)}</span>` : '';
-      return `<tr>
-        <td class="rank">${i+1}</td>
-        <td style="font-weight:600">${esc(p.name)}${qTag}</td>
-        <td>${bucket?`<span class="chip" style="background:${bucket.color}1a;color:${bucket.color}"><span class="dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>`:'—'}</td>
-        <td><span class="badge badge-type">${esc(p.type)}</span></td>
-        <td class="num">${r?`<span class="score ${scoreClass(r.valueScore)}">${r.valueScore}</span>`:'<span class="muted-3">—</span>'}</td>
-        <td class="num">${r?`<span class="tnum">${r.effort}</span>`:'<span class="muted-3">—</span>'}</td>
-        <td class="num">${r?`<span class="wsjf">${r.wsjfScore}</span>`:'<span class="muted-3">—</span>'}</td>
-        <td><span class="trend ${trendClass(t)}">${t}</span></td>
-        <td>${r?`<span class="muted" style="font-size:12.5px">${new Date(r.date).toLocaleDateString('de-DE')}</span>`:'<span class="muted-3">—</span>'}</td>
-        <td><span class="badge badge-${p.status}">${p.status}</span></td>
-        <td class="no-print" style="text-align:right"><button class="btn btn-ghost btn-sm" onclick="openDetail('${p.id}')">Öffnen</button></td>
-      </tr>`;
-    }).join('')}</tbody>
-  </table></div></div>`;
-}
-
-// ============================================================
-// PROJECTS
-// ============================================================
-function renderProjectsTab() {
-  if (state.ui.projectSubTab === 'form') return renderProjectForm();
-  if (state.ui.projectSubTab === 'detail') return renderProjectDetail();
-  return renderProjectList();
-}
-
-function renderProjectList() {
-  const projects = [...state.projects].sort((a,b) => {
-    const ar=getLatestRound(a), br=getLatestRound(b);
-    return (br?br.wsjfScore:0)-(ar?ar.wsjfScore:0);
-  });
-  return `
-  <div class="toolbar" style="margin-bottom:8px">
-    <h1 class="page-title">Projekte</h1>
-    <div class="spacer"></div>
-    <button class="btn btn-secondary btn-sm" onclick="openGuide()" title="So arbeitest du mit VECTOR">Leitfaden</button>
-    <button class="btn btn-primary" onclick="openProjectForm(null)">${I.plus}<span>Neues Projekt</span></button>
-  </div>
-  <p class="page-sub">Lege Projekte an, weise ihnen einen Bucket zu und bewerte sie. Öffne ein Projekt für „Neue Bewertung" — der WSJF-Score aus Wert und Aufwand bestimmt die Priorität.</p>
-  ${!projects.length ? `<div class="card"><div class="empty"><div class="ring">${I.projects}</div><p>Noch keine Projekte angelegt. Lege dein erstes Projekt an, um es zu bewerten und zu priorisieren.</p><button class="btn btn-primary" onclick="openProjectForm(null)">${I.plus}<span>Erstes Projekt anlegen</span></button></div></div>` : `
-  <div class="card"><div class="table-wrap"><table>
-    <thead><tr><th>Projekt</th><th>Quartal</th><th>Bucket</th><th>Typ</th><th class="num" title="Wert-Score (0–100): gewichteter Nutzen aus den Bewertungskriterien">Wert</th><th class="num" title="WSJF = Wert-Score ÷ Aufwand. Sequenzierungs-Priorität — höher heißt zuerst umsetzen">WSJF</th><th class="num" title="Anzahl gespeicherter Bewertungsrunden (Score-Historie)">Bewertungen</th><th>Status</th><th></th></tr></thead>
-    <tbody>${projects.map(p => {
-      const r = getLatestRound(p), bucket = state.buckets.find(b=>b.id===p.bucketId);
-      return `<tr>
-        <td><div style="font-weight:600">${esc(p.name)}</div>${p.description?`<div style="font-size:12px;color:var(--text-3);margin-top:1px">${esc(p.description)}</div>`:''}</td>
-        <td>${p.quarter?`<span class="badge badge-type">${quarterLabel(p.quarter)}</span>`:'<span class="muted-3">—</span>'}</td>
-        <td>${bucket?`<span class="chip" style="background:${bucket.color}1a;color:${bucket.color}"><span class="dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>`:'—'}</td>
-        <td><span class="badge badge-type">${esc(p.type)}</span></td>
-        <td class="num">${r?`<span class="score ${scoreClass(r.valueScore)}">${r.valueScore}</span>`:'<span class="muted-3">—</span>'}</td>
-        <td class="num">${r?`<span class="wsjf">${r.wsjfScore}</span>`:'<span class="muted-3">—</span>'}</td>
-        <td class="num muted-3">${p.rounds.length}</td>
-        <td><span class="badge badge-${p.status}">${p.status}</span></td>
-        <td style="text-align:right;white-space:nowrap">
-          <button class="btn btn-ghost btn-sm" onclick="openDetail('${p.id}')">Öffnen</button>
-          <button class="icon-btn" onclick="openProjectForm('${p.id}')" title="Bearbeiten">${I.edit}</button>
-          <button class="icon-btn danger" onclick="confirmDelete('${p.id}')" title="Löschen">${I.trash}</button>
-        </td>
-      </tr>`;
-    }).join('')}</tbody>
-  </table></div></div>`}`;
-}
-
-function renderProjectForm() {
-  const isNew = !state.ui.editingProjectId;
-  const p = isNew ? null : state.projects.find(pr => pr.id === state.ui.editingProjectId);
-  return `
-  <div class="toolbar">
-    <button class="icon-btn" onclick="backToList()" title="Zurück">${I.back}</button>
-    <h1 class="page-title">${isNew?'Neues Projekt':'Projekt bearbeiten'}</h1>
-  </div>
-  <div class="card" style="max-width:680px"><div class="card-pad">
-    <form onsubmit="saveProject(event)">
-      <div class="form-group"><label>Projektname *</label><input type="text" id="f-name" value="${p?esc(p.name):''}" required placeholder="z.B. Kunden-Portal v3"></div>
-      <div class="form-group"><label>Kurzbeschreibung</label><textarea id="f-desc" placeholder="Worum geht es bei diesem Projekt?">${p?esc(p.description):''}</textarea></div>
-      <div class="form-row">
-        <div class="form-group"><label>Typ *</label><select id="f-type" required>${['RTI-Produkt','Turn-Key','Feature'].map(t=>`<option value="${t}" ${p&&p.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
-        <div class="form-group"><label>Bucket *</label><select id="f-bucket" required><option value="">— wählen —</option>${state.buckets.map(b=>`<option value="${b.id}" ${p&&p.bucketId===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}</select></div>
+  const body = !projects.length
+    ? `<div class="empty"><div class="ring">${I.spark}</div><p>Keine Projekte mit aktuellem Filter.</p></div>`
+    : `<div class="table-wrap"><table>
+      <thead><tr>
+        <th style="width:40px">#</th><th>Projekt</th><th>Bucket</th><th>Typ</th>
+        <th class="num sortable" onclick="setSortRanking('value')" title="Wert-Score (0–100): gewichteter Nutzen aus den Bewertungskriterien">Wert${arr('value')}</th>
+        <th class="num" title="Aufwand / benötigte Entwicklungskapazität (1–5): 1 = < 1 Woche … 5 = > 4 Monate">Aufwand</th>
+        <th class="num sortable" onclick="setSortRanking('wsjf')" title="WSJF = Wert-Score ÷ Aufwand. Sequenzierungs-Priorität — höher heißt zuerst umsetzen">WSJF${arr('wsjf')}</th>
+        <th title="Entwicklung des WSJF gegenüber der vorherigen Bewertungsrunde">Trend</th>
+        <th class="sortable" onclick="setSortRanking('date')">Bewertet${arr('date')}</th>
+        <th>Status</th><th class="no-print"></th>
+      </tr></thead>
+      <tbody>${projects.map((p,i) => {
+        const r = getLatestRound(p), t = getTrend(p), bucket = state.buckets.find(b=>b.id===p.bucketId);
+        const qTag = (state.ui.filterQuarter==='all' && p.quarter) ? ` <span style="font-size:10.5px;font-weight:600;color:var(--text-3)">· ${quarterLabel(p.quarter)}</span>` : '';
+        return `<tr>
+          <td class="rank">${i+1}</td>
+          <td style="font-weight:600">${esc(p.name)}${qTag}</td>
+          <td>${bucket?`<span class="chip" style="background:${bucket.color}1a;color:${bucket.color}"><span class="dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>`:'—'}</td>
+          <td><span class="badge badge-type">${esc(p.type)}</span></td>
+          <td class="num">${r?`<span class="score ${scoreClass(r.valueScore)}">${r.valueScore}</span>`:'<span class="muted-3">—</span>'}</td>
+          <td class="num">${r?`<span class="tnum">${r.effort}</span>`:'<span class="muted-3">—</span>'}</td>
+          <td class="num">${r?`<span class="wsjf">${r.wsjfScore}</span>`:'<span class="muted-3">—</span>'}</td>
+          <td><span class="trend ${trendClass(t)}">${t}</span></td>
+          <td>${r?`<span class="muted" style="font-size:12.5px">${new Date(r.date).toLocaleDateString('de-DE')}</span>`:'<span class="muted-3">—</span>'}</td>
+          <td><span class="badge badge-${p.status}">${p.status}</span></td>
+          <td class="no-print" style="text-align:right"><button class="btn btn-ghost btn-sm" onclick="openDetail('${p.id}')">Öffnen</button></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  return `<div class="card" id="all-projects-tile">
+    <div class="card-head">
+      <h3>Alle Projekte</h3>
+      <div class="flex items-center gap-3">
+        <span class="muted-3" style="font-size:12px">${projects.length} ${projects.length===1?'Projekt':'Projekte'}</span>
+        <button class="btn btn-primary btn-sm no-print" onclick="openProjectForm(null)">${I.plus}<span>Neu</span></button>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label>Status</label><select id="f-status">${['aktiv','zurückgestellt','abgeschlossen'].map(s=>`<option value="${s}" ${(p&&p.status===s)||(!p&&s==='aktiv')?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}</select></div>
-        <div class="form-group"><label>Quartal</label><select id="f-quarter"><option value="">— kein Quartal —</option>${QUARTER_OPTIONS.map(q=>`<option value="${q}" ${p&&p.quarter===q?'selected':''}>${quarterLabel(q)}</option>`).join('')}</select></div>
-      </div>
-      <div class="flex gap-2 mt-4">
-        <button type="submit" class="btn btn-primary">${I.save}<span>Speichern</span></button>
-        <button type="button" class="btn btn-secondary" onclick="backToList()">Abbrechen</button>
-      </div>
-    </form>
-  </div></div>`;
-}
-
-function renderProjectDetail() {
-  const p = state.projects.find(pr => pr.id === state.ui.detailProjectId);
-  if (!p) return `<div class="card"><div class="card-pad">Projekt nicht gefunden.</div></div>`;
-  if (state.ui.scoringMode) return renderScoringForm(p);
-  const bucket = state.buckets.find(b => b.id === p.bucketId);
-  const latest = getLatestRound(p);
-  const activeCrit = state.criteria.filter(c => c.active);
-  const t = getTrend(p);
-  return `
-  <div class="toolbar">
-    <button class="icon-btn" onclick="backToList()" title="Zurück">${I.back}</button>
-    <div class="detail-head" style="margin:0">
-      <h2>${esc(p.name)}</h2>
-      ${p.quarter?`<span class="badge badge-type">${quarterLabel(p.quarter)}</span>`:''}
-      ${bucket?`<span class="chip" style="background:${bucket.color}1a;color:${bucket.color}"><span class="dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>`:''}
-      <span class="badge badge-${p.status}">${p.status}</span>
     </div>
-    <div class="spacer"></div>
-    <button class="btn btn-secondary btn-sm" onclick="openProjectForm('${p.id}')">${I.edit}<span>Bearbeiten</span></button>
-    <button class="btn btn-primary btn-sm" onclick="enterScoring()">${I.plus}<span>Neue Bewertung</span></button>
-  </div>
-  ${p.description?`<p class="muted mb-6" style="max-width:680px">${esc(p.description)}</p>`:''}
-  ${latest ? `
-  <div class="summary">
-    <div class="cell"><div class="eyebrow">Wert-Score</div><div class="v ${scoreClass(latest.valueScore)}" style="color:${latest.valueScore>=70?'var(--sage-deep)':latest.valueScore>=40?'var(--amber)':'var(--terra)'}">${latest.valueScore}</div><div class="s">von 100</div></div>
-    <div class="cell"><div class="eyebrow">Aufwand</div><div class="v">${latest.effort}</div><div class="s">${EFFORT_LABELS[latest.effort]}</div></div>
-    <div class="cell"><div class="eyebrow">WSJF-Score</div><div class="v" style="color:var(--sage-deep)">${latest.wsjfScore}</div><div class="s">Sequenzierungs-Index</div></div>
-    <div class="cell"><div class="eyebrow">Trend</div><div class="v"><span class="trend ${trendClass(t)}" style="font-size:32px">${t}</span></div><div class="s">vs. Vorperiode</div></div>
-  </div>` : `<div class="note-box mb-6">Noch keine Bewertungsrunde vorhanden. Starte mit „Neue Bewertung".</div>`}
-  <div class="card mb-6">
-    <div class="card-head"><h3>Score-Verlauf</h3>${p.rounds.length>=2?`<div class="chart-legend"><span><span class="dot" style="background:var(--sage)"></span>Wert-Score</span><span><span class="dot" style="background:var(--blue)"></span>WSJF</span></div>`:''}</div>
-    <div class="card-pad">${p.rounds.length<2 ? `<div class="muted-3" style="font-size:13px">Der Verlauf erscheint ab der zweiten Bewertungsrunde.</div>` : buildLineChart(p.rounds)}</div>
-  </div>
-  ${p.rounds.length ? `
-  <div class="card">
-    <div class="card-head"><h3>Bewertungsrunden</h3><span class="muted-3" style="font-size:12.5px">${p.rounds.length} ${p.rounds.length===1?'Runde':'Runden'}</span></div>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Datum</th>${activeCrit.map(c=>`<th class="num">${esc(c.name)}</th>`).join('')}<th class="num">Aufwand</th><th class="num">Wert</th><th class="num">WSJF</th>${p.rounds.some(r=>r.note)?'<th>Notiz</th>':''}</tr></thead>
-      <tbody>${[...p.rounds].reverse().map((r,i)=>`<tr${i===0?' style="background:var(--sage-soft)"':''}>
-        <td style="font-weight:${i===0?600:400}">${new Date(r.date).toLocaleDateString('de-DE')}</td>
-        ${activeCrit.map(c=>`<td class="num tnum">${r.scores[c.id]!=null?r.scores[c.id]:'<span class="muted-3">—</span>'}</td>`).join('')}
-        <td class="num tnum">${r.effort}</td>
-        <td class="num"><span class="score ${scoreClass(r.valueScore)}">${r.valueScore}</span></td>
-        <td class="num"><span class="wsjf">${r.wsjfScore}</span></td>
-        ${p.rounds.some(r=>r.note)?`<td class="muted" style="font-size:12.5px">${r.note?esc(r.note):''}</td>`:''}
-      </tr>`).join('')}</tbody>
-    </table></div>
-  </div>` : ''}`;
-}
-
-function renderScoringForm(p) {
-  const activeCrit = state.criteria.filter(c => c.active);
-  const totalW = activeCrit.reduce((s,x)=>s+x.weight,0);
-  const today = new Date().toISOString().slice(0,10);
-  return `
-  <div class="toolbar">
-    <button class="icon-btn" onclick="exitScoring()" title="Zurück">${I.back}</button>
-    <h1 class="page-title">Neue Bewertung — ${esc(p.name)}</h1>
-  </div>
-  <div class="card" style="max-width:820px"><div class="card-pad">
-    <div class="note-box mb-6">Zweistufiges Scoring: <b>Stufe 1</b> bewertet den strategischen Wert (Skala 1–5). <b>Stufe 2</b> verrechnet den Aufwand als Divisor → <b>WSJF = Wert-Score / Aufwand</b>.</div>
-    <div class="summary live" id="score-preview">
-      <div class="cell"><div class="eyebrow">Wert-Score</div><div class="v" id="prev-value">—</div><div class="s">von 100</div></div>
-      <div class="cell"><div class="eyebrow">Aufwand</div><div class="v" id="prev-effort">—</div><div class="s">Divisor</div></div>
-      <div class="cell"><div class="eyebrow">WSJF-Score</div><div class="v" id="prev-wsjf">—</div><div class="s">Prioritätsindex</div></div>
-    </div>
-    <form onsubmit="saveScoringRound(event,'${p.id}')">
-      <div class="form-group" style="max-width:220px"><label>Bewertungsdatum</label><input type="date" id="s-date" value="${today}"></div>
-      <div class="eyebrow mb-4" style="margin-top:8px">Stufe 1 — Wert-Kriterien</div>
-      ${activeCrit.map(c=>`
-      <div class="crit-row">
-        <div class="crit-info"><strong>${esc(c.name)}</strong><span>${esc(c.description)}</span><div class="w">Gewicht ${c.weight} · ${Math.round(c.weight/totalW*100)}% normiert</div></div>
-        <div class="crit-input">
-          <div class="crit-val" id="disp-${c.id}">—</div>
-          <input type="range" min="1" max="5" step="1" value="3" id="range-${c.id}" oninput="updateScoreDisplay('${c.id}');updateLiveScore()">
-          <div class="scale-labels"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
-        </div>
-      </div>`).join('')}
-      <div class="eyebrow mb-4" style="margin-top:24px">Stufe 2 — Aufwand / Entwicklungskapazität <span style="text-transform:none;letter-spacing:0;color:var(--text-3)">(Divisor)</span></div>
-      <div class="crit-row" style="background:var(--terra-soft);border-color:#f0d5cd">
-        <div class="crit-info"><strong>Aufwand — benötigte Entwicklungskapazität</strong><span>Hier trägst du ein, wie viel Entwicklungskapazität das Projekt braucht (Skala 1–5). Wirkt als Divisor (WSJF = Wert ÷ Aufwand) <b>und</b> bestimmt den Kapazitätsanteil des Buckets in der Übersicht.</span></div>
-        <div class="crit-input">
-          <div class="crit-val terra" id="disp-effort">—</div>
-          <input type="range" min="1" max="5" step="1" value="3" id="range-effort" class="terra" oninput="updateEffortDisplay();updateLiveScore()">
-          <div class="scale-labels"><span>&lt;1W</span><span>1–4W</span><span>1–2M</span><span>2–4M</span><span>&gt;4M</span></div>
-        </div>
-      </div>
-      <div class="form-group mt-4"><label>Notiz (optional)</label><textarea id="s-note" placeholder="z.B. Neues Kundenfeedback, aktualisierte Markteinschätzung…"></textarea></div>
-      <div class="flex gap-2 mt-4">
-        <button type="submit" class="btn btn-primary">${I.save}<span>Bewertung speichern</span></button>
-        <button type="button" class="btn btn-secondary" onclick="exitScoring()">Abbrechen</button>
-      </div>
-    </form>
-  </div></div>`;
+    ${body}
+  </div>`;
 }
 
 // ============================================================
@@ -1013,7 +875,6 @@ function buildLineChart(rounds) {
 // SVG POT (Kapazitäts-Topf je Bucket)
 // ============================================================
 function buildPot(bucket, stats) {
-  // Flaches 2D-Behälter-Symbol (leicht konisch), Füllstand = Ist-Anteil, gestrichelte Linie = Ziel
   const topY = 24, botY = 130, bodyH = botY - topY, topHalf = 45, botHalf = 34, r = 6;
   const halfAt = y => topHalf - (topHalf - botHalf) * ((y - topY) / bodyH);
   const fillFrac = Math.max(0, Math.min(1, stats.pct / 100));
@@ -1076,7 +937,7 @@ function renderCapacityOverview() {
     const st = getBucketStats(b.id);
     return `<div class="row"><span class="dot" style="background:${b.color}"></span><span style="flex:1">${esc(b.name)}</span><b>${st.count}</b><span class="muted-3">${st.countPct}%</span></div>`;
   }).join('');
-  return `<div class="card mb-6"><div class="card-pad">
+  return `<div class="card mb-6" id="capacity-tile"><div class="card-pad">
     <div class="flex items-center gap-2" style="margin-bottom:4px">
       <h3 class="card-title" style="font-size:15px;font-weight:600">Kapazitäts-Übersicht</h3>
     </div>
@@ -1096,48 +957,241 @@ function renderCapacityOverview() {
 }
 
 // ============================================================
-// CONFIG
+// PROJECT MODAL (Detail / Scoring / Form)
 // ============================================================
-function renderConfigTab() {
+function openDetail(id) {
+  state.ui.detailProjectId = id;
+  state.ui.editingProjectId = null;
+  state.ui.projectModalView = 'detail';
+  openModal(renderProjectModal());
+}
+function openProjectForm(id) {
+  state.ui.editingProjectId = id;
+  state.ui.detailProjectId = id || null;
+  state.ui.projectModalView = 'form';
+  openModal(renderProjectModal());
+}
+function enterScoring() { state.ui.projectModalView = 'scoring'; refreshProjectModal(); }
+function exitScoring() { state.ui.projectModalView = 'detail'; refreshProjectModal(); }
+function backToProjectDetail() { state.ui.projectModalView = 'detail'; state.ui.editingProjectId = null; refreshProjectModal(); }
+function cancelProjectForm() { if (state.ui.editingProjectId) backToProjectDetail(); else closeModal(); }
+function refreshProjectModal() {
+  const modal = document.getElementById('app-modal');
+  if (!modal) return;
+  modal.innerHTML = renderProjectModal();
+}
+function renderProjectModal() {
+  const view = state.ui.projectModalView;
+  if (view === 'form') return renderProjectFormModal();
+  if (view === 'scoring') return renderScoringFormModal(state.projects.find(p => p.id === state.ui.detailProjectId));
+  return renderProjectDetailModal();
+}
+
+function renderProjectDetailModal() {
+  const p = state.projects.find(pr => pr.id === state.ui.detailProjectId);
+  if (!p) return `<div class="modal modal-md">
+    <div class="guide-head"><div><h2>Projekt</h2></div><button class="icon-btn" onclick="closeModal()" title="Schließen">${I.close}</button></div>
+    <div class="guide-body"><p class="muted">Projekt nicht gefunden.</p></div>
+  </div>`;
+  const bucket = state.buckets.find(b => b.id === p.bucketId);
+  const latest = getLatestRound(p);
+  const activeCrit = state.criteria.filter(c => c.active);
+  const t = getTrend(p);
+  return `<div class="modal modal-lg">
+    <div class="guide-head">
+      <div>
+        <div class="detail-head" style="margin-bottom:${p.description?'6px':'0'}">
+          <h2 style="font-size:20px">${esc(p.name)}</h2>
+          ${p.quarter?`<span class="badge badge-type">${quarterLabel(p.quarter)}</span>`:''}
+          ${bucket?`<span class="chip" style="background:${bucket.color}1a;color:${bucket.color}"><span class="dot" style="background:${bucket.color}"></span>${esc(bucket.name)}</span>`:''}
+          <span class="badge badge-${p.status}">${p.status}</span>
+        </div>
+        ${p.description?`<p class="muted" style="font-size:13px;max-width:520px;margin-top:2px">${esc(p.description)}</p>`:''}
+      </div>
+      <div class="flex gap-2" style="flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn btn-secondary btn-sm" onclick="openProjectForm('${p.id}')">${I.edit}<span>Bearbeiten</span></button>
+        <button class="btn btn-primary btn-sm" onclick="enterScoring()">${I.plus}<span>Neue Bewertung</span></button>
+        <button class="icon-btn danger" onclick="confirmDelete('${p.id}')" title="Löschen">${I.trash}</button>
+        <button class="icon-btn" onclick="closeModal()" title="Schließen">${I.close}</button>
+      </div>
+    </div>
+    <div class="guide-body">
+      ${latest ? `
+      <div class="summary">
+        <div class="cell"><div class="eyebrow">Wert-Score</div><div class="v ${scoreClass(latest.valueScore)}" style="color:${latest.valueScore>=70?'var(--sage-deep)':latest.valueScore>=40?'var(--amber)':'var(--terra)'}">${latest.valueScore}</div><div class="s">von 100</div></div>
+        <div class="cell"><div class="eyebrow">Aufwand</div><div class="v">${latest.effort}</div><div class="s">${EFFORT_LABELS[latest.effort]}</div></div>
+        <div class="cell"><div class="eyebrow">WSJF-Score</div><div class="v" style="color:var(--sage-deep)">${latest.wsjfScore}</div><div class="s">Sequenzierungs-Index</div></div>
+        <div class="cell"><div class="eyebrow">Trend</div><div class="v"><span class="trend ${trendClass(t)}" style="font-size:32px">${t}</span></div><div class="s">vs. Vorperiode</div></div>
+      </div>` : `<div class="note-box mb-6">Noch keine Bewertungsrunde vorhanden. Starte mit „Neue Bewertung".</div>`}
+      <div class="card mb-6">
+        <div class="card-head"><h3>Score-Verlauf</h3>${p.rounds.length>=2?`<div class="chart-legend"><span><span class="dot" style="background:var(--sage)"></span>Wert-Score</span><span><span class="dot" style="background:var(--blue)"></span>WSJF</span></div>`:''}</div>
+        <div class="card-pad">${p.rounds.length<2 ? `<div class="muted-3" style="font-size:13px">Der Verlauf erscheint ab der zweiten Bewertungsrunde.</div>` : buildLineChart(p.rounds)}</div>
+      </div>
+      ${p.rounds.length ? `
+      <div class="card">
+        <div class="card-head"><h3>Bewertungsrunden</h3><span class="muted-3" style="font-size:12.5px">${p.rounds.length} ${p.rounds.length===1?'Runde':'Runden'}</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Datum</th>${activeCrit.map(c=>`<th class="num">${esc(c.name)}</th>`).join('')}<th class="num">Aufwand</th><th class="num">Wert</th><th class="num">WSJF</th>${p.rounds.some(r=>r.note)?'<th>Notiz</th>':''}</tr></thead>
+          <tbody>${[...p.rounds].reverse().map((r,i)=>`<tr${i===0?' style="background:var(--sage-soft)"':''}>
+            <td style="font-weight:${i===0?600:400}">${new Date(r.date).toLocaleDateString('de-DE')}</td>
+            ${activeCrit.map(c=>`<td class="num tnum">${r.scores[c.id]!=null?r.scores[c.id]:'<span class="muted-3">—</span>'}</td>`).join('')}
+            <td class="num tnum">${r.effort}</td>
+            <td class="num"><span class="score ${scoreClass(r.valueScore)}">${r.valueScore}</span></td>
+            <td class="num"><span class="wsjf">${r.wsjfScore}</span></td>
+            ${p.rounds.some(r=>r.note)?`<td class="muted" style="font-size:12.5px">${r.note?esc(r.note):''}</td>`:''}
+          </tr>`).join('')}</tbody>
+        </table></div>
+      </div>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderScoringFormModal(p) {
+  if (!p) return `<div class="modal modal-md"><div class="guide-head"><div><h2>Bewertung</h2></div><button class="icon-btn" onclick="closeModal()" title="Schließen">${I.close}</button></div><div class="guide-body"><p class="muted">Projekt nicht gefunden.</p></div></div>`;
+  const activeCrit = state.criteria.filter(c => c.active);
+  const totalW = activeCrit.reduce((s,x)=>s+x.weight,0);
+  const today = new Date().toISOString().slice(0,10);
+  return `<div class="modal modal-lg">
+    <div class="guide-head">
+      <div class="flex items-center gap-2">
+        <button class="icon-btn" onclick="exitScoring()" title="Zurück zum Projekt">${I.back}</button>
+        <div><h2 style="font-size:19px">Neue Bewertung</h2><p style="margin-top:2px">${esc(p.name)}</p></div>
+      </div>
+      <button class="icon-btn" onclick="closeModal()" title="Schließen">${I.close}</button>
+    </div>
+    <div class="guide-body">
+      <div class="note-box mb-6">Zweistufiges Scoring: <b>Stufe 1</b> bewertet den strategischen Wert (Skala 1–5). <b>Stufe 2</b> verrechnet den Aufwand als Divisor → <b>WSJF = Wert-Score / Aufwand</b>.</div>
+      <div class="summary live" id="score-preview">
+        <div class="cell"><div class="eyebrow">Wert-Score</div><div class="v" id="prev-value">—</div><div class="s">von 100</div></div>
+        <div class="cell"><div class="eyebrow">Aufwand</div><div class="v" id="prev-effort">—</div><div class="s">Divisor</div></div>
+        <div class="cell"><div class="eyebrow">WSJF-Score</div><div class="v" id="prev-wsjf">—</div><div class="s">Prioritätsindex</div></div>
+      </div>
+      <form onsubmit="saveScoringRound(event,'${p.id}')">
+        <div class="form-group" style="max-width:220px"><label>Bewertungsdatum</label><input type="date" id="s-date" value="${today}"></div>
+        <div class="eyebrow mb-4" style="margin-top:8px">Stufe 1 — Wert-Kriterien</div>
+        ${activeCrit.map(c=>`
+        <div class="crit-row">
+          <div class="crit-info"><strong>${esc(c.name)}</strong><span>${esc(c.description)}</span><div class="w">Gewicht ${c.weight} · ${Math.round(c.weight/totalW*100)}% normiert</div></div>
+          <div class="crit-input">
+            <div class="crit-val" id="disp-${c.id}">—</div>
+            <input type="range" min="1" max="5" step="1" value="3" id="range-${c.id}" oninput="updateScoreDisplay('${c.id}');updateLiveScore()">
+            <div class="scale-labels"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+          </div>
+        </div>`).join('')}
+        <div class="eyebrow mb-4" style="margin-top:24px">Stufe 2 — Aufwand / Entwicklungskapazität <span style="text-transform:none;letter-spacing:0;color:var(--text-3)">(Divisor)</span></div>
+        <div class="crit-row" style="background:var(--terra-soft);border-color:#f0d5cd">
+          <div class="crit-info"><strong>Aufwand — benötigte Entwicklungskapazität</strong><span>Hier trägst du ein, wie viel Entwicklungskapazität das Projekt braucht (Skala 1–5). Wirkt als Divisor (WSJF = Wert ÷ Aufwand) <b>und</b> bestimmt den Kapazitätsanteil des Buckets in der Übersicht.</span></div>
+          <div class="crit-input">
+            <div class="crit-val terra" id="disp-effort">—</div>
+            <input type="range" min="1" max="5" step="1" value="3" id="range-effort" class="terra" oninput="updateEffortDisplay();updateLiveScore()">
+            <div class="scale-labels"><span>&lt;1W</span><span>1–4W</span><span>1–2M</span><span>2–4M</span><span>&gt;4M</span></div>
+          </div>
+        </div>
+        <div class="form-group mt-4"><label>Notiz (optional)</label><textarea id="s-note" placeholder="z.B. Neues Kundenfeedback, aktualisierte Markteinschätzung…"></textarea></div>
+        <div class="flex gap-2 mt-4">
+          <button type="submit" class="btn btn-primary">${I.save}<span>Bewertung speichern</span></button>
+          <button type="button" class="btn btn-secondary" onclick="exitScoring()">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+  </div>`;
+}
+
+function renderProjectFormModal() {
+  const isNew = !state.ui.editingProjectId;
+  const p = isNew ? null : state.projects.find(pr => pr.id === state.ui.editingProjectId);
+  return `<div class="modal modal-md">
+    <div class="guide-head">
+      <div><h2 style="font-size:19px">${isNew?'Neues Projekt':'Projekt bearbeiten'}</h2></div>
+      <button class="icon-btn" onclick="cancelProjectForm()" title="Schließen">${I.close}</button>
+    </div>
+    <div class="guide-body">
+      <form onsubmit="saveProject(event)">
+        <div class="form-group"><label>Projektname *</label><input type="text" id="f-name" value="${p?esc(p.name):''}" required placeholder="z.B. Kunden-Portal v3"></div>
+        <div class="form-group"><label>Kurzbeschreibung</label><textarea id="f-desc" placeholder="Worum geht es bei diesem Projekt?">${p?esc(p.description):''}</textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Typ *</label><select id="f-type" required>${['RTI-Produkt','Turn-Key','Feature'].map(t=>`<option value="${t}" ${p&&p.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+          <div class="form-group"><label>Bucket *</label><select id="f-bucket" required><option value="">— wählen —</option>${state.buckets.map(b=>`<option value="${b.id}" ${p&&p.bucketId===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}</select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Status</label><select id="f-status">${['aktiv','zurückgestellt','abgeschlossen'].map(s=>`<option value="${s}" ${(p&&p.status===s)||(!p&&s==='aktiv')?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}</select></div>
+          <div class="form-group"><label>Quartal</label><select id="f-quarter"><option value="">— kein Quartal —</option>${QUARTER_OPTIONS.map(q=>`<option value="${q}" ${p&&p.quarter===q?'selected':''}>${quarterLabel(q)}</option>`).join('')}</select></div>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button type="submit" class="btn btn-primary">${I.save}<span>Speichern</span></button>
+          <button type="button" class="btn btn-secondary" onclick="cancelProjectForm()">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// CONFIG MODAL
+// ============================================================
+function openConfig(tab) {
+  state.ui.configTab = tab || state.ui.configTab || 'criteria';
+  state.ui.editingCriterionId = null;
+  state.ui.editingBucketId = null;
+  openModal(renderConfigModal());
+}
+function switchConfigTab(tab) {
+  state.ui.configTab = tab;
+  state.ui.editingCriterionId = null;
+  state.ui.editingBucketId = null;
+  refreshConfigModal();
+}
+function refreshConfigModal() {
+  const modal = document.getElementById('app-modal');
+  if (!modal) return;
+  modal.innerHTML = renderConfigModal();
+}
+function renderConfigModal() {
   const { configTab } = state.ui;
   const subs = {
     criteria: 'Definiere die Wert-Kriterien und ihre Gewichte. Der Aufwand ist bewusst kein Kriterium — er wirkt als Divisor (WSJF = Wert-Score ÷ Aufwand).',
     buckets: 'Teile deine Kapazität strategisch auf. Die Ziel-Anteile (Summe 100 %) steuern, wie viel jede Kategorie bekommt — der erste und wichtigste Schritt im Workflow.',
     export: 'Exportiere für Management (CSV/Druck) oder sichere die gesamte Datenbasis als JSON-Backup.'
   };
-  return `
-  <h1 class="page-title" style="margin-bottom:6px">Konfiguration</h1>
-  <p class="page-sub">${subs[configTab]}</p>
-  <div class="tabs">
-    <button class="${configTab==='criteria'?'active':''}" onclick="state.ui.configTab='criteria';render()">Bewertungsmodell</button>
-    <button class="${configTab==='buckets'?'active':''}" onclick="state.ui.configTab='buckets';render()">Strategic Buckets</button>
-    <button class="${configTab==='export'?'active':''}" onclick="state.ui.configTab='export';render()">Export &amp; Backup</button>
-  </div>
-  ${configTab==='criteria'?renderCriteriaConfig():configTab==='buckets'?renderBucketsConfig():renderExportConfig()}`;
+  return `<div class="modal modal-lg">
+    <div class="guide-head">
+      <div><h2>Konfiguration</h2><p>${subs[configTab]}</p></div>
+      <button class="icon-btn" onclick="closeModal()" title="Schließen">${I.close}</button>
+    </div>
+    <div class="guide-body">
+      <div class="tabs">
+        <button class="${configTab==='criteria'?'active':''}" onclick="switchConfigTab('criteria')">Bewertungsmodell</button>
+        <button class="${configTab==='buckets'?'active':''}" onclick="switchConfigTab('buckets')">Strategic Buckets</button>
+        <button class="${configTab==='export'?'active':''}" onclick="switchConfigTab('export')">Export &amp; Backup</button>
+      </div>
+      ${configTab==='criteria'?renderCriteriaConfig():configTab==='buckets'?renderBucketsConfig():renderExportConfig()}
+    </div>
+  </div>`;
 }
 
 function renderCriteriaConfig() {
   const criteria = [...state.criteria].sort((a,b)=>a.order-b.order);
   const totalW = criteria.filter(c=>c.active).reduce((s,c)=>s+c.weight,0);
   const editId = state.ui.editingCriterionId;
-  return `<div class="card" style="max-width:760px">
-    <div class="card-head"><h3>Bewertungskriterien</h3><button class="btn btn-primary btn-sm" onclick="state.ui.editingCriterionId='new';render()">${I.plus}<span>Kriterium</span></button></div>
-    <div class="card-pad">
-      <div class="note-box mb-6">Gewichte normieren sich automatisch auf 100%. Der Aufwand ist <b>kein</b> Kriterium — er wirkt stets als Divisor. &nbsp;Summe aktiver Gewichte: <b>${totalW}</b>.</div>
-      ${editId==='new'?renderCriterionForm(null):''}
-      ${criteria.map(c=>{
-        if (editId===c.id) return renderCriterionForm(c);
-        const pct = totalW>0?Math.round(c.weight/totalW*100):0;
-        return `<div class="cfg-row${c.active?'':' legacy'}">
-          <div style="flex:1">
-            <div class="flex items-center gap-2"><strong style="font-size:14px">${esc(c.name)}</strong>${!c.active?'<span class="badge badge-abgeschlossen">Legacy</span>':''}</div>
-            <div class="muted" style="font-size:12.5px">${esc(c.description)}</div>
-            ${c.active?`<div class="flex items-center gap-3" style="margin-top:7px"><span style="font-size:12.5px;font-weight:600;min-width:64px">${c.weight} · ${pct}%</span><div class="weight-track" style="flex:1"><div class="weight-fill" style="width:${pct}%"></div></div></div>`:''}
-          </div>
-          ${c.active?`<button class="icon-btn" onclick="state.ui.editingCriterionId='${c.id}';render()" title="Bearbeiten">${I.edit}</button><button class="icon-btn danger" onclick="confirmDeleteCriterion('${c.id}')" title="Löschen">${I.trash}</button>`:''}
-        </div>`;
-      }).join('')}
+  return `<div>
+    <div class="flex items-center" style="justify-content:space-between;margin-bottom:16px;gap:10px">
+      <h3 style="font-size:15px;font-weight:600">Bewertungskriterien</h3>
+      <button class="btn btn-primary btn-sm" onclick="state.ui.editingCriterionId='new';refreshConfigModal()">${I.plus}<span>Kriterium</span></button>
     </div>
+    <div class="note-box mb-6">Gewichte normieren sich automatisch auf 100%. Der Aufwand ist <b>kein</b> Kriterium — er wirkt stets als Divisor. &nbsp;Summe aktiver Gewichte: <b>${totalW}</b>.</div>
+    ${editId==='new'?renderCriterionForm(null):''}
+    ${criteria.map(c=>{
+      if (editId===c.id) return renderCriterionForm(c);
+      const pct = totalW>0?Math.round(c.weight/totalW*100):0;
+      return `<div class="cfg-row${c.active?'':' legacy'}">
+        <div style="flex:1">
+          <div class="flex items-center gap-2"><strong style="font-size:14px">${esc(c.name)}</strong>${!c.active?'<span class="badge badge-abgeschlossen">Legacy</span>':''}</div>
+          <div class="muted" style="font-size:12.5px">${esc(c.description)}</div>
+          ${c.active?`<div class="flex items-center gap-3" style="margin-top:7px"><span style="font-size:12.5px;font-weight:600;min-width:64px">${c.weight} · ${pct}%</span><div class="weight-track" style="flex:1"><div class="weight-fill" style="width:${pct}%"></div></div></div>`:''}
+        </div>
+        ${c.active?`<button class="icon-btn" onclick="state.ui.editingCriterionId='${c.id}';refreshConfigModal()" title="Bearbeiten">${I.edit}</button><button class="icon-btn danger" onclick="confirmDeleteCriterion('${c.id}')" title="Löschen">${I.trash}</button>`:''}
+      </div>`;
+    }).join('')}
   </div>`;
 }
 function renderCriterionForm(c) {
@@ -1147,7 +1201,7 @@ function renderCriterionForm(c) {
     <form onsubmit="saveCriterion(event,'${isNew?'':c.id}')">
       <div class="form-row"><div class="form-group"><label>Name *</label><input type="text" id="cf-name" value="${c?esc(c.name):''}" required></div><div class="form-group"><label>Gewicht</label><input type="number" id="cf-weight" value="${c?c.weight:25}" min="1" max="100" required></div></div>
       <div class="form-group"><label>Beschreibung</label><input type="text" id="cf-desc" value="${c?esc(c.description):''}"></div>
-      <div class="flex gap-2"><button type="submit" class="btn btn-primary btn-sm">Speichern</button><button type="button" class="btn btn-secondary btn-sm" onclick="state.ui.editingCriterionId=null;render()">Abbrechen</button></div>
+      <div class="flex gap-2"><button type="submit" class="btn btn-primary btn-sm">Speichern</button><button type="button" class="btn btn-secondary btn-sm" onclick="state.ui.editingCriterionId=null;refreshConfigModal()">Abbrechen</button></div>
     </form>
   </div></div>`;
 }
@@ -1157,27 +1211,26 @@ function renderBucketsConfig() {
   const buckets = [...state.buckets].sort((a,b)=>a.order-b.order);
   const totalT = buckets.reduce((s,b)=>s+b.targetPercent,0);
   const editId = state.ui.editingBucketId;
-  return `<div class="card" style="max-width:760px">
-    <div class="card-head"><h3>Strategic Buckets</h3>
+  return `<div>
+    <div class="flex items-center" style="justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <h3 style="font-size:15px;font-weight:600">Strategic Buckets</h3>
       <div class="flex items-center gap-3">
-        <label style="margin:0;display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:500;text-transform:none;letter-spacing:0;color:var(--text-2)"><input type="checkbox" style="width:auto" ${locked?'checked':''} onchange="state.config.bucketAllocationLocked=this.checked;saveData();render()">${I.lock} Aufteilung gesperrt</label>
-        ${!locked?`<button class="btn btn-primary btn-sm" onclick="state.ui.editingBucketId='new';render()">${I.plus}<span>Bucket</span></button>`:''}
+        <label style="margin:0;display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:500;text-transform:none;letter-spacing:0;color:var(--text-2);font-size:13px"><input type="checkbox" style="width:auto" ${locked?'checked':''} onchange="toggleBucketLock(this.checked)">${I.lock} Aufteilung gesperrt</label>
+        ${!locked?`<button class="btn btn-primary btn-sm" onclick="state.ui.editingBucketId='new';refreshConfigModal()">${I.plus}<span>Bucket</span></button>`:''}
       </div>
     </div>
-    <div class="card-pad">
-      ${Math.abs(totalT-100)>0.5?`<div class="warn-box mb-6">Summe der Zielanteile: <b>${totalT}%</b> — muss genau 100% ergeben.</div>`:`<div class="ok-box mb-6">${I.check.replace('width="1.7"','width="2"')} Zielanteile summieren sich korrekt auf 100%.</div>`}
-      ${editId==='new'?renderBucketForm(null):''}
-      ${buckets.map(b=>{
-        if (editId===b.id) return renderBucketForm(b);
-        return `<div class="cfg-row" style="border-left:3px solid ${b.color}">
-          <div style="flex:1">
-            <div class="flex items-center gap-2"><span class="dot" style="background:${b.color};width:11px;height:11px"></span><strong style="font-size:14px">${esc(b.name)}</strong><span class="chip" style="background:${b.color}1a;color:${b.color}">${b.targetPercent}%</span></div>
-            <div class="weight-track" style="margin-top:8px"><div class="weight-fill" style="width:${b.targetPercent}%;background:${b.color}"></div></div>
-          </div>
-          ${!locked?`<button class="icon-btn" onclick="state.ui.editingBucketId='${b.id}';render()" title="Bearbeiten">${I.edit}</button><button class="icon-btn danger" onclick="confirmDeleteBucket('${b.id}')" title="Löschen">${I.trash}</button>`:''}
-        </div>`;
-      }).join('')}
-    </div>
+    ${Math.abs(totalT-100)>0.5?`<div class="warn-box mb-6">Summe der Zielanteile: <b>${totalT}%</b> — muss genau 100% ergeben.</div>`:`<div class="ok-box mb-6">${I.check.replace('width="1.7"','width="2"')} Zielanteile summieren sich korrekt auf 100%.</div>`}
+    ${editId==='new'?renderBucketForm(null):''}
+    ${buckets.map(b=>{
+      if (editId===b.id) return renderBucketForm(b);
+      return `<div class="cfg-row" style="border-left:3px solid ${b.color}">
+        <div style="flex:1">
+          <div class="flex items-center gap-2"><span class="dot" style="background:${b.color};width:11px;height:11px"></span><strong style="font-size:14px">${esc(b.name)}</strong><span class="chip" style="background:${b.color}1a;color:${b.color}">${b.targetPercent}%</span></div>
+          <div class="weight-track" style="margin-top:8px"><div class="weight-fill" style="width:${b.targetPercent}%;background:${b.color}"></div></div>
+        </div>
+        ${!locked?`<button class="icon-btn" onclick="state.ui.editingBucketId='${b.id}';refreshConfigModal()" title="Bearbeiten">${I.edit}</button><button class="icon-btn danger" onclick="confirmDeleteBucket('${b.id}')" title="Löschen">${I.trash}</button>`:''}
+      </div>`;
+    }).join('')}
   </div>`;
 }
 function renderBucketForm(b) {
@@ -1186,13 +1239,13 @@ function renderBucketForm(b) {
     <div class="eyebrow mb-4">${isNew?'Neuer Bucket':'Bucket bearbeiten'}</div>
     <form onsubmit="saveBucket(event,'${isNew?'':b.id}')">
       <div class="form-row-3"><div class="form-group"><label>Name *</label><input type="text" id="bf-name" value="${b?esc(b.name):''}" required></div><div class="form-group"><label>Zielanteil %</label><input type="number" id="bf-target" value="${b?b.targetPercent:0}" min="0" max="100" required></div><div class="form-group"><label>Farbe</label><input type="color" id="bf-color" value="${b?b.color:'#00a587'}" class="color-input"></div></div>
-      <div class="flex gap-2"><button type="submit" class="btn btn-primary btn-sm">Speichern</button><button type="button" class="btn btn-secondary btn-sm" onclick="state.ui.editingBucketId=null;render()">Abbrechen</button></div>
+      <div class="flex gap-2"><button type="submit" class="btn btn-primary btn-sm">Speichern</button><button type="button" class="btn btn-secondary btn-sm" onclick="state.ui.editingBucketId=null;refreshConfigModal()">Abbrechen</button></div>
     </form>
   </div></div>`;
 }
 
 function renderExportConfig() {
-  return `<div class="card" style="max-width:680px"><div class="card-pad">
+  return `<div>
     <div class="eyebrow mb-4">Export</div>
     <div class="flex gap-2 mb-6"><button class="btn btn-secondary" onclick="exportCSV()">${I.download}<span>CSV exportieren</span></button><button class="btn btn-secondary" onclick="openPrintView()">${I.print}<span>Druckansicht</span></button></div>
     <div class="eyebrow mb-4" style="margin-top:8px">Backup &amp; Restore</div>
@@ -1202,7 +1255,7 @@ function renderExportConfig() {
     <div class="eyebrow mb-4" style="margin-top:24px">Beispieldaten</div>
     <p class="muted" style="font-size:13px;margin-bottom:14px">Lade einen realistischen Beispieldatensatz (3 Buckets, 6 Projekte mit Bewertungshistorie) zum Ausprobieren — oder setze alles auf einen leeren Stand zurück.</p>
     <div class="flex gap-2"><button class="btn btn-secondary" onclick="loadExampleData()">${I.spark}<span>Beispieldaten laden</span></button><button class="btn btn-danger" onclick="resetAllData()">${I.trash}<span>Alle Daten löschen</span></button></div>
-  </div></div>`;
+  </div>`;
 }
 
 // ============================================================
@@ -1212,6 +1265,7 @@ function showConfirm(message, onConfirm) {
   state.ui.showConfirm = { onConfirm };
   const div = document.createElement('div');
   div.className = 'overlay'; div.id = 'confirm-overlay';
+  div.style.zIndex = '1100';
   div.innerHTML = `<div class="dialog"><h3>Bestätigung erforderlich</h3><p>${esc(message)}</p><div class="dialog-actions"><button class="btn btn-secondary" onclick="cancelConfirm()">Abbrechen</button><button class="btn btn-danger" onclick="doConfirm()">Löschen</button></div></div>`;
   document.body.appendChild(div);
 }
@@ -1219,14 +1273,8 @@ function cancelConfirm() { state.ui.showConfirm=null; const o=document.getElemen
 function doConfirm() { const fn=state.ui.showConfirm?state.ui.showConfirm.onConfirm:null; cancelConfirm(); if(fn)fn(); }
 
 // ============================================================
-// ACTIONS
+// ACTIONS — Projects
 // ============================================================
-function backToList() { state.ui.projectSubTab='list'; state.ui.editingProjectId=null; state.ui.detailProjectId=null; state.ui.scoringMode=false; render(); }
-function openProjectForm(id) { state.ui.editingProjectId=id; state.ui.projectSubTab='form'; state.ui.activeTab='projects'; renderNav(); render(); }
-function openDetail(id) { state.ui.detailProjectId=id; state.ui.projectSubTab='detail'; state.ui.scoringMode=false; state.ui.activeTab='projects'; renderNav(); render(); }
-function enterScoring() { state.ui.scoringMode=true; render(); }
-function exitScoring() { state.ui.scoringMode=false; render(); }
-
 function saveProject(e) {
   e.preventDefault();
   const name=document.getElementById('f-name').value.trim();
@@ -1236,18 +1284,29 @@ function saveProject(e) {
   const status=document.getElementById('f-status').value;
   const quarter=document.getElementById('f-quarter').value;
   if (!bucket) { alert('Bitte einen Bucket wählen.'); return; }
+  let savedId;
   if (state.ui.editingProjectId) {
     const p=state.projects.find(pr=>pr.id===state.ui.editingProjectId);
-    if (p) { p.name=name; p.description=desc; p.type=type; p.bucketId=bucket; p.status=status; p.quarter=quarter; }
+    if (p) { p.name=name; p.description=desc; p.type=type; p.bucketId=bucket; p.status=status; p.quarter=quarter; savedId=p.id; }
   } else {
-    state.projects.push({ id:newId(), name, description:desc, type, bucketId:bucket, status, quarter, rounds:[], createdAt:new Date().toISOString() });
+    const np = { id:newId(), name, description:desc, type, bucketId:bucket, status, quarter, rounds:[], createdAt:new Date().toISOString() };
+    state.projects.push(np); savedId=np.id;
   }
-  saveData(); backToList(); showToast('Projekt gespeichert');
+  saveData();
+  state.ui.detailProjectId = savedId;
+  state.ui.editingProjectId = null;
+  state.ui.projectModalView = 'detail';
+  refreshProjectModal();
+  render();
+  showToast('Projekt gespeichert');
 }
 function confirmDelete(id) {
   const p=state.projects.find(pr=>pr.id===id);
   showConfirm(`Projekt „${p?p.name:''}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`, ()=>{
-    state.projects=state.projects.filter(pr=>pr.id!==id); saveData(); render(); showToast('Projekt gelöscht');
+    state.projects=state.projects.filter(pr=>pr.id!==id);
+    saveData();
+    closeModal();
+    showToast('Projekt gelöscht');
   });
 }
 function saveScoringRound(e, projectId) {
@@ -1265,8 +1324,17 @@ function saveScoringRound(e, projectId) {
   const wsjfScore=calculateWSJF(valueScore,effort);
   const round={ id:newId(), date:date+'T00:00:00.000Z', scores, effort, valueScore, wsjfScore };
   if(note) round.note=note;
-  p.rounds.push(round); saveData(); state.ui.scoringMode=false; render(); showToast('Bewertung gespeichert');
+  p.rounds.push(round);
+  saveData();
+  state.ui.projectModalView = 'detail';
+  refreshProjectModal();
+  render();
+  showToast('Bewertung gespeichert');
 }
+
+// ============================================================
+// ACTIONS — Config
+// ============================================================
 function saveCriterion(e,id) {
   e.preventDefault();
   const name=document.getElementById('cf-name').value.trim();
@@ -1274,20 +1342,30 @@ function saveCriterion(e,id) {
   const description=document.getElementById('cf-desc').value.trim();
   if(!id) state.criteria.push({ id:newId(), name, description, weight, active:true, order:state.criteria.length });
   else { const c=state.criteria.find(x=>x.id===id); if(c){ c.name=name; c.weight=weight; c.description=description; } }
-  saveData(); state.ui.editingCriterionId=null; render(); showToast('Kriterium gespeichert');
+  saveData();
+  state.ui.editingCriterionId=null;
+  refreshConfigModal();
+  render();
+  showToast('Kriterium gespeichert');
 }
 function confirmDeleteCriterion(id) {
   const c=state.criteria.find(x=>x.id===id);
   const hasHistory=state.projects.some(p=>p.rounds.some(r=>r.scores[id]!=null));
   if(hasHistory){
     showConfirm(`„${c?c.name:''}" hat historische Bewertungen. Das Kriterium wird als „Legacy" markiert (nicht gelöscht), damit alte Scores nachvollziehbar bleiben. Fortfahren?`, ()=>{
-      const crit=state.criteria.find(x=>x.id===id); if(crit)crit.active=false; saveData(); render(); showToast('Als Legacy markiert');
+      const crit=state.criteria.find(x=>x.id===id); if(crit)crit.active=false;
+      saveData(); refreshConfigModal(); render(); showToast('Als Legacy markiert');
     });
   } else {
     showConfirm(`Kriterium „${c?c.name:''}" löschen? Es existieren keine historischen Bewertungen.`, ()=>{
-      state.criteria=state.criteria.filter(x=>x.id!==id); saveData(); render(); showToast('Kriterium gelöscht');
+      state.criteria=state.criteria.filter(x=>x.id!==id);
+      saveData(); refreshConfigModal(); render(); showToast('Kriterium gelöscht');
     });
   }
+}
+function toggleBucketLock(checked) {
+  state.config.bucketAllocationLocked = checked;
+  saveData(); refreshConfigModal(); render();
 }
 function saveBucket(e,id) {
   e.preventDefault();
@@ -1296,12 +1374,19 @@ function saveBucket(e,id) {
   const color=document.getElementById('bf-color').value;
   if(!id) state.buckets.push({ id:newId(), name, color, targetPercent:target, locked:false, order:state.buckets.length });
   else { const b=state.buckets.find(x=>x.id===id); if(b){ b.name=name; b.targetPercent=target; b.color=color; } }
-  saveData(); state.ui.editingBucketId=null; render(); showToast('Bucket gespeichert');
+  saveData();
+  state.ui.editingBucketId=null;
+  refreshConfigModal();
+  render();
+  showToast('Bucket gespeichert');
 }
 function confirmDeleteBucket(id) {
   const b=state.buckets.find(x=>x.id===id);
   if(state.projects.some(p=>p.bucketId===id)){ alert('Dieser Bucket enthält noch Projekte. Weise diese zuerst einem anderen Bucket zu.'); return; }
-  showConfirm(`Bucket „${b?b.name:''}" löschen?`, ()=>{ state.buckets=state.buckets.filter(x=>x.id!==id); saveData(); render(); showToast('Bucket gelöscht'); });
+  showConfirm(`Bucket „${b?b.name:''}" löschen?`, ()=>{
+    state.buckets=state.buckets.filter(x=>x.id!==id);
+    saveData(); refreshConfigModal(); render(); showToast('Bucket gelöscht');
+  });
 }
 
 // Live score
@@ -1318,8 +1403,7 @@ function updateLiveScore(){
   if(pv)pv.textContent=vs; if(pe)pe.textContent=effort; if(pw)pw.textContent=wsjf;
 }
 
-// Dashboard
-function setDashView(v){ state.ui.dashboardView=v; render(); }
+// Sorting
 function setSortRanking(col){ if(state.ui.rankSortBy===col)state.ui.rankSortDir=state.ui.rankSortDir==='asc'?'desc':'asc'; else{ state.ui.rankSortBy=col; state.ui.rankSortDir=col==='name'?'asc':'desc'; } render(); }
 
 // Backup/Restore
@@ -1340,7 +1424,10 @@ function restoreJSON(input){
       if(!confirm('Alle aktuellen Daten werden überschrieben. Fortfahren?'))return;
       state.projects=data.projects; state.criteria=data.criteria; state.buckets=data.buckets;
       if(data.config)state.config=data.config;
-      saveData(); render(); showToast('Backup wiederhergestellt');
+      state.ui.filterBucket='all'; state.ui.filterStatus='aktiv'; state.ui.filterQuarter='all';
+      saveData();
+      closeModal();
+      showToast('Backup wiederhergestellt');
     }catch(err){ alert('Fehler beim Lesen: '+err.message); }
   };
   reader.readAsText(file); input.value='';
@@ -1376,8 +1463,11 @@ function loadExampleData() {
       rounds:[ mk('2026-05-05',S(4,2,3,3),3), mk('2026-06-25',S(4,3,4,3),3) ] }
   ];
   state.buckets = buckets; state.criteria = criteria; state.projects = projects;
-  saveData(); state.ui.activeTab = 'dashboard'; state.ui.dashboardView = 'bucket'; state.ui.filterBucket = 'all';
-  closeGuide(); renderNav(); render(); showToast('Beispieldaten geladen');
+  state.ui.filterBucket = 'all'; state.ui.filterStatus = 'aktiv'; state.ui.filterQuarter = 'all';
+  saveData();
+  closeGuide();
+  closeModal();
+  showToast('Beispieldaten geladen');
 }
 function resetAllData() {
   showConfirm('Wirklich ALLE Daten löschen? Projekte, Kriterien und Buckets werden auf den Auslieferungszustand zurückgesetzt. Am besten vorher ein JSON-Backup erstellen.', () => {
@@ -1385,7 +1475,10 @@ function resetAllData() {
     state.criteria = JSON.parse(JSON.stringify(DEFAULT_CRITERIA));
     state.buckets = JSON.parse(JSON.stringify(DEFAULT_BUCKETS));
     state.config = { bucketAllocationLocked: false };
-    saveData(); state.ui.activeTab = 'dashboard'; renderNav(); render(); showToast('Alle Daten zurückgesetzt');
+    state.ui.filterBucket = 'all'; state.ui.filterStatus = 'aktiv'; state.ui.filterQuarter = 'all';
+    saveData();
+    closeModal();
+    showToast('Alle Daten zurückgesetzt');
   });
 }
 
@@ -1394,7 +1487,6 @@ function esc(s){ return s==null?'':String(s).replace(/&/g,'&amp;').replace(/</g,
 
 // INIT
 loadState(); render();
-// Leitfaden beim allerersten Start automatisch zeigen
 try { if (!localStorage.getItem('vector_guide_seen') && state.projects.length === 0) openGuide(); } catch(e){}
 </script>
 </body>

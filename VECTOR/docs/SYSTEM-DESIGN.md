@@ -174,80 +174,104 @@ Ziel, > +5 % überallokiert, < −5 % unterallokiert.
 
 ---
 
-## UI-Ansichten
+## UI-Architektur: Single Page + Pop-ups
 
-### Ansicht 1: Dashboard → Bucket-Übersicht (Default)
+**Wichtig (Architekturwechsel):** VECTOR hatte ursprünglich drei Seiten-Tabs
+(Dashboard / Projekte / Konfiguration). Das erschwerte die Übersicht, weil Kapazität,
+Buckets und Projekte nie gleichzeitig sichtbar waren. VECTOR ist daher auf eine
+**Single-Page-Architektur** umgestellt: `render()` baut immer die eine Hauptseite
+(`renderPage()`); es gibt keine Seitennavigation mehr. Details, Bewertung und
+Konfiguration öffnen sich als **Pop-up-Modals** (`openModal()` / `closeModal()`),
+die als eigenständiges `#app-modal`-Overlay über die Hauptseite gelegt werden.
 
-```
-┌────────────────────────────────────────────────────┐
-│ VECTOR                    [Bucket-Ansicht] [Ranking]│
-│ Filter: [Status ▾] [Bucket ▾]    [📄 CSV] [🖨 Print]│
-├────────────────────────────────────────────────────┤
-│ ● Strategisch / RTI           Ziel: 60%  Ist: 2/3  │
-│   ████████████░░░ (Balken: grün im Ziel)           │
-│ ┌──┬──────────────┬────────┬──────┬────┬──────┬──┐ │
-│ │Rg│ Name         │ Typ    │ Wert │ Aw.│ WSJF │⬆⬇│ │
-│ ├──┼──────────────┼────────┼──────┼────┼──────┼──┤ │
-│ │ 1│ Projekt A    │ RTI    │  73  │  2 │ 36,5 │↑ │ │
-│ │ 2│ Projekt B    │ Feature│  60  │  3 │ 20,0 │→ │ │
-│ └──┴──────────────┴────────┴──────┴────┴──────┴──┘ │
-│                                                    │
-│ ● Opportunistisch / Turn-Key  Ziel: 40%  Ist: 1/2  │
-│ ...                                                │
-└────────────────────────────────────────────────────┘
-```
-
-### Ansicht 2: Dashboard → Gesamtranking
-
-Alle aktiven Projekte in einer Tabelle, sortierbar nach WSJF / Wert-Score / Name / Datum.
-Zusätzliche Spalte: Bucket (farbig kodiert).
-
-### Ansicht 3: Projekte → Liste
+### Hauptseite (`renderPage()`, immer sichtbar, von oben nach unten)
 
 ```
-[+ Neues Projekt]
-Tabelle: Name | Bucket | Typ | Wert-Score | WSJF | Runden | Status | [✎] [🗑]
+┌──────────────────────────────────────────────────────────────┐
+│ VECTOR   [Kapazität][Buckets][Alle Projekte]  [Leitfaden][⚙ Konfiguration][+ Neues Projekt] │  ← sticky Header
+├──────────────────────────────────────────────────────────────┤
+│ Quartal:  [Alle] [Q3 2026 · 4] [Q4 2026 · 3] ...              │  ← Quartals-Leiste
+│ Filter: [Status ▾] [Bucket ▾]         [📄 CSV] [🖨 Drucken]   │
+├──────────────────────────────────────────────────────────────┤
+│ #capacity-tile   Kapazitäts-Übersicht: Töpfe + Donut          │
+├──────────────────────────────────────────────────────────────┤
+│ #buckets-tile    Bucket-Grid (CSS Grid, responsive Kacheln)   │
+│   ┌ Bucket A ┐  ┌ Bucket B ┐  ┌ Bucket C ┐                   │
+│   │ Ziel/Ist │  │ Ziel/Ist │  │ Ziel/Ist │  … je eigene Tabelle │
+│   └──────────┘  └──────────┘  └──────────┘                   │
+├──────────────────────────────────────────────────────────────┤
+│ #all-projects-tile  Alle Projekte (eine sortierbare Tabelle)  │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-### Ansicht 4: Projekt-Detail / Formular
+- Header-Buttons `Kapazität`/`Buckets`/`Alle Projekte` sind **Anker-Scrolls**
+  (`scrollToSection(id)`) zu den drei Bereichen — keine Seitenwechsel.
+- `Status`- und `Bucket`-Filter wirken auf Bucket-Kacheln *und* die Projekt-Tabelle
+  gemeinsam (ein Filter, ein Zustand).
+- Ist bei `filterBucket !== 'all'` nur ein Bucket sichtbar, entfällt die
+  Kapazitäts-Übersicht (Töpfe für alle Buckets wären dann irreführend).
+- Ohne Projekte zeigt die Hauptseite `renderOnboarding()` (Willkommens-Karte mit
+  den 6 Leitfaden-Schritten) statt der Kacheln.
 
-Tabs innerhalb der Ansicht:
-- **Grunddaten:** Name, Beschreibung, Typ, Bucket, Status
-- **Neue Bewertung:** Scores je Kriterium (Schieberegler 1-5 + Beschreibung), Aufwand, Datum
-- **Score-Verlauf:** Liniendiagramm (custom Inline-SVG, `buildLineChart()`) + Verlaufstabelle
+### Pop-up: Projekt-Modal (`renderProjectModal()`, 3 Ansichten in einem Overlay)
 
-### Ansicht 5: Konfiguration → Kriterien
+Ein einzelnes Modal (`#app-modal`) mit `state.ui.projectModalView` ∈ `detail | scoring | form`:
 
-Liste aller Kriterien, editierbar. Drag-to-reorder.
-Summenanzeige der Gewichte (wird live normiert).
+- **detail** (`renderProjectDetailModal`): Kopf mit Name/Bucket/Quartal/Status +
+  Aktionen (Bearbeiten, Neue Bewertung, Löschen, Schließen). Körper: Summary-Kacheln
+  (Wert/Aufwand/WSJF/Trend), Score-Verlauf (`buildLineChart()`), Bewertungsrunden-Tabelle.
+- **scoring** (`renderScoringFormModal`): Kriterien-Schieberegler (1–5) + Aufwand-Regler,
+  Live-Vorschau von Wert-Score/Aufwand/WSJF. Speichern kehrt zu `detail` zurück
+  (`refreshProjectModal()`, kein Modal-Neuöffnen).
+  **Beantwortet „Wo trage ich die Entwicklungskapazität ein?": im Aufwand-Regler
+  dieses Schritts (Divisor, s. Bucket-Kapazität).**
+- **form** (`renderProjectFormModal`): Name, Beschreibung, Typ, Bucket, Status, Quartal.
+  Nach Speichern öffnet automatisch die `detail`-Ansicht desselben Projekts.
 
-### Ansicht 6: Konfiguration → Buckets
+`openDetail(id)` / `openProjectForm(id)` öffnen das Modal neu (`openModal()`);
+`enterScoring()` / `exitScoring()` / `backToProjectDetail()` wechseln nur den
+Modal-Inhalt (`refreshProjectModal()`), ohne das Overlay neu zu erzeugen.
 
-Liste aller Buckets mit Name, Farbe, Zielanteil.
-Summe der Zielanteile: muss 100% ergeben.
-Toggle "Bucket-Aufteilung gesperrt" (Raphael-Modus).
+### Pop-up: Konfigurations-Modal (`renderConfigModal()`, ⚙-Button im Header)
 
-### Ansicht 7: Druckansicht (@media print)
+Ein Modal mit internen Tabs (`switchConfigTab()`): **Bewertungsmodell** ·
+**Strategic Buckets** · **Export & Backup**. Inline-Bearbeiten (Kriterium/Bucket
+hinzufügen, editieren, löschen; Sperr-Toggle) aktualisiert nur den Modal-Inhalt
+(`refreshConfigModal()`) — das Modal bleibt beim Speichern offen, damit man mehrere
+Kriterien/Buckets nacheinander pflegen kann.
 
-Separates Layout, aktiviert via `window.print()`:
+### Bestätigungs-Dialog & Leitfaden
+
+`showConfirm()` (Löschen-Bestätigungen) und `openGuide()` (Workflow-Leitfaden) sind
+eigene `.overlay`-Divs, unabhängig vom Projekt-/Konfigurations-Modal. Sie können auch
+*über* einem bereits offenen Modal erscheinen (z. B. „Projekt löschen" aus dem
+Detail-Modal heraus) — Escape schließt in der Reihenfolge Bestätigung → Modal → Leitfaden.
+
+### Druckansicht (@media print)
+
+`openPrintView()` schließt zuerst ein offenes Modal (`closeModal()`) und ruft dann
+`window.print()`. Die Print-CSS blendet zusätzlich `.overlay` global aus (falls doch
+ein Modal offen bleibt), sodass immer die Hauptseite gedruckt wird:
 - Deckblatt-Zeile: Titel, Export-Datum, Bucket-Zielaufteilung
 - Kapazitäts-Übersicht (Soll vs. Ist je Bucket)
-- Ranking je Bucket
+- Bucket-Kacheln + Alle-Projekte-Tabelle
 
 ---
 
 ## Datenfluss — Haupt-Use-Case "Projekt bewerten"
 
 ```
-1. Nutzer öffnet Projekt-Detail
-2. Klickt "Neue Bewertungsrunde"
-3. Formular zeigt alle aktiven Kriterien (aus vector_criteria)
-4. Nutzer gibt Scores (1-5) und Aufwand (1-5) ein
-5. Live-Berechnung: calculateValueScore() + calculateWSJF()
-6. Nutzer klickt "Speichern"
-7. Neue ScoringRound wird zu project.rounds gepusht
-8. saveState() → localStorage.setItem('vector_projects', JSON.stringify(...))
-9. render() aktualisiert Dashboard + Trend-Anzeige
+1. Nutzer klickt ein Projekt (Bucket-Kachel oder Alle-Projekte-Tabelle) → openDetail(id)
+2. Projekt-Modal öffnet in der Detail-Ansicht
+3. Klick "Neue Bewertung" → enterScoring() wechselt den Modal-Inhalt (kein Reload)
+4. Formular zeigt alle aktiven Kriterien (aus vector_criteria)
+5. Nutzer gibt Scores (1-5) und Aufwand (1-5) ein
+6. Live-Berechnung: calculateValueScore() + calculateWSJF()
+7. Nutzer klickt "Speichern" (saveScoringRound)
+8. Neue ScoringRound wird zu project.rounds gepusht, saveData() persistiert
+9. Modal springt zurück zur Detail-Ansicht (refreshProjectModal), Hauptseite
+   aktualisiert im Hintergrund (render()) — Bucket-Kachel/Tabelle zeigen sofort
+   den neuen Trend, ohne dass das Modal geschlossen werden muss
 ```
 
 ---

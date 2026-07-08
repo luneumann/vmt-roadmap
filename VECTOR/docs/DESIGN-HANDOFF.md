@@ -50,184 +50,114 @@ Salbe/Terracotta-Palette, custom geometrische Daten-Viz. System-Fonts, keine Web
 
 ## Screens und Zustände
 
-### Screen 1 — Dashboard: Bucket-Ansicht (Default-Startseite)
+### Screen 1 — Hauptseite (Single Page, immer sichtbar)
 
-**Zweck:** Kapazitätsüberblick nach strategischen Kategorien. Raphael-Ansicht.
+**Zweck:** Alles auf einer Seite — Kapazität, Buckets und Projekte gleichzeitig im Blick,
+keine Seiten-Tabs mehr. `renderPage()` baut diese eine Ansicht; sie ist die einzige
+„Seite" der App. Details/Bewertung/Konfiguration öffnen als Pop-up (Screen 2/3).
 
-**Layout:**
-- Filter-Leiste oben: Toggle Bucket/Ranking, Status-Dropdown, Bucket-Dropdown, CSV-Export, Drucken
-- **Kapazitäts-Übersicht** (nur bei Filter „Alle Buckets"): Reihe von **Töpfen** (SVG-Eimer, `buildPot`) je Bucket + **Donut** (`buildDonut`) mit Projektverteilung
-- Je Bucket: Header-Karte (Titel, Ziel%, Anzahl Projekte, Ist%) + Kapazitätsbalken + Projekttabelle
+**Layout, von oben nach unten:**
+- Sticky Header: Anker-Buttons `Kapazität` / `Buckets` / `Alle Projekte` (Scroll, keine
+  Seitenwechsel) + `Leitfaden` + `⚙ Konfiguration` (öffnet Screen 3) + `+ Neues Projekt`
+  (öffnet Screen 2 im Form-Modus)
+- Quartals-Leiste (Pills: Alle / Q3 2026 / Q4 2026 …)
+- Filter-Leiste: Status-Dropdown, Bucket-Dropdown, CSV-Export, Drucken — wirkt auf
+  Kapazitäts-Übersicht, Bucket-Kacheln **und** Alle-Projekte-Tabelle gemeinsam
+- `#capacity-tile`: **Kapazitäts-Übersicht** (nur wenn Bucket-Filter = „Alle"): Reihe von
+  **Töpfen** (SVG, `buildPot`) je Bucket + **Donut** (`buildDonut`) mit Projektverteilung
+- `#buckets-tile`: **Bucket-Grid** — CSS-Grid-Kacheln (`grid-template-columns:
+  repeat(auto-fit, minmax(420px,1fr))`), responsive nebeneinander auf Desktop-Breite,
+  gestapelt auf schmalen Fenstern. Je Kachel: Titel, Ziel%, Anzahl Projekte,
+  Kapazitätsbalken, Projekttabelle. Ist nur ein Bucket gefiltert, erscheint nur diese
+  eine Kachel.
+- `#all-projects-tile`: **Alle Projekte** — eine sortierbare Tabelle über alle
+  gefilterten Buckets hinweg (ersetzt die frühere separate „Projekte"-Seite)
 
 **Kapazitäts-Übersicht (Töpfe + Donut):**
-- **Topf je Bucket:** flaches **2D**-Behälter-Symbol (leicht konisch, ohne 3D-Rand/Henkel); Füllstand = Ist-**Kapazitäts**anteil (aufwandsgewichtet, s.u.); gestrichelte Linie = Ziel-Anteil. Farbe: Bucket-Farbe wenn im Ziel, Koralle wenn überallokiert, Grau wenn unterallokiert.
+- **Topf je Bucket:** flaches **2D**-Behälter-Symbol (leicht konisch, ohne 3D-Rand/Henkel); Füllstand = Ist-**Kapazitäts**anteil (aufwandsgewichtet); gestrichelte Linie = Ziel-Anteil. Farbe: Bucket-Farbe wenn im Ziel, Koralle wenn überallokiert, Grau wenn unterallokiert.
 - **Donut:** Segmente je Bucket (Projektanzahl), Bucket-Farben, Zentrum = Gesamtzahl aktiver Projekte. Legende mit Anzahl + %-Anteil.
-- Responsive: Töpfe umbrechen bei schmaler Breite; Trenner zwischen Töpfen und Donut wird ausgeblendet.
 - Beispieldaten via `loadExampleData()` (3 Buckets, 6 Projekte) — Buttons im Onboarding und in Konfiguration → Export.
 
+**Klick auf ein Projekt** (in Bucket-Kachel oder Alle-Projekte-Tabelle, Button „Öffnen"):
+öffnet Screen 2 (Projekt-Modal) in der Detail-Ansicht — `openDetail(id)`.
+
 **States:**
 | State | Beschreibung |
 |---|---|
-| Leer (kein Projekt) | Placeholder-Text "Keine Projekte in diesem Bucket" |
-| Laden | Keine Ladezeit (synchrones localStorage) |
-| Mit Projekten | Tabelle mit Rang, Name, Typ, Wert-Score, Aufwand, WSJF, Trend, Status |
-| Filter aktiv | Tabelle filtert entsprechend, Bucket-Stats bleiben immer auf aktiven Projekten |
+| Keine Projekte | `renderOnboarding()` ersetzt die gesamte Hauptseite (Willkommens-Karte, 6 Leitfaden-Schritte) |
+| Leerer Bucket | Placeholder-Text "Keine Projekte in diesem Bucket" innerhalb der Kachel |
+| Mit Projekten | Kachel-Tabelle: Rang, Name, Typ, Wert-Score, Aufwand, WSJF, Trend, Status |
+| Filter aktiv | Kacheln + Alle-Projekte-Tabelle filtern synchron, Bucket-Stats bleiben immer auf aktiven Projekten (+ Quartal) |
 
 **Kapazitätsbalken:**
-- Grün (`--c-success`): Ist-Anteil ≤ Ziel + 5%
-- Rot (`--c-danger`): Ist-Anteil > Ziel + 5% → Label "⚠ Überallokiert"
-- Grau: Ist-Anteil < Ziel - 5% → Label "○ Unterallokiert"
+- Grün: Ist-Anteil ≤ Ziel + 5%
+- Rot (Koralle): Ist-Anteil > Ziel + 5% → Label "Überallokiert"
+- Grau: Ist-Anteil < Ziel - 5% → Label "Unterallokiert"
 
 ---
 
-### Screen 2 — Dashboard: Gesamtranking
+### Screen 2 — Pop-up: Projekt-Modal (Detail · Bewertung · Formular)
 
-**Zweck:** Übergreifende Sortierbarkeit aller Projekte.
+**Zweck:** Ein einziges Overlay-Modal für alles, was zu einem Projekt gehört. Kein
+Seitenwechsel — `state.ui.projectModalView` (`detail | scoring | form`) bestimmt den
+Inhalt; Wechsel zwischen den dreien passiert per `refreshProjectModal()` (Inhalt
+austauschen, Overlay bleibt bestehen).
 
-**Layout:** Eine flache Tabelle. Zusätzliche Spalten: Bucket (farbiger Chip), Letzte Bewertung (Datum).
-
-**Sortierung:** Per Klick auf Spaltenköpfe (Wert-Score, WSJF, Letzte Bewertung). Standard: WSJF absteigend.
-
----
-
-### Screen 3 — Projekte: Liste
-
-**Zweck:** Projektverwaltung.
-
-**Layout:** Header mit "+ Neues Projekt" Button, darunter Card mit Tabelle.
-
-**Spalten:** Name + Beschreibung | Bucket (Chip) | Typ | Wert-Score | WSJF | Runden | Status | Aktionen
-
-**Aktionen je Zeile:** "Detail" Button, Edit-Icon (✎), Delete-Icon (🗑)
-
-**Empty State:** Folder-Emoji, Text, "Erstes Projekt anlegen" Button
-
----
-
-### Screen 4 — Projekt: Formular (Anlegen / Bearbeiten)
-
-**Zweck:** Grunddaten eines Projekts erfassen.
-
-**Layout:** Back-Link + Titel, dann Card mit Form.
-
-**Felder:**
-- Name (Text, Pflicht)
-- Kurzbeschreibung (Textarea)
-- Typ (Select: RTI-Produkt / Turn-Key / Feature)
-- Bucket (Select, Pflicht)
-- Status (Select: aktiv / zurückgestellt / abgeschlossen)
-
-**States:**
-| State | Beschreibung |
-|---|---|
-| Neu | Alle Felder leer, Status = aktiv |
-| Bearbeiten | Felder vorausgefüllt |
-| Validierungsfehler | Browser-native Validation (required) |
-
----
-
-### Screen 5 — Projekt: Detail-Ansicht
-
-**Zweck:** Score-Übersicht, Verlauf, Runden-Tabelle.
-
-**Layout:**
+**detail (Standard beim Öffnen, `openDetail(id)`):**
 ```
-[← Zurück] Projektname   [Bucket-Chip] [Status-Badge]   [Bearbeiten] [+ Neue Bewertung]
+[Name] [Quartal-Badge] [Bucket-Chip] [Status-Badge]      [Bearbeiten][+Neue Bewertung][🗑][✕]
 Beschreibung
 
-Score-Summary-Box (4 Kacheln):
-  Wert-Score | Aufwand | WSJF-Score | Trend
+Score-Summary-Box (4 Kacheln): Wert-Score | Aufwand | WSJF-Score | Trend
 
 Card: Score-Verlauf
-  → ab 2 Runden: custom Inline-SVG Liniendiagramm (Wert-Score sage + WSJF terra, 2 Linien, 0–100-Skala)
+  → ab 2 Runden: custom Inline-SVG Liniendiagramm (Wert-Score teal + WSJF blau)
   → < 2 Runden: Hinweistext
 
 Card: Bewertungsrunden (N)
   Tabelle: Datum | [Kriterium 1..n] | Aufwand | Wert-Score | WSJF
-  Neueste Runde hervorgehoben (hellblauer Hintergrund)
+  Neueste Runde hervorgehoben
 ```
+Trend-Darstellung: ↑ grün (WSJF > +1 vs. Vorperiode) · ↓ rot (< −1) · → grau (stabil) · — grau (nur 1 Runde).
 
-**Trend-Darstellung:**
-- ↑ grün: WSJF um > 1 gestiegen vs. Vorperiode
-- ↓ rot: WSJF um > 1 gefallen
-- → grau: Stabil (< 1 Differenz)
-- — grau: Nur eine Runde vorhanden
+**scoring (`enterScoring()`, aus der Detail-Ansicht):** Kriterien-Schieberegler (1–5)
++ **Aufwand-Regler** (Divisor) mit Live-Vorschau (Wert-Score/Aufwand/WSJF). **Das ist die
+Stelle, an der die benötigte Entwicklungskapazität eines Projekts eingetragen wird** —
+der Aufwand-Regler bestimmt sowohl WSJF als auch den Kapazitätsanteil im zugehörigen
+Bucket-Topf. Speichern (`saveScoringRound`) kehrt automatisch zur `detail`-Ansicht
+zurück; „Abbrechen"/Zurück-Pfeil ebenso, X schließt das ganze Modal.
 
----
+**form (`openProjectForm(id)`, aus Detail „Bearbeiten" oder Header „+ Neues Projekt"):**
+Name (Pflicht), Kurzbeschreibung, Typ, Bucket (Pflicht), Status, **Quartal**. Nach
+Speichern öffnet automatisch die `detail`-Ansicht desselben (neuen oder bearbeiteten)
+Projekts. „Abbrechen" bei bestehendem Projekt → zurück zu `detail`; bei neuem Projekt →
+Modal schließt ganz.
 
-### Screen 6 — Projekt: Neue Bewertungsrunde
-
-**Zweck:** Kriterien bewerten, Aufwand eintragen, live WSJF sehen.
-
-**Layout:**
-```
-[← Zurück] Neue Bewertung: [Projektname]
-
-Info-Box: Erklärung zweistufiges Scoring
-
-Live-Score-Box (3 Kacheln):
-  Wert-Score | Aufwand | WSJF-Score
-  (aktualisieren live beim Bewegen der Schieberegler)
-
-Datum-Feld
-
-STUFE 1 — WERT-KRITERIEN
-  [Criterion Row] × N:
-    Links: Name + Beschreibung + Gewicht (% normiert)
-    Rechts: Große Zahl (aktueller Slider-Wert) + Range-Slider 1–5 + Labels
-
-STUFE 2 — AUFWAND (DIVISOR)
-  [Criterion Row]:
-    Links: "Aufwand" + Erklärung
-    Rechts: Zahl + Range-Slider 1–5 + Aufwand-Labels (<1W / 1–4W / 1–2M / 2–4M / >4M)
-
-Notiz-Textarea
-
-[Bewertung speichern] [Abbrechen]
-```
-
-**Validierung:** Alle Kriterien müssen bewertet sein (Slider bewegt = Wert gesetzt). Aufwand Pflicht. Browser-Alert bei fehlendem Aufwand.
+**Löschen:** Icon-Button im Detail-Kopf → Bestätigungsdialog (Screen: eigenständiges
+`.overlay`, über dem Projekt-Modal) → schließt bei Bestätigung das ganze Modal.
 
 ---
 
-### Screen 7 — Konfiguration: Bewertungsmodell
+### Screen 3 — Pop-up: Konfigurations-Modal
 
-**Zweck:** Kriterien anlegen, bearbeiten, löschen.
+**Zweck:** Kriterien, Buckets und Export/Backup in einem Overlay, per interne Tabs
+erreichbar (⚙-Button im Header, `openConfig(tab)`). Tab-Wechsel und Inline-Edits
+(Kriterium/Bucket hinzufügen/bearbeiten/löschen, Sperr-Toggle) laufen über
+`refreshConfigModal()` — das Modal bleibt offen, damit mehrere Einträge nacheinander
+gepflegt werden können.
 
-**Layout:** Card mit "Info über Gewichte" + Kriterien-Liste + Inline-Edit-Formular.
+**Tab „Bewertungsmodell":** Info-Box zu Gewichten + Kriterien-Liste + Inline-Edit-Formular.
+Kriterium-Row: Name | Beschreibung | Gewicht (Zahl + % normiert) | Edit | Delete.
+Gewichts-Balken visualisiert den normierten Anteil. Legacy-Kriterien: ausgegraut, ohne
+Edit/Delete, Badge „Legacy".
 
-**Kriterium-Row:** Name | Beschreibung | Gewicht (Zahl + % normiert) | Edit | Delete
-**Gewichts-Balken:** Horizontaler Balken der den normierten Anteil visualisiert.
+**Tab „Strategic Buckets":** Validierungsanzeige (Summe = 100%) + Bucket-Liste +
+Inline-Edit-Formular (Name, Zielanteil %, Farbe). Bucket-Row: farbiger Rand links |
+Name + Zielanteil-Chip + Kapazitätsbalken | Edit | Delete. Raphael-Modus (Checkbox
+„Aufteilung gesperrt"): gesperrt blendet Edit/Delete/„+ Bucket" aus.
 
-**Legacy-Kriterien:** Ausgegraut, ohne Edit/Delete-Buttons, Badge "Legacy".
-
-**Summe:** Info-Box zeigt Summe der aktiven Gewichte (Rohwerte).
-
----
-
-### Screen 8 — Konfiguration: Strategic Buckets
-
-**Zweck:** Buckets anlegen, Zielanteile setzen, Raphael-Modus.
-
-**Layout:** Card mit Validierungsanzeige (Summe = 100%) + Bucket-Liste + Inline-Edit-Formular.
-
-**Bucket-Row:** Farbiger Balken links | Name + Zielanteil-Chip + Kapazitätsbalken | Edit | Delete
-
-**Raphael-Modus (Checkbox "Aufteilung gesperrt"):**
-- Gesperrt: Edit/Delete-Buttons ausgeblendet, "+ Bucket" ausgeblendet
-- Entsperrt: Alle Aktionen sichtbar
-
----
-
-### Screen 9 — Konfiguration: Export & Backup
-
-**Zweck:** Daten exportieren und sichern.
-
-**Aktionen:**
-- CSV exportieren (aktive Projekte, letzte Runde)
-- Druckansicht öffnen
-- JSON-Backup erstellen (vollständige Datenbasis)
-- Backup wiederherstellen (File-Input)
+**Tab „Export & Backup":** CSV exportieren, Druckansicht öffnen, JSON-Backup erstellen,
+Backup wiederherstellen (File-Input), Beispieldaten laden, Alle Daten löschen.
 
 ---
 
@@ -236,11 +166,14 @@ Notiz-Textarea
 **Zweck:** Management-Report für Meetings.
 
 **Layout (DIN A4 Querformat):**
-- Deckzeile: "VECTOR — Projektpriorisierung" | Datum | Bucket-Zielaufteilung
-- Bucket-Header je Bucket (Soll / Ist)
-- Projekttabellen je Bucket (nach WSJF sortiert)
+- Deckzeile: "VECTOR — Projektpriorisierung" | Quartal | Datum | Bucket-Zielaufteilung
+- Kapazitäts-Übersicht (Soll vs. Ist je Bucket)
+- Bucket-Kacheln + Alle-Projekte-Tabelle (nach WSJF sortiert)
 
-**Versteckt im Druck:** Navigation, Filter-Leiste, alle Buttons.
+**Versteckt im Druck:** Header/Anker-Nav, Filter-Leiste, alle Buttons, **jedes offene
+Pop-up-Modal** (`.overlay` global ausgeblendet — `openPrintView()` schließt zusätzlich
+aktiv jedes offene Modal, bevor `window.print()` aufgerufen wird, damit garantiert die
+Hauptseite gedruckt wird).
 
 ---
 
@@ -249,19 +182,19 @@ Notiz-Textarea
 **Zweck:** Den Arbeitsablauf direkt im Tool sichtbar machen, damit klar ist *wie* man VECTOR benutzt.
 
 **Zugang:**
-- **Header-Button „Leitfaden"** — jederzeit erreichbar, öffnet den Guide als Overlay
+- **Header-Button „Leitfaden"** — jederzeit erreichbar, öffnet den Guide als Overlay (unabhängig vom Projekt-/Konfigurations-Modal, kann auch darüber erscheinen)
 - **Auto-Öffnen** beim allerersten Start (kein `vector_guide_seen`-Flag und keine Projekte)
-- **Onboarding-Startansicht** — ist das Dashboard leer (keine Projekte), erscheint statt der Bucket-Ansicht eine Willkommens-Karte mit denselben 6 Schritten und direkten Aktions-Buttons
+- **Onboarding-Startansicht** — ist die Hauptseite leer (keine Projekte), ersetzt `renderOnboarding()` die Kapazitäts-/Bucket-/Projekt-Bereiche komplett durch eine Willkommens-Karte mit denselben 6 Schritten und direkten Aktions-Buttons
 
 **Guide-Inhalt (6 Schritte, Quelle: `GUIDE_STEPS`):**
-- Phase „Einrichten": (1) Kapazität auf Buckets aufteilen, (2) Kriterien prüfen
-- Phase „Laufender Betrieb": (3) Projekte anlegen, (4) bewerten, (5) priorisieren & Kapazität prüfen, (6) aktuell halten & exportieren
-- Jeder Schritt hat einen Aktions-Link, der den Guide schließt und zur passenden Stelle navigiert
+- Phase „Einrichten": (1) Kapazität auf Buckets aufteilen → öffnet Konfigurations-Modal (Tab Buckets), (2) Kriterien prüfen → Konfigurations-Modal (Tab Bewertungsmodell)
+- Phase „Laufender Betrieb": (3) Projekte anlegen → Projekt-Modal (Formular), (4) bewerten → scrollt zur Alle-Projekte-Kachel, (5) priorisieren & Kapazität prüfen → scrollt zur Kapazitäts-Übersicht, (6) aktuell halten & exportieren → Konfigurations-Modal (Tab Export)
+- Jeder Schritt hat einen Aktions-Link (`step-action`), der den Guide schließt und die passende Aktion ausführt (Modal öffnen oder `scrollToSection()`)
 - Abschluss-Hinweis: Schritte 3–6 sind der laufende Kreislauf, Schritt 1 seltener (pro Planungszyklus)
 
-**Kontextzeilen (`.page-sub`):** Jede Hauptseite (Dashboard, Projekte, Konfiguration/Tabs) trägt unter dem Titel eine kurze Zeile, die ihren Zweck im Workflow erklärt.
+**Kontextzeile (`.page-sub`):** Die Hauptseite trägt unter der Quartals-Leiste eine kurze Zeile, die das Kernprinzip (Bucket vor WSJF) erklärt.
 
-**States:** Overlay offen/geschlossen; Klick auf Backdrop schließt. Onboarding erscheint nur bei 0 Projekten.
+**States:** Guide-Overlay, Projekt-/Konfigurations-Modal und Bestätigungsdialog sind unabhängige `.overlay`-Ebenen und können gestapelt erscheinen. Escape schließt in der Reihenfolge Bestätigung → Modal → Leitfaden. Onboarding erscheint nur bei 0 Projekten.
 
 ---
 
@@ -269,20 +202,23 @@ Notiz-Textarea
 
 | Komponente | CSS-Klasse(n) | Variants |
 |---|---|---|
-| Button | `.btn` | `.btn-primary`, `.btn-secondary`, `.btn-danger`, `.btn-sm` |
-| Icon-Button | `.btn-icon` | `.danger` |
-| Badge | `.badge` | `.badge-aktiv`, `.badge-zurückgestellt`, `.badge-abgeschlossen` |
-| Bucket-Chip | `.bucket-chip` | Farbe inline über `style` |
-| Score-Wert | `.score-value` | `.high` (grün), `.mid` (gelb), `.low` (rot) |
-| WSJF-Score | `.wsjf-score` | — (immer primärblau) |
-| Trend | `.trend-up`, `.trend-down`, `.trend-stable` | — |
-| Kapazitätsbalken | `.capacity-bar-fill` | `.ok`, `.over`, `.under` |
-| Card | `.card` | + `.card-header`, `.card-body`, `.card-title` |
-| Toggle-Gruppe | `.toggle-group` | — |
-| Info-Box | `.info-box` | — (blau) |
-| Warn-Box | `.warn-box` | — (gelb) |
+| Button | `.btn` | `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.btn-sm` |
+| Icon-Button | `.icon-btn` | `.danger` |
+| Badge | `.badge` | `.badge-aktiv`, `.badge-zurückgestellt`, `.badge-abgeschlossen`, `.badge-type` |
+| Chip (Bucket/Quartal) | `.chip` | Farbe inline über `style` |
+| Score-Wert | `.score` | `.high` (grün), `.mid` (ocker), `.low` (koralle) |
+| WSJF-Score | `.wsjf` | — |
+| Trend | `.trend` | `.up`, `.down`, `.flat` |
+| Kapazitätsbalken | `.cap-fill` | Farbe inline (ok/über/unter) |
+| Card | `.card` | + `.card-pad`, `.card-head` |
+| **Pop-up-Modal** | `.overlay` + `.modal` | `.modal-md` (640px), `.modal-lg` (880px); Kopf/Körper reusen `.guide-head` / `.guide-body` |
+| Quartals-Pill | `.qpill` | `.active` |
+| Bucket-Grid | `.bucket-grid` | responsive `auto-fit` Kacheln |
+| Info-Box | `.note-box` | — (blau) |
+| Warn-Box | `.warn-box` | — (ocker) |
+| OK-Box | `.ok-box` | — (teal) |
 | Toast | `#toast` | Klasse `.show` |
-| Empty State | `.empty-state` | — |
+| Empty State | `.empty` | — |
 
 ---
 

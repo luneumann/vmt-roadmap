@@ -101,3 +101,42 @@
 **Begründung:** Konsistent mit ADR-001/004 darf nichts extern geladen werden (geheime Daten, offline). Web-Fonts wären ein externer Request und damit unzulässig. System-Fonts sehen auf den Zielplattformen (macOS/Windows, Chrome/Edge) hochwertig aus. Das reduzierte, „Produkt-Design"-orientierte Erscheinungsbild wurde explizit gegenüber dem ursprünglichen Enterprise-SaaS-Look gewählt.
 
 **Konsequenzen:** Das exakte Schriftbild variiert leicht zwischen Betriebssystemen — für ein internes Desktop-Tool unkritisch. Farben sind als CSS-Custom-Properties (`:root`) zentralisiert und damit leicht anpassbar.
+
+---
+
+## ADR-009: Single-Page-Architektur mit Pop-up-Modals (statt Seiten-Tabs)
+
+**Entscheidung:** Die ursprüngliche Drei-Tab-Navigation (Dashboard / Projekte /
+Konfiguration) wurde durch eine **einzige Hauptseite** ersetzt, die Kapazitäts-Übersicht,
+Bucket-Kacheln (CSS-Grid) und eine „Alle Projekte"-Tabelle permanent untereinander
+anzeigt (`renderPage()`). Projekt-Details/-Bewertung und Konfiguration öffnen als
+**Pop-up-Modal** (`openModal()`/`closeModal()`, generisches `#app-modal`-Overlay) statt
+als eigene Seite.
+
+**Begründung:** Mit drei Tabs war die Kapazitätsübersicht nie gleichzeitig mit der
+Projektliste sichtbar — Nutzer verloren beim Wechseln zwischen Dashboard und Projekte
+die Übersicht über den Gesamtzustand. Da VECTOR ohnehin Desktop-only ist (viel
+Bildschirmbreite verfügbar), können Kapazität, Buckets und Projekte permanent
+nebeneinander/untereinander stehen; nur Aktionen mit Formular-Charakter (Projekt
+anlegen/bearbeiten/bewerten, Kriterien/Buckets/Export konfigurieren) verdienen ein
+fokussiertes Overlay.
+
+**Alternativen:**
+- Drei Tabs beibehalten, nur visuell aufpolieren: verworfen — löst das
+  Kern-Problem (fehlende Übersicht) nicht
+- Alles inline auf einer Seite ohne Modals (Formulare direkt im Fluss): verworfen —
+  bei > 10 Projekten würde die Seite unübersichtlich lang und Bearbeiten würde den
+  Scroll-Kontext zerstören
+
+**Konsequenzen:**
+- Ein generisches Modal-System (`openModal`/`closeModal`/`refreshProjectModal`/
+  `refreshConfigModal`) ersetzt die frühere Tab-Zustandsmaschine
+  (`state.ui.activeTab`, `dashboardView`, `projectSubTab` entfallen zugunsten von
+  `projectModalView` ∈ `detail|scoring|form` und `configTab`)
+- Mutierende Aktionen (Speichern, Löschen, Beispieldaten) rufen konsequent `render()`
+  auf, damit die Hauptseite unter einem offenen Modal immer aktuell bleibt, auch ohne
+  das Modal zu schließen
+- Print-CSS blendet `.overlay` global aus; `openPrintView()` schließt zusätzlich aktiv
+  jedes offene Modal vor `window.print()`
+- Header-Anker-Buttons (`scrollToSection()`) ersetzen die Tab-Navigation für
+  Innerhalb-der-Seite-Sprünge
